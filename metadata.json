@@ -1,0 +1,6 @@
+{
+  "name": "Apllie Job Applying Bot & Career Copilot",
+  "description": "Smart job discovery, candidate profile verification, requirement matching with hard-gate analysis, custom question auto-fill, and application review dashboard.",
+  "permissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
