@@ -34,6 +34,7 @@ __all__ = [
     "JobSearchSettings",
     "SafetySettings",
     "LoggingSettings",
+    "ApiSettings",
     "AssistantSettings",
     "load_settings",
 ]
@@ -339,6 +340,58 @@ class LoggingSettings(_Base):
 
 
 # --------------------------------------------------------------------------
+# API
+# --------------------------------------------------------------------------
+class ApiSettings(_Base):
+    """Local-first HTTP surface settings for the FastAPI boundary.
+
+    The bind address defaults to loopback. Exposing this service on a network
+    interface is a deliberate act (``host="0.0.0.0"``), never an accident, and
+    CORS origins are listed explicitly because a wildcard plus credentials
+    would let any page drive the assistant.
+    """
+
+    host: str = "127.0.0.1"
+    port: int = Field(default=8000, ge=1, le=65535)
+    cors_origins: list[str] = Field(
+        default_factory=lambda: [
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+        ],
+    )
+    cors_allow_credentials: bool = False
+    cors_allow_methods: list[str] = Field(default_factory=lambda: ["GET", "POST", "OPTIONS"])
+    cors_allow_headers: list[str] = Field(default_factory=lambda: ["Content-Type", "Accept"])
+    docs_enabled: bool = True
+
+    @field_validator("cors_origins", "cors_allow_methods", "cors_allow_headers", mode="before")
+    @classmethod
+    def _split_csv(cls, value: Any) -> Any:
+        """Accept a JSON list or a comma-separated list from the environment.
+
+        ``pydantic-settings`` parses a complex field from a JSON document, which
+        makes a plain ``ASSISTANT_API__CORS_ORIGINS=a,b`` silently fail. Both
+        spellings are common in ``.env`` files, so both are accepted.
+        """
+        if isinstance(value, str):
+            text = value.strip()
+            if not text:
+                return []
+            if text.startswith("["):
+                return value
+            return [item.strip() for item in text.split(",") if item.strip()]
+        return value
+
+    @field_validator("host")
+    @classmethod
+    def _require_host(cls, value: str) -> str:
+        cleaned = (value or "").strip()
+        if not cleaned:
+            raise ValueError("api host must not be empty")
+        return cleaned
+
+
+# --------------------------------------------------------------------------
 # Root
 # --------------------------------------------------------------------------
 class AssistantSettings(BaseSettings):
@@ -371,6 +424,7 @@ class AssistantSettings(BaseSettings):
     extraction: ExtractionSettings = Field(default_factory=ExtractionSettings)
     safety: SafetySettings = Field(default_factory=SafetySettings)
     logging: LoggingSettings = Field(default_factory=LoggingSettings)
+    api: ApiSettings = Field(default_factory=ApiSettings)
 
     # Legacy aliases. Present so the assistant and the old bot cannot
     # disagree about dry-run status. Each accepts both the namespaced form and
@@ -480,6 +534,13 @@ class AssistantSettings(BaseSettings):
                 "allow_final_submission": self.safety.allow_final_submission,
             },
             "logging": {"level": self.logging.level, "format": self.logging.format},
+            "api": {
+                "host": self.api.host,
+                "port": self.api.port,
+                "cors_origins": list(self.api.cors_origins),
+                "cors_allow_credentials": self.api.cors_allow_credentials,
+                "docs_enabled": self.api.docs_enabled,
+            },
             "credentials": {
                 "linkedin_username_present": bool(self.linkedin_username),
                 "linkedin_password_present": bool(
