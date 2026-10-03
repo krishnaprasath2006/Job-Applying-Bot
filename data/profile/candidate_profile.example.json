@@ -1,0 +1,551 @@
+{
+  "schema_version": "phase2-v1",
+  "id": "profile-example-50d858e0",
+  "candidate_id": "example",
+  "version": 1,
+  "identity": {
+    "section_path": "identity",
+    "full_name": {
+      "field_path": "identity.full_name",
+      "value": "SYNTHETIC EXAMPLE NAME",
+      "status": "VERIFIED",
+      "source": "USER_INPUT",
+      "source_id": "example-session",
+      "source_location": "manual entry",
+      "confidence": 1.0,
+      "verified_at": "2026-09-30T05:40:55.115359Z",
+      "evidence": [
+        {
+          "source_type": "USER_INPUT",
+          "source_id": "example-session",
+          "source_location": "manual entry",
+          "text_excerpt": "SYNTHETIC EXAMPLE",
+          "confidence": 1.0,
+          "created_at": "2026-09-30T05:40:55.114355Z"
+        }
+      ]
+    },
+    "preferred_name": {
+      "field_path": "identity.preferred_name",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "pronouns": {
+      "field_path": "identity.pronouns",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "date_of_birth": {
+      "field_path": "identity.date_of_birth",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "nationality": {
+      "field_path": "identity.nationality",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "headline": {
+      "field_path": "identity.headline",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "summary": {
+      "field_path": "identity.summary",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    }
+  },
+  "contact": {
+    "section_path": "contact",
+    "email": {
+      "field_path": "contact.email",
+      "value": "synthetic.example@example.invalid",
+      "status": "VERIFIED",
+      "source": "USER_INPUT",
+      "source_id": "example-session",
+      "source_location": "manual entry",
+      "confidence": 1.0,
+      "verified_at": "2026-09-30T05:40:55.116550Z",
+      "evidence": [
+        {
+          "source_type": "USER_INPUT",
+          "source_id": "example-session",
+          "source_location": "manual entry",
+          "text_excerpt": "SYNTHETIC EXAMPLE",
+          "confidence": 1.0,
+          "created_at": "2026-09-30T05:40:55.115359Z"
+        }
+      ]
+    },
+    "phone": {
+      "field_path": "contact.phone",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "linkedin_url": {
+      "field_path": "contact.linkedin_url",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "website": {
+      "field_path": "contact.website",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    }
+  },
+  "location": {
+    "section_path": "location",
+    "current_city": {
+      "field_path": "location.current_city",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "current_state": {
+      "field_path": "location.current_state",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "current_country": {
+      "field_path": "location.current_country",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "postal_code": {
+      "field_path": "location.postal_code",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "willing_to_relocate": {
+      "field_path": "location.willing_to_relocate",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "preferred_locations": {
+      "field_path": "location.preferred_locations",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "timezone": {
+      "field_path": "location.timezone",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    }
+  },
+  "education": {
+    "section_path": "education",
+    "entries": [],
+    "highest_level": {
+      "field_path": "education.highest_level",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    }
+  },
+  "experience": {
+    "section_path": "experience",
+    "entries": [],
+    "total_years_experience": {
+      "field_path": "experience.total_years_experience",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "years_of_experience_verified": {
+      "field_path": "experience.years_of_experience_verified",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    }
+  },
+  "skills": {
+    "section_path": "skills",
+    "proficient": {
+      "field_path": "skills.proficient",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "expert": {
+      "field_path": "skills.expert",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "familiar": {
+      "field_path": "skills.familiar",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "languages": {
+      "field_path": "skills.languages",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "tools": {
+      "field_path": "skills.tools",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    }
+  },
+  "projects": {
+    "section_path": "projects",
+    "entries": []
+  },
+  "certifications": {
+    "section_path": "certifications",
+    "entries": []
+  },
+  "links": {
+    "section_path": "links",
+    "entries": []
+  },
+  "preferences": {
+    "section_path": "preferences",
+    "desired_roles": {
+      "field_path": "preferences.desired_roles",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "desired_locations": {
+      "field_path": "preferences.desired_locations",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "remote_preference": {
+      "field_path": "preferences.remote_preference",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "minimum_salary": {
+      "field_path": "preferences.minimum_salary",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "maximum_salary": {
+      "field_path": "preferences.maximum_salary",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "willing_to_relocate": {
+      "field_path": "preferences.willing_to_relocate",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "notice_period": {
+      "field_path": "preferences.notice_period",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "willing_to_travel": {
+      "field_path": "preferences.willing_to_travel",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    }
+  },
+  "authorization": {
+    "section_path": "authorization",
+    "requires_sponsorship": {
+      "field_path": "authorization.requires_sponsorship",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "authorized_countries": {
+      "field_path": "authorization.authorized_countries",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "visa_status": {
+      "field_path": "authorization.visa_status",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "sponsorship_available": {
+      "field_path": "authorization.sponsorship_available",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "security_clearance": {
+      "field_path": "authorization.security_clearance",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    }
+  },
+  "availability": {
+    "section_path": "availability",
+    "available_from": {
+      "field_path": "availability.available_from",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "notice_period_days": {
+      "field_path": "availability.notice_period_days",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "hours_per_week": {
+      "field_path": "availability.hours_per_week",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "open_to_contract": {
+      "field_path": "availability.open_to_contract",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    },
+    "open_to_part_time": {
+      "field_path": "availability.open_to_part_time",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": null,
+      "source_id": null,
+      "source_location": null,
+      "confidence": 1.0,
+      "verified_at": null,
+      "evidence": []
+    }
+  },
+  "created_at": "2026-09-30T05:40:55.113356Z",
+  "updated_at": "2026-09-30T05:40:55.113356Z"
+}

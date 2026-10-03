@@ -1,0 +1,182 @@
+{
+  "_fixture_notice": "TEST DATA ONLY - SYNTHETIC FIXTURE - NOT A REAL PERSON. Every value below is invented for automated tests. Never use in a real job application or a real candidate profile.",
+  "schema_version": "phase2-v1",
+  "candidate_id": "acceptance",
+  "purpose": "Feeds the Phase 2 acceptance run so profile storage, evidence, and validation can be exercised without any real personal data.",
+  "facts": [
+    {
+      "field_path": "identity.full_name",
+      "value": "Synthetic Test Candidate",
+      "status": "VERIFIED",
+      "source": "USER_INPUT",
+      "source_id": "tests/fixtures/synthetic_candidate.json",
+      "source_location": "facts[0]",
+      "evidence": [
+        {
+          "source_type": "USER_INPUT",
+          "source_id": "tests/fixtures/synthetic_candidate.json",
+          "source_location": "facts[0]",
+          "text_excerpt": "SYNTHETIC EVIDENCE (TEST DATA ONLY): identity.full_name = \"Synthetic Test Candidate\"",
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "field_path": "contact.email",
+      "value": "synthetic.tester@synthetic-candidate.invalid",
+      "status": "VERIFIED",
+      "source": "USER_INPUT",
+      "source_id": "tests/fixtures/synthetic_candidate.json",
+      "source_location": "facts[1]",
+      "evidence": [
+        {
+          "source_type": "USER_INPUT",
+          "source_id": "tests/fixtures/synthetic_candidate.json",
+          "source_location": "facts[1]",
+          "text_excerpt": "SYNTHETIC EVIDENCE (TEST DATA ONLY): contact.email = \"synthetic.tester@synthetic-candidate.invalid\"",
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "field_path": "contact.phone",
+      "value": "+91 00000 00000",
+      "status": "VERIFIED",
+      "source": "USER_INPUT",
+      "source_id": "tests/fixtures/synthetic_candidate.json",
+      "source_location": "facts[2]",
+      "evidence": [
+        {
+          "source_type": "USER_INPUT",
+          "source_id": "tests/fixtures/synthetic_candidate.json",
+          "source_location": "facts[2]",
+          "text_excerpt": "SYNTHETIC EVIDENCE (TEST DATA ONLY): contact.phone = \"+91 00000 00000\"",
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "field_path": "location.current_country",
+      "value": "Testland",
+      "status": "VERIFIED",
+      "source": "USER_INPUT",
+      "source_id": "tests/fixtures/synthetic_candidate.json",
+      "source_location": "facts[3]",
+      "evidence": [
+        {
+          "source_type": "USER_INPUT",
+          "source_id": "tests/fixtures/synthetic_candidate.json",
+          "source_location": "facts[3]",
+          "text_excerpt": "SYNTHETIC EVIDENCE (TEST DATA ONLY): location.current_country = \"Testland\"",
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "field_path": "location.current_city",
+      "value": "Testville",
+      "status": "VERIFIED",
+      "source": "USER_INPUT",
+      "source_id": "tests/fixtures/synthetic_candidate.json",
+      "source_location": "facts[4]",
+      "evidence": [
+        {
+          "source_type": "USER_INPUT",
+          "source_id": "tests/fixtures/synthetic_candidate.json",
+          "source_location": "facts[4]",
+          "text_excerpt": "SYNTHETIC EVIDENCE (TEST DATA ONLY): location.current_city = \"Testville\"",
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "field_path": "education.highest_level",
+      "value": "Bachelors",
+      "status": "VERIFIED",
+      "source": "RESUME",
+      "source_id": "tests/fixtures/synthetic_resume.txt",
+      "source_location": "EDUCATION",
+      "evidence": [
+        {
+          "source_type": "RESUME",
+          "source_id": "tests/fixtures/synthetic_resume.txt",
+          "source_location": "EDUCATION",
+          "text_excerpt": "SYNTHETIC EVIDENCE (TEST DATA ONLY): education.highest_level = \"Bachelors\"",
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "field_path": "experience.total_years_experience",
+      "value": 3,
+      "status": "VERIFIED",
+      "source": "RESUME",
+      "source_id": "tests/fixtures/synthetic_resume.txt",
+      "source_location": "EXPERIENCE",
+      "evidence": [
+        {
+          "source_type": "RESUME",
+          "source_id": "tests/fixtures/synthetic_resume.txt",
+          "source_location": "EXPERIENCE",
+          "text_excerpt": "SYNTHETIC EVIDENCE (TEST DATA ONLY): experience.total_years_experience = 3",
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "field_path": "skills.proficient",
+      "value": [
+        "Python",
+        "SQL",
+        "pandas"
+      ],
+      "status": "VERIFIED",
+      "source": "RESUME",
+      "source_id": "tests/fixtures/synthetic_resume.txt",
+      "source_location": "SKILLS",
+      "evidence": [
+        {
+          "source_type": "RESUME",
+          "source_id": "tests/fixtures/synthetic_resume.txt",
+          "source_location": "SKILLS",
+          "text_excerpt": "SYNTHETIC EVIDENCE (TEST DATA ONLY): skills.proficient = [\"Python\", \"SQL\", \"pandas\"]",
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "field_path": "authorization.requires_sponsorship",
+      "value": false,
+      "status": "VERIFIED",
+      "source": "USER_INPUT",
+      "source_id": "tests/fixtures/synthetic_candidate.json",
+      "source_location": "facts[8]",
+      "evidence": [
+        {
+          "source_type": "USER_INPUT",
+          "source_id": "tests/fixtures/synthetic_candidate.json",
+          "source_location": "facts[8]",
+          "text_excerpt": "SYNTHETIC EVIDENCE (TEST DATA ONLY): authorization.requires_sponsorship = false",
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "field_path": "availability.available_from",
+      "value": "2026-01-01",
+      "status": "VERIFIED",
+      "source": "USER_INPUT",
+      "source_id": "tests/fixtures/synthetic_candidate.json",
+      "source_location": "facts[9]",
+      "evidence": [
+        {
+          "source_type": "USER_INPUT",
+          "source_id": "tests/fixtures/synthetic_candidate.json",
+          "source_location": "facts[9]",
+          "text_excerpt": "SYNTHETIC EVIDENCE (TEST DATA ONLY): availability.available_from = \"2026-01-01\"",
+          "confidence": 1.0
+        }
+      ]
+    }
+  ]
+}

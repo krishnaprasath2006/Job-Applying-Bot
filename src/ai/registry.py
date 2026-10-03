@@ -1,39 +1,73 @@
-from typing import Dict, List, Optional
-from src.ai.provider import AIProvider
-from src.core.enums import ModelCapability
-from src.ai.huggingface import HuggingFaceLocalProvider
+"""Provider registry.
 
-class ModelRegistry:
-    def __init__(self):
-        self._providers: Dict[str, AIProvider] = {}
-        self._default_embedding_id = "huggingface_local"
+Business logic asks for a provider by name and receives an interface. It never
+imports a concrete provider, so adding a hosted provider later is a
+registration line rather than a change to every call site.
+"""
 
-        # Register default HF Local Provider
-        hf_provider = HuggingFaceLocalProvider()
-        self.register_provider(hf_provider)
+from __future__ import annotations
 
-    def register_provider(self, provider: AIProvider) -> None:
-        self._providers[provider.id] = provider
+from typing import Callable, Optional
 
-    def get_provider(self, provider_id: str) -> Optional[AIProvider]:
-        return self._providers.get(provider_id)
+from core.enums import AnalysisSource
+from core.errors import ConfigurationError
+from core.settings import AISettings
+from ai.provider import AIProvider
 
-    def list_providers(self) -> List[AIProvider]:
-        return list(self._providers.values())
+__all__ = ["get_provider", "build_provider", "register_provider", "available_providers"]
 
-    def get_embedding_provider(self) -> AIProvider:
-        provider = self._providers.get(self._default_embedding_id)
-        if provider and provider.supports(ModelCapability.EMBEDDINGS):
-            return provider
-        for p in self._providers.values():
-            if p.supports(ModelCapability.EMBEDDINGS):
-                return p
-        raise RuntimeError("No registered provider supports embeddings capability.")
+_FACTORIES: dict[str, Callable[[AISettings], AIProvider]] = {}
 
-    def get_provider_for_capability(self, capability: ModelCapability) -> Optional[AIProvider]:
-        for p in self._providers.values():
-            if p.supports(capability):
-                return p
-        return None
 
-global_model_registry = ModelRegistry()
+def register_provider(name: str, factory: Callable[[AISettings], AIProvider]) -> None:
+    """Register a provider factory under ``name``.
+
+    Raises:
+        ValueError: If ``name`` is empty or already registered.
+    """
+    key = (name or "").strip().lower()
+    if not key:
+        raise ValueError("provider name must not be empty")
+    if key in _FACTORIES:
+        raise ValueError(f"provider {key!r} is already registered")
+    _FACTORIES[key] = factory
+
+
+def available_providers() -> list[str]:
+    return sorted(_FACTORIES)
+
+
+def build_provider(settings: AISettings) -> AIProvider:
+    """Instantiate the provider named in ``settings.ai.provider``.
+
+    Raises:
+        ConfigurationError: If the provider is not registered. This is a
+            configuration mistake, not a runtime failure, so it is reported
+            plainly instead of being papered over with a default.
+    """
+    key = (settings.provider or "").strip().lower()
+    factory = _FACTORIES.get(key)
+    if factory is None:
+        raise ConfigurationError(
+            "unknown AI provider",
+            provider=settings.provider,
+            registered=available_providers(),
+        )
+    return factory(settings)
+
+
+def get_provider(settings: Optional[AISettings] = None) -> AIProvider:
+    """Build a provider from configuration.
+
+    With no argument, loads the default local provider, which needs no API key.
+    """
+    return build_provider(settings or AISettings())
+
+
+def _register_ollama() -> None:
+    from ai.ollama_provider import OllamaProvider
+
+    register_provider("ollama", lambda settings: OllamaProvider(settings))
+
+
+_register_ollama()

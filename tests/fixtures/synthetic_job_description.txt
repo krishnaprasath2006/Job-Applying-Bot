@@ -1,0 +1,69 @@
+================================================================
+SYNTHETIC TEST DATA ONLY - NOT A REAL JOB POSTING
+================================================================
+Company:        Northwind Analytics (fictional)
+Role:           Machine Learning Engineer
+Location:       Remote (India)
+Posted:         2026-03-02 (synthetic)
+Requisition:    SYNTH-JD-0001 (fictional)
+
+This file exists to exercise normalisation, requirement extraction, and
+deduplication in tests. Every company, person, and number below is invented.
+Nothing here describes a real employer or a real vacancy.
+
+----------------------------------------------------------------
+ABOUT THE ROLE
+----------------------------------------------------------------
+
+Northwind Analytics is looking for a Machine Learning Engineer to join our
+applied research group. You will own retrieval-augmented generation systems end
+to end, from ingestion through evaluation.
+
+----------------------------------------------------------------
+REQUIRED QUALIFICATIONS
+----------------------------------------------------------------
+
+- 3+ years of professional Python development
+- Hands-on experience with retrieval-augmented generation (RAG)
+- Solid grounding in vector search and embedding models
+- Experience with a document parsing stack such as pdfplumber or Unstructured
+- Ability to design and evaluate LLM-backed systems, not only prototype them
+- Comfortable with SQL and SQLite for data modelling
+
+----------------------------------------------------------------
+NICE TO HAVE
+----------------------------------------------------------------
+
+- Experience with local model serving (for example Ollama or llama.cpp)
+- Familiarity with answer-generation evaluation, including faithfulness checks
+- Exposure to applicant-tracking-system form automation and dry-run validation
+- Experience writing deterministic parsers alongside model-based extraction
+
+----------------------------------------------------------------
+RESPONSIBILITIES
+----------------------------------------------------------------
+
+- Build and maintain document ingestion pipelines for PDF, DOCX, and plain text
+- Design retrieval strategies and measure recall against labelled question sets
+- Build evaluation harnesses that compare prompts and models reproducibly
+- Write deterministic code for anything that must be reproducible and auditable
+- Collaborate with product engineers on API design and data contracts
+- Review AI-generated output before it reaches an end user
+
+----------------------------------------------------------------
+TECHNOLOGIES
+----------------------------------------------------------------
+
+Python, Pydantic, SQLite, pdfplumber, python-docx, Ollama, pytest
+
+----------------------------------------------------------------
+NOTE ON AUTOMATION SAFETY
+----------------------------------------------------------------
+
+This synthetic posting deliberately includes a line about form automation so
+tests can confirm the system treats browser automation as out of scope for the
+foundation phase. No real application submission is part of this phase.
+
+================================================================
+END OF SYNTHETIC TEST DATA
+================================================================

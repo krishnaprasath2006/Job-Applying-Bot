@@ -1,0 +1,104 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 1322 >>
+stream
+BT
+/F1 11 Tf
+14 TL
+72 740 Td
+(SYNTHETIC TEST DATA ONLY) Tj
+T*
+() Tj
+T*
+(Jane Synthetic) Tj
+T*
+(Machine Learning Engineer \(synthetic candidate\)) Tj
+T*
+(jane.synthetic@example.invalid | +91 00000 00000) Tj
+T*
+(Remote, India | github.com/invalid-synthetic) Tj
+T*
+() Tj
+T*
+(SUMMARY) Tj
+T*
+(Synthetic candidate with placeholder experience used only in automated) Tj
+T*
+(tests. Not a real person, employer, or application.) Tj
+T*
+() Tj
+T*
+(SKILLS) Tj
+T*
+(Python, SQL, Pydantic, SQLite, RAG, vector search, pdfplumber, pytest) Tj
+T*
+() Tj
+T*
+(EXPERIENCE) Tj
+T*
+(Machine Learning Engineer, Northwind Analytics \(synthetic\)) Tj
+T*
+(2023-01 to present) Tj
+T*
+(- Built a retrieval-augmented generation pipeline over synthetic documents.) Tj
+T*
+(- Designed evaluation harnesses comparing deterministic parsers to model output.) Tj
+T*
+() Tj
+T*
+(Data Engineer, Contoso Synthetic Labs \(synthetic\)) Tj
+T*
+(2020-06 to 2022-12) Tj
+T*
+(- Owned document ingestion for PDF and DOCX sources.) Tj
+T*
+() Tj
+T*
+(EDUCATION) Tj
+T*
+(B.E. Computer Science, Example Institute \(synthetic\), 2020) Tj
+T*
+() Tj
+T*
+(CERTIFICATIONS) Tj
+T*
+(Synthetic Certificate in Testing Discipline \(synthetic\)) Tj
+T*
+() Tj
+T*
+(PROJECTS) Tj
+T*
+(synthetic-rag-demo - a placeholder repository used in tests.) Tj
+T*
+() Tj
+T*
+(END OF SYNTHETIC TEST DATA ONLY) Tj
+T*
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000001615 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1685
+%%EOF

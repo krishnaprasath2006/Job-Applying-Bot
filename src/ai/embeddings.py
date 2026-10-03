@@ -1,88 +1,207 @@
+"""Semantic similarity, with the AI as an option rather than a requirement.
+
+Matching asks "does this requirement resemble anything the candidate has?"
+only where no fact can answer. Two scorers answer it:
+
+* :class:`LexicalScorer` — deterministic word-set overlap. No network, no
+  model, no configuration: it is the default, and what the tests use, so
+  every rule around similarity is testable with the machine offline.
+* :class:`EmbeddingScorer` — cosine similarity of provider embeddings, for
+  when a provider and an embedding model are configured. It wraps
+  :class:`ai.provider.AIProvider` rather than reaching for HTTP itself.
+
+Both answer the same protocol, :class:`SemanticScorer`, and matching holds
+only that protocol — which scorer runs is the caller's choice, injected at
+the seam. Nothing in :mod:`jobs` imports this module at runtime.
+
+Every scorer carries a ``scorer_id``: matching folds it into the match
+cache key, so a verdict computed by one scorer can never be replayed as
+the verdict of another. The embedding scorer keeps its vector cache keyed
+by provider, model, cache-scheme version, and the content hash of the
+text — changing the posting or the embedding model misses the cache by
+construction rather than by invalidation bookkeeping.
+"""
+
+from __future__ import annotations
+
 import math
-import logging
-from abc import ABC, abstractmethod
-from typing import List, Tuple, Set
-from src.ai.provider import AIProvider
+import re
+from typing import Callable, Optional, Protocol, runtime_checkable
 
-logger = logging.getLogger(__name__)
+from ai.provider import AIProvider
+from core.hashing import sha256_text
+from core.model_run import ModelRun
 
-def cosine_similarity(vec_a: List[float], vec_b: List[float]) -> float:
-    if not vec_a or not vec_b or len(vec_a) != len(vec_b):
-        return 0.0
-    dot_product = sum(a * b for a, b in zip(vec_a, vec_b))
-    norm_a = sum(a * a for a, b in zip(vec_a, vec_b))
-    norm_b = sum(b * b for a, b in zip(vec_a, vec_b))
-    if norm_a == 0.0 or norm_b == 0.0:
-        return 0.0
-    score = dot_product / (math.sqrt(norm_a) * math.sqrt(norm_b))
-    return max(0.0, min(1.0, score))
+__all__ = [
+    "EMBEDDING_CACHE_MAX_ENTRIES",
+    "EMBEDDING_VERSION",
+    "EmbeddingScorer",
+    "LexicalScorer",
+    "SemanticScorer",
+    "cosine",
+]
 
-class SemanticScorer(ABC):
-    @abstractmethod
-    def similarity(self, text1: str, text2: str) -> float:
-        pass
 
-    @abstractmethod
-    def similarity_batch(self, pairs: List[Tuple[str, str]]) -> List[float]:
-        pass
+@runtime_checkable
+class SemanticScorer(Protocol):
+    """How two texts are compared when no fact can decide.
 
-class LexicalScorer(SemanticScorer):
-    name: str = "LexicalScorer (Token Overlap / Jaccard)"
+    Returns a similarity in ``[0, 1]``: 1 means the texts say the same
+    thing, 0 means they share nothing. Implementations must be pure from
+    the caller's point of view — same inputs, same number — because a
+    decision that changes when the network blinks is not a decision.
 
-    def similarity(self, text1: str, text2: str) -> float:
-        tokens_a = self._tokenize(text1)
-        tokens_b = self._tokenize(text2)
+    ``scorer_id`` names the algorithm and configuration a score came from;
+    matching uses it as part of the cache key. Implementations without the
+    attribute still work — the fingerprint falls back to the class name —
+    but a scorer whose score can change without its id changing would be a
+    cache that lies.
+    """
 
-        if not tokens_a or not tokens_b:
+    scorer_id: str
+
+    def similarity(self, left: str, right: str) -> float: ...
+
+
+# Words every English sentence carries. Left in, they would let any two
+# postings look alike: "the ... of ..." sharing nothing but articles is a
+# similarity of zero, not of one.
+_STOPWORDS = frozenset(
+    {
+        "a", "an", "and", "are", "as", "at", "be", "by", "for", "from",
+        "in", "is", "of", "on", "or", "that", "the", "this", "to", "we",
+        "with", "you", "your",
+    }
+)
+_TOKEN_RE = re.compile(r"[a-z0-9+#]+")
+
+
+def _tokens(text: str) -> frozenset[str]:
+    return frozenset(
+        token for token in _TOKEN_RE.findall(text.lower()) if token not in _STOPWORDS
+    )
+
+
+class LexicalScorer:
+    """Word-set overlap, for similarity that must work with no model near.
+
+    The measure is the overlap coefficient — shared words divided by the
+    size of the *smaller* set — not Jaccard. A requirement wraps the skills
+    it names in prose ("Experience with PyTorch") while a claim names them
+    bare ("PyTorch"); Jaccard would call that half a match because the
+    requirement had other words to say, when the claim is in fact contained
+    in it word for word. The cost is honesty about what it cannot see:
+    "SQL" and "MySQL" share no tokens here, and only an embedding would
+    know they are related.
+    """
+
+    #: Cache identity: the algorithm (overlap coefficient over the fixed
+    #: stopword set) versioned so a future change is a different key.
+    scorer_id: str = "lexical:v1"
+
+    def similarity(self, left: str, right: str) -> float:
+        left_tokens = _tokens(left)
+        right_tokens = _tokens(right)
+        if not left_tokens or not right_tokens:
             return 0.0
+        shared = len(left_tokens & right_tokens)
+        return shared / min(len(left_tokens), len(right_tokens))
 
-        intersection = tokens_a.intersection(tokens_b)
-        union = tokens_a.union(tokens_b)
-        return len(intersection) / len(union) if union else 0.0
 
-    def similarity_batch(self, pairs: List[Tuple[str, str]]) -> List[float]:
-        return [self.similarity(t1, t2) for t1, t2 in pairs]
+def cosine(left: list[float], right: list[float]) -> float:
+    """Cosine of the angle between two vectors, in ``[-1, 1]``.
 
-    def _tokenize(self, text: str) -> Set[str]:
-        cleaned = "".join(c if c.isalnum() else " " for c in text.lower())
-        words = [w for w in cleaned.split() if len(w) > 2]
-        stop_words = {"the", "and", "for", "with", "that", "this", "from", "have", "are"}
-        return set(w for w in words if w not in stop_words)
+    Mismatched lengths and zero-length vectors score 0: there is no angle
+    to measure, and inventing one would be a similarity nobody computed.
+    """
+    if not left or len(left) != len(right):
+        return 0.0
+    dot = sum(a * b for a, b in zip(left, right))
+    left_norm = math.sqrt(sum(a * a for a in left))
+    right_norm = math.sqrt(sum(b * b for b in right))
+    if left_norm == 0.0 or right_norm == 0.0:
+        return 0.0
+    return max(-1.0, min(1.0, dot / (left_norm * right_norm)))
 
-class EmbeddingScorer(SemanticScorer):
-    name: str = "EmbeddingScorer (Hugging Face Dense Semantic)"
 
-    def __init__(self, provider: AIProvider):
-        self.provider = provider
-        self.fallback_scorer = LexicalScorer()
+#: Version of the embedding cache scheme. Bump when the key structure or
+#: the clamping rules change, so vectors written under the old meaning
+#: are never reused under the new one.
+EMBEDDING_VERSION = "v1"
 
-    def similarity(self, text1: str, text2: str) -> float:
-        try:
-            embeddings = self.provider.get_embeddings([text1, text2])
-            if len(embeddings) == 2:
-                return cosine_similarity(embeddings[0], embeddings[1])
-            raise ValueError(f"Expected 2 embeddings, got {len(embeddings)}")
-        except Exception as e:
-            logger.warning(
-                f"[EmbeddingScorer] Model provider '{self.provider.id}' failed: {e}. "
-                "Safely degrading to LexicalScorer fallback."
-            )
-            return self.fallback_scorer.similarity(text1, text2)
+#: Cap on cached vectors per scorer; the oldest entries are evicted first.
+EMBEDDING_CACHE_MAX_ENTRIES = 4096
 
-    def similarity_batch(self, pairs: List[Tuple[str, str]]) -> List[float]:
-        if not pairs:
-            return []
-        try:
-            unique_texts = list({text for pair in pairs for text in pair})
-            text_to_idx = {text: i for i, text in enumerate(unique_texts)}
-            embeddings = self.provider.get_embeddings(unique_texts)
 
-            return [
-                cosine_similarity(embeddings[text_to_idx[t1]], embeddings[text_to_idx[t2]])
-                for t1, t2 in pairs
-            ]
-        except Exception as e:
-            logger.warning(
-                f"[EmbeddingScorer] Batch inference failed: {e}. Safely degrading to LexicalScorer fallback."
-            )
-            return self.fallback_scorer.similarity_batch(pairs)
+class EmbeddingScorer:
+    """Cosine similarity of provider embeddings, cached per distinct text.
+
+    One similarity call embeds each distinct text once and reuses the
+    vector, so comparing a requirement against a whole profile costs two
+    embeds, not two per claim.
+
+    The cache key is the invalidation policy: provider, model, embedding
+    scheme version, and the SHA-256 of the text. A changed posting hashes
+    to a new key; a different model or provider shares no entries with the
+    old one; bumping :data:`EMBEDDING_VERSION` retires every earlier
+    vector. Entries live on the instance, so a dropped scorer drops its
+    vectors with it.
+
+    Args:
+        provider: Something answering :class:`ai.provider.AIProvider` —
+            the scorer never speaks HTTP itself, so any provider works.
+        model: Embedding model override; ``None`` lets the provider choose.
+        on_run: Called with the provider's own
+            :class:`~core.model_run.ModelRun` after each *fresh* embed —
+            never on a cache hit — so the caller can persist which
+            embedding actually ran.
+    """
+
+    def __init__(
+        self,
+        provider: AIProvider,
+        *,
+        model: Optional[str] = None,
+        on_run: Optional[Callable[[ModelRun], None]] = None,
+    ) -> None:
+        self._provider = provider
+        self._model = model
+        self._on_run = on_run
+        provider_key = str(getattr(provider, "name", "") or "").strip()
+        if not provider_key:
+            provider_key = f"{type(provider).__qualname__}:{id(provider)}"
+        model_key = str(model or getattr(provider, "model", "") or "").strip() or "-"
+        self._provider_key = provider_key
+        self._model_key = model_key
+        self._cache: dict[tuple[str, str, str, str], list[float]] = {}
+        self.scorer_id = f"embedding:{provider_key}:{model_key}:{EMBEDDING_VERSION}"
+
+    def similarity(self, left: str, right: str) -> float:
+        score = cosine(self._vector(left), self._vector(right))
+        # Text embeddings are not obliged to be non-negative; a negative
+        # cosine is "not similar at all" for matching's purposes, not
+        # "less than nothing".
+        return max(0.0, min(1.0, score))
+
+    def _cache_key(self, text: str) -> tuple[str, str, str, str]:
+        return (
+            self._provider_key,
+            self._model_key,
+            EMBEDDING_VERSION,
+            sha256_text(text.strip()),
+        )
+
+    def _vector(self, text: str) -> list[float]:
+        key = self._cache_key(text)
+        cached = self._cache.get(key)
+        if cached is not None:
+            return cached
+        result = self._provider.embed([text.strip()], model=self._model)
+        vector = result.vectors[0]
+        if len(self._cache) >= EMBEDDING_CACHE_MAX_ENTRIES:
+            self._cache.pop(next(iter(self._cache)))
+        self._cache[key] = vector
+        run = getattr(result, "run", None)
+        if self._on_run is not None and run is not None:
+            self._on_run(run)
+        return vector

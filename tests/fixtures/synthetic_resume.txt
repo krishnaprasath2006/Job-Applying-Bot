@@ -1,0 +1,60 @@
+================================================================================
+TEST DATA ONLY - SYNTHETIC FIXTURE - NOT A REAL PERSON
+================================================================================
+Every value below is invented for automated tests. Do not use any of it in a
+real job application. Do not use it to populate a real candidate profile.
+
+The name, company, dates, metrics, and URLs are fabricated. The email domain
+uses .invalid, which is reserved by RFC 2606 and can never be delivered to, so
+a leak of this fixture into a real application fails visibly rather than
+reaching a real inbox.
+
+Regenerating this file changes its SHA-256 and is expected: duplicate-resume
+tests hash it directly and do not rely on a fixed digest.
+================================================================================
+
+SYNTHETIC TEST CANDIDATE
+Contact: synthetic.tester@synthetic-candidate.invalid
+Location: Testville, Test State, Testland
+Links: https://example.invalid/synthetic-tester
+
+SUMMARY
+Synthetic candidate used only for automated tests. This paragraph exists so the
+section parser has enough text to detect a summary block deterministically.
+
+EDUCATION
+Test University, Testland
+Bachelor of Synthetic Studies
+2016-06 - 2020-05
+GPA: 3.8/4.0
+
+EXPERIENCE
+Synthetic Test Corporation - Synthetic Research Intern
+2020-07 - 2021-08
+- Built a synthetic test suite covering pipeline invariants.
+- Reduced synthetic fixture build time by 30 percent in a fake benchmark.
+- Documented synthetic evidence provenance rules for reviewers.
+
+Test Data Ltd - Synthetic Data Engineer
+2021-09 - 2023-03
+- Designed synthetic ingestion tooling for a made-up dataset.
+- Added deterministic duplicate detection for test documents.
+- Wrote synthetic integration tests for the resume parser.
+
+SKILLS
+Python, SQL, pandas, PyTorch, Docker, FastAPI, pytest
+Tools: Git, Linux, GitHub Actions
+
+PROJECTS
+Synthetic Resume Parser
+Synthetic project used only for tests. Parses fixture documents deterministically.
+
+CERTIFICATIONS
+Synthetic Testing Certificate - Synthetic Institute - 2022
+
+ACHIEVEMENTS
+Synthetic Award for Unrelated Things - 2022
+
+LINKS
+https://example.invalid/synthetic-tester
+https://example.invalid/synthetic-tester/projects
