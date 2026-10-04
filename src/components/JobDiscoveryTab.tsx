@@ -15,20 +15,23 @@ import {
   ThumbsUp,
   ThumbsDown,
 } from 'lucide-react';
-import type { Job } from '../types/index.js';
+import type { Job, MatchResult, RequirementScore } from '../types/api.js';
 
 interface JobDiscoveryTabProps {
   jobs: Job[];
+  /** Match results keyed by job id. Match is a separate resource, not a Job field. */
+  matchResults?: Record<string, MatchResult>;
   onSelectJob: (job: Job) => void;
   onAcceptJob: (jobId: string) => void;
   onRejectJob: (jobId: string) => void;
   onApplyJob: (jobId: string) => void;
-  onIngestJob: (newJob: Partial<Job>) => Promise<void>;
+  onIngestJob: (newJob: { html: string; source: string; page_url: string; source_path: string }) => Promise<void>;
   dryRun: boolean;
 }
 
 export const JobDiscoveryTab: React.FC<JobDiscoveryTabProps> = ({
   jobs,
+  matchResults,
   onSelectJob,
   onAcceptJob,
   onRejectJob,
@@ -39,7 +42,6 @@ export const JobDiscoveryTab: React.FC<JobDiscoveryTabProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [remoteOnly, setRemoteOnly] = useState(false);
-  const [easyApplyOnly, setEasyApplyOnly] = useState(false);
   const [showIngestModal, setShowIngestModal] = useState(false);
 
   // Ingestion form state
@@ -48,7 +50,6 @@ export const JobDiscoveryTab: React.FC<JobDiscoveryTabProps> = ({
   const [location, setLocation] = useState('San Francisco, CA');
   const [remoteType, setRemoteType] = useState<'Remote' | 'Hybrid' | 'On-site'>('Remote');
   const [salaryRange, setSalaryRange] = useState('$150,000 - $180,000');
-  const [easyApply, setEasyApply] = useState(true);
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -59,13 +60,18 @@ export const JobDiscoveryTab: React.FC<JobDiscoveryTabProps> = ({
     setIsSubmitting(true);
     try {
       await onIngestJob({
-        title,
-        company,
-        location,
-        remoteType,
-        salaryRange,
-        easyApply,
-        description,
+        html: `<html><body><script type="application/ld+json">${JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'JobPosting',
+          title,
+          company: { name: company },
+          description,
+          jobLocationType: remoteType === 'Remote' ? 'TELECOMMUTE' : remoteType === 'Hybrid' ? 'HYBRID' : 'ON_SITE',
+          employmentType: 'FULL_TIME',
+        })}</script></body></html>`,
+        source: 'local',
+        page_url: '',
+        source_path: '',
       });
       setShowIngestModal(false);
       setTitle('');
@@ -83,7 +89,6 @@ export const JobDiscoveryTab: React.FC<JobDiscoveryTabProps> = ({
       setLocation('New York, NY (Remote)');
       setRemoteType('Remote');
       setSalaryRange('$175,000 - $205,000');
-      setEasyApply(true);
       setDescription(`We are hiring a Lead Backend Engineer to build resilient distributed payment rails.
 Requirements:
 - 5+ years of software engineering experience in backend systems
@@ -97,7 +102,6 @@ Requirements:
       setLocation('San Francisco, CA');
       setRemoteType('Hybrid');
       setSalaryRange('$160,000 - $185,000');
-      setEasyApply(true);
       setDescription(`Seeking a Frontend Architect to create our design system and next-generation UI component library.
 Requirements:
 - 4+ years building production applications with React, TypeScript, and Tailwind CSS
@@ -109,7 +113,6 @@ Requirements:
       setLocation('Washington, DC');
       setRemoteType('On-site');
       setSalaryRange('$220,000 - $260,000');
-      setEasyApply(false);
       setDescription(`Requires active Top Secret TS/SCI Security Clearance and minimum 10+ years experience in defense infrastructure, C++, and hardware security modules. Strict US Citizenship & Clearance required.`);
     }
   };
@@ -119,14 +122,48 @@ Requirements:
     const matchesSearch =
       job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.description.toLowerCase().includes(searchQuery.toLowerCase());
+      job.description_text?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.description_raw?.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesStatus = statusFilter === 'ALL' || job.status === statusFilter;
-    const matchesRemote = !remoteOnly || job.remoteType === 'Remote';
-    const matchesEasyApply = !easyApplyOnly || job.easyApply;
+    const matchesRemote = !remoteOnly || job.workplace_type === 'Remote' || job.workplace_type === 'TELECOMMUTE';
 
-    return matchesSearch && matchesStatus && matchesRemote && matchesEasyApply;
+    return matchesSearch && matchesStatus && matchesRemote;
   });
+
+  // Map FastAPI status to UI status badges
+  const getDisplayStatus = (job: Job): string => {
+    switch (job.status) {
+      case 'DISCOVERED':
+      case 'FETCHED':
+      case 'NORMALIZED':
+      case 'JD_PENDING':
+      case 'JD_EXTRACTED':
+      case 'JD_PARTIAL':
+        return 'DISCOVERED';
+      case 'ANALYSIS_PENDING':
+      case 'ANALYZED':
+        return 'IN_REVIEW';
+      case 'MATCHED':
+      case 'REVIEW_REQUIRED':
+        return 'IN_REVIEW';
+      case 'READY_FOR_APPLICATION':
+        return 'ACCEPTED';
+      case 'APPLYING':
+      case 'APPLIED':
+        return 'APPLIED';
+      case 'REJECTED':
+        return 'REJECTED';
+      case 'SKIPPED':
+        return 'REJECTED';
+      case 'FAILED':
+        return 'REJECTED';
+      case 'JD_FAILED':
+        return 'DISCOVERED';
+      default:
+        return job.status;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -168,17 +205,6 @@ Requirements:
             }`}
           >
             Remote Only
-          </button>
-
-          <button
-            onClick={() => setEasyApplyOnly(!easyApplyOnly)}
-            className={`px-3 py-2 rounded-xl text-xs font-medium border transition-colors cursor-pointer ${
-              easyApplyOnly
-                ? 'bg-blue-500/20 text-blue-300 border-blue-500/40'
-                : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
-            }`}
-          >
-            Easy Apply Only
           </button>
 
           {/* Ingest Job Modal Trigger */}
@@ -303,19 +329,6 @@ Requirements:
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="easyApplyCheckbox"
-                  checked={easyApply}
-                  onChange={(e) => setEasyApply(e.target.checked)}
-                  className="rounded border-slate-700 bg-slate-900 text-blue-600 focus:ring-0"
-                />
-                <label htmlFor="easyApplyCheckbox" className="text-xs text-slate-300">
-                  Tagged with LinkedIn Easy Apply
-                </label>
-              </div>
-
               <div>
                 <label className="block text-xs font-semibold text-slate-400 mb-1">
                   Full Job Description & Requirements *
@@ -362,14 +375,29 @@ Requirements:
             <Briefcase className="w-12 h-12 text-slate-600 mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-white">No job postings found</h3>
             <p className="text-sm text-slate-400 mt-1">
-              Try adjusting your search criteria or click &quot;Ingest Job&quot; to add a new
+              Try adjusting your search criteria or click "Ingest Job" to add a new
               posting.
             </p>
           </div>
         ) : (
           filteredJobs.map((job) => {
-            const isHardVeto = job.matchResult.gate.status === 'FAIL';
-            const isStrong = job.matchResult.decision === 'STRONG_MATCH';
+            const match = matchResults?.[job.id];
+            const isHardVeto = match?.gate?.status === 'HARD_MISMATCH';
+            const decision = match?.decision;
+            const isStrong = decision === 'MATCH';
+
+            // Only report a score the server actually computed.
+            const overallScore =
+              typeof match?.similarity_score === 'number'
+                ? Math.round(match.similarity_score * 100)
+                : null;
+
+            const firstMismatch = match?.gate?.checks?.find(
+              (c) => c.evaluation === 'VERIFIED_MISMATCH' || c.evaluation === 'DERIVED_MISMATCH',
+            );
+
+            // Display status
+            const displayStatus = getDisplayStatus(job);
 
             return (
               <div
@@ -391,27 +419,23 @@ Requirements:
                       >
                         {isHardVeto
                           ? 'HARD GATE VETO'
-                          : `${job.matchResult.overallScore}% MATCH`}
+                          : overallScore !== null
+                            ? `${overallScore}% MATCH`
+                            : 'UNSCORED'}
                       </span>
-
-                      {job.easyApply && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium">
-                          Easy Apply
-                        </span>
-                      )}
 
                       <span
                         className={`text-xs px-2 py-0.5 rounded font-mono ${
-                          job.status === 'ACCEPTED'
+                          displayStatus === 'ACCEPTED'
                             ? 'bg-emerald-500/20 text-emerald-300'
-                            : job.status === 'APPLIED'
+                            : displayStatus === 'APPLIED'
                             ? 'bg-purple-500/20 text-purple-300'
-                            : job.status === 'REJECTED'
+                            : displayStatus === 'REJECTED'
                             ? 'bg-rose-500/20 text-rose-300'
                             : 'bg-slate-800 text-slate-400'
                         }`}
                       >
-                        {job.status}
+                        {displayStatus}
                       </span>
                     </div>
 
@@ -437,29 +461,33 @@ Requirements:
                     <span>•</span>
                     <span className="flex items-center gap-1">
                       <MapPin className="w-3 h-3 text-slate-500" />
-                      {job.location} ({job.remoteType})
+                      {job.location || 'Unknown'} ({job.workplace_type || 'Unknown'})
                     </span>
                     <span>•</span>
                     <span className="text-emerald-400 font-medium flex items-center gap-0.5">
                       <DollarSign className="w-3 h-3" />
-                      {job.salaryRange}
+                      {job.salary_min && job.salary_max 
+                        ? `$${(job.salary_min/1000).toFixed(0)}k - $${(job.salary_max/1000).toFixed(0)}k` 
+                        : job.salary_min 
+                          ? `$${(job.salary_min/1000).toFixed(0)}k+`
+                          : 'Not specified'}
                     </span>
                   </div>
 
                   {/* Veto Reason or Summary */}
                   {isHardVeto ? (
                     <div className="mt-3 p-2.5 rounded-lg bg-rose-950/40 border border-rose-900/40 text-xs text-rose-300">
-                      {job.matchResult.gate.reasons[0] || 'Disqualified by hard gate rule.'}
+                      {firstMismatch?.reason || 'Disqualified by hard gate rule.'}
                     </div>
                   ) : (
                     <p className="mt-2.5 text-xs text-slate-300 line-clamp-2 leading-relaxed">
-                      {job.matchResult.summary}
+                      {job.description_text?.slice(0, 120) || 'No description available'}
                     </p>
                   )}
 
                   {/* Requirements chips */}
                   <div className="flex flex-wrap gap-1.5 mt-3">
-                    {job.extractedRequirements.slice(0, 3).map((req) => (
+                    {job.requirements?.slice(0, 3).map((req) => (
                       <span
                         key={req.id}
                         className="text-[11px] px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-300 max-w-[220px] truncate"
@@ -467,9 +495,9 @@ Requirements:
                         {req.text}
                       </span>
                     ))}
-                    {job.extractedRequirements.length > 3 && (
+                    {job.requirements && job.requirements.length > 3 && (
                       <span className="text-[11px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
-                        +{job.extractedRequirements.length - 3} more
+                        +{job.requirements.length - 3} more
                       </span>
                     )}
                   </div>
@@ -486,7 +514,7 @@ Requirements:
                   </button>
 
                   <div className="flex items-center gap-2">
-                    {job.status !== 'REJECTED' && (
+                    {displayStatus !== 'REJECTED' && (
                       <button
                         title="Reject Job"
                         onClick={() => onRejectJob(job.id)}
@@ -496,7 +524,7 @@ Requirements:
                       </button>
                     )}
 
-                    {job.status !== 'ACCEPTED' && !isHardVeto && (
+                    {displayStatus !== 'ACCEPTED' && !isHardVeto && (
                       <button
                         title="Accept to Review Queue"
                         onClick={() => onAcceptJob(job.id)}
@@ -508,9 +536,9 @@ Requirements:
 
                     <button
                       onClick={() => onApplyJob(job.id)}
-                      disabled={isHardVeto || job.status === 'APPLIED'}
+                      disabled={isHardVeto || displayStatus === 'APPLIED'}
                       className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                        job.status === 'APPLIED'
+                        displayStatus === 'APPLIED'
                           ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
                           : isHardVeto
                           ? 'bg-slate-800/80 text-slate-600 cursor-not-allowed'
@@ -518,7 +546,7 @@ Requirements:
                       }`}
                     >
                       <Send className="w-3 h-3" />
-                      {job.status === 'APPLIED'
+                      {displayStatus === 'APPLIED'
                         ? 'Applied'
                         : dryRun
                         ? 'Dry Run'
@@ -534,3 +562,39 @@ Requirements:
     </div>
   );
 };
+
+// Helper to get display status
+function getDisplayStatus(job: any): string {
+  switch (job.status) {
+    case 'DISCOVERED':
+    case 'FETCHED':
+    case 'NORMALIZED':
+    case 'JD_PENDING':
+    case 'JD_EXTRACTED':
+    case 'JD_PARTIAL':
+      return 'DISCOVERED';
+    case 'ANALYSIS_PENDING':
+    case 'ANALYZED':
+      return 'IN_REVIEW';
+    case 'MATCHED':
+    case 'REVIEW_REQUIRED':
+      return 'IN_REVIEW';
+    case 'READY_FOR_APPLICATION':
+      return 'ACCEPTED';
+    case 'APPLYING':
+    case 'APPLIED':
+      return 'APPLIED';
+    case 'REJECTED':
+      return 'REJECTED';
+    case 'SKIPPED':
+      return 'REJECTED';
+    case 'FAILED':
+      return 'REJECTED';
+    case 'JD_FAILED':
+      return 'DISCOVERED';
+    default:
+      return job.status;
+  }
+}
+
+export default JobDiscoveryTab;

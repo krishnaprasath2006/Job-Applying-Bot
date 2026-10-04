@@ -1,24 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileText, CheckCircle, Plus, Upload, Download, Eye, Sparkles } from 'lucide-react';
-import type { ResumeVariant } from '../types/index.js';
+import type { Resume } from '../types/api.js';
+import { resumeApi } from '../lib/api/index.js';
+
+interface NewResumeInput {
+  name: string;
+  targetRole: string;
+  format: 'PDF' | 'DOCX' | 'TXT' | 'MD';
+  contentSnippet: string;
+}
 
 interface ResumeVaultTabProps {
-  resumes: ResumeVariant[];
+  resumes: Resume[];
+  /** Client-side selection; the backend stores no active-resume flag. */
+  activeResumeId: string | null;
   onActivateResume: (id: string) => Promise<void>;
-  onAddResume: (resume: Partial<ResumeVariant>) => Promise<void>;
+  onAddResume: (newResume: NewResumeInput) => Promise<void>;
 }
 
 export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
   resumes,
+  activeResumeId,
   onActivateResume,
   onAddResume,
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedResume, setSelectedResume] = useState<ResumeVariant | null>(null);
+  const [selectedResume, setSelectedResume] = useState<Resume | null>(null);
 
   const [name, setName] = useState('');
   const [targetRole, setTargetRole] = useState('Full Stack Software Engineer');
-  const [format, setFormat] = useState<'pdf' | 'docx' | 'txt'>('pdf');
+  const [format, setFormat] = useState<'PDF' | 'DOCX' | 'TXT' | 'MD'>('PDF');
   const [contentSnippet, setContentSnippet] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -27,12 +38,7 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
     if (!name.trim()) return;
     setIsSubmitting(true);
     try {
-      await onAddResume({
-        name,
-        targetRole,
-        format,
-        contentSnippet,
-      });
+      await onAddResume({ name: name.trim(), targetRole, format, contentSnippet });
       setShowAddModal(false);
       setName('');
       setContentSnippet('');
@@ -61,7 +67,7 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
           className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/20 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
-          <span>Upload Variant</span>
+          <span>Add Variant (Server Path)</span>
         </button>
       </div>
 
@@ -71,7 +77,7 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
           <div
             key={resume.id}
             className={`rounded-2xl p-5 border transition-all flex flex-col justify-between ${
-              resume.isActive
+              activeResumeId === resume.id
                 ? 'bg-slate-900/90 border-blue-500/50 shadow-lg shadow-blue-500/5 ring-1 ring-blue-500/30'
                 : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
             }`}
@@ -83,14 +89,14 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
                     <FileText className="w-5 h-5" />
                   </span>
                   <div>
-                    <h3 className="font-bold text-white text-base">{resume.name}</h3>
+                    <h3 className="font-bold text-white text-base">{resume.variant || resume.filename || 'Unnamed'}</h3>
                     <div className="text-xs text-slate-400">
-                      {resume.filename} • {resume.format.toUpperCase()}
+                      {resume.filename} • {resume.file_type}
                     </div>
                   </div>
                 </div>
 
-                {resume.isActive ? (
+                {activeResumeId === resume.id ? (
                   <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
                     <CheckCircle className="w-3.5 h-3.5" /> Active
                   </span>
@@ -107,21 +113,21 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
               <div className="space-y-2 text-xs text-slate-300 mt-2">
                 <div className="flex items-center justify-between text-slate-400">
                   <span>Target Role Focus:</span>
-                  <span className="font-semibold text-slate-200">{resume.targetRole}</span>
+                  <span className="font-semibold text-slate-200">{resume.role_focus || 'Not specified'}</span>
                 </div>
                 <div className="flex items-center justify-between text-slate-400">
                   <span>Extracted Skills Count:</span>
-                  <span className="font-semibold text-blue-400">{resume.skillsCount} Verified</span>
+                  <span className="font-semibold text-blue-400">{resume.skills?.length || 0} Verified</span>
                 </div>
                 <p className="text-xs text-slate-400 pt-2 border-t border-slate-800/80 leading-relaxed">
-                  {resume.summary}
+                  {resume.raw_text?.slice(0, 200) || 'No content preview'}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-800 gap-2">
               <span className="text-[11px] text-slate-500">
-                Updated {new Date(resume.uploadedAt).toLocaleDateString()}
+                Updated {new Date(resume.updated_at || resume.created_at).toLocaleDateString()}
               </span>
 
               <button
@@ -141,11 +147,11 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="font-bold text-white text-base">{selectedResume.name} - Extracted Content</h3>
+              <h3 className="font-bold text-white text-base">{selectedResume.variant || selectedResume.filename} - Extracted Content</h3>
               <button onClick={() => setSelectedResume(null)} className="text-slate-400 hover:text-white">✕</button>
             </div>
             <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs text-slate-300 font-mono whitespace-pre-line max-h-80 overflow-y-auto">
-              {selectedResume.contentSnippet}
+              {selectedResume.raw_text || 'No content available'}
             </div>
             <div className="flex justify-end">
               <button
@@ -164,7 +170,7 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="font-bold text-white text-base">Add Resume Variant</h3>
+              <h3 className="font-bold text-white text-base">Add Resume Variant (Server Path)</h3>
               <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white">✕</button>
             </div>
 
@@ -198,16 +204,44 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
                   onChange={(e) => setFormat(e.target.value as any)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500"
                 >
-                  <option value="pdf">PDF (.pdf)</option>
-                  <option value="docx">Word (.docx)</option>
-                  <option value="txt">Plain Text (.txt)</option>
+                  <option value="PDF">PDF (.pdf)</option>
+                  <option value="DOCX">Word (.docx)</option>
+                  <option value="TXT">Plain Text (.txt)</option>
+                  <option value="MD">Markdown (.md)</option>
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">Server File Path *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="/path/to/resume.pdf (server-side path)"
+                  value={contentSnippet}
+                  onChange={(e) => setContentSnippet(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:border-blue-500 font-mono"
+                />
+                <p className="text-xs text-amber-400 mt-1">
+                  FastAPI ingest requires a server-side file path. Upload the file to the server first,
+                  then provide the absolute path here.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">Variant / Role Focus</label>
+                <input
+                  type="text"
+                  placeholder="e.g. AI & Machine Learning Focus"
+                  value={targetRole}
+                  onChange={(e) => setTargetRole(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500"
+                />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-400 mb-1">Summary / Excerpt</label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={contentSnippet}
                   onChange={(e) => setContentSnippet(e.target.value)}
                   placeholder="Key experience bullet points or summary..."
@@ -238,3 +272,5 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
     </div>
   );
 };
+
+export default ResumeVaultTab;

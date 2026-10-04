@@ -1,343 +1,1378 @@
-# Automated Bots is now Apllie 🤖 - https://www.apllie.com/
-
-Download our Chrome extension from the Chrome Web Store:
-**[Download Apllie - Smart Application Tracker](https://chromewebstore.google.com/detail/apllie-smart-application/imiidglhhjloioihlhmnojbopkgccijc?hl=en&authuser=1)**
-
-![linkedineasyapplygif](https://user-images.githubusercontent.com/34207598/128695728-6efcb457-0f75-42e2-987a-f7a0c239a235.gif)
-A python bot to apply all Linkedin Easy Apply jobs based on your preferences.
-
-## 🚀 Introducing Apllie - Smart Application Tracker
-
-**We have rebranded!** Please note that **automated-bots.com is NOW Apllie.com**. Apllie is our new smart application tracking system that helps you apply smarter and manage your job search more efficiently.
-
-### ✨ Apllie Features
-
-Apllie supports many powerful features to enhance your job search experience:
-
-- **📊 Centralized Application Tracking** - Monitor all your job applications from a single dashboard. Track application status, responses, and maintain a complete history of where you've applied.
-
-- **🤖 Auto-Fill Custom Questions** - Automatically fill out and manage additional custom questions on job applications. Save your responses for future applications and speed up the process.
-
-- **📈 Real-Time Analytics & Reports** - View detailed statistics about your application success rate and performance trends. Download comprehensive reports in CSV or PDF format with daily, weekly, monthly, or custom date filters.
-
-- **🎯 AI-Powered Resume Enhancement** - Get tailored AI-powered recommendations to enhance your resume based on your job applications. Receive personalized suggestions for skills, experience, and summary sections.
-
-- **💼 Interview Preparation** - Get tailored interview preparation based on your Apllie applications. Focus on mastering key skills, practice with relevant technologies, and receive insights on soft skills.
-
-- **📱 Cross-Platform Compatibility** - Works with popular job boards and professional networking sites including LinkedIn, Indeed, Glassdoor, Monster, Meta, and ZipRecruiter.
-
-- **🔍 Advanced Organization Tools** - Use customizable filters to organize applications by company, position, location, and status. Create whitelists and blacklists to focus on opportunities that align with your goals.
-
-- **📧 Automated Follow-Ups** - Send reminders to follow up on applications automatically. Stay organized and never miss an opportunity.
-
-- **🔒 Privacy-Focused** - Your data remains secure and private. The extension only accesses pages when you actively use it, and sensitive information is stored locally on your device.
-
-### 🎁 Limited Time Offer
-
-**For a limited time, users can get 20 Free Credits on sign up to Apllie and test it for free!**
-
-### 📧 Support
-
-For further support, reach out to us at: **help@apllie.com**
-
-## Please be aware that there are forked/similar looking versions of this bot using scam, phishing donation links. While purchasing make sure you are on www.apllie.com page or just like below page have check our logo on each crypto payment site,
-
-![Copyright image](https://github.com/wodsuz/EasyApplyJobsBot/assets/34207598/ea8ba3e2-1bed-4d80-ae20-9e96d1f5c09f)
-
-## This is the free version of the bot, you can fork & modifty it by crediting us and without changing the donation links. To use the pro version you can visit our site www.apllie.com
-
-# Demo
-
-Easy Apply Jobs Bot Pro version running on Linux Firefox Browser
-
-https://github.com/wodsuz/EasyApplyJobsBot/assets/34207598/0de30c7e-a8ab-4fc8-8609-f401e13accca
-
-Easy Apply Jobs Bot Pro version running on Linux Chrome Browser
-
-https://github.com/wodsuz/EasyApplyJobsBot/assets/34207598/6fa36b64-742f-4fb2-8228-c15d04560f4f
-
-- Two options are avalible to use this bot, either with entering password or without fully secure no credentials are stored way.
-- Export all results and offers as txt and csv (PRO FEATURE) file
-- Export unanswered questions to txt file, enter answers there, next time bot will use these values
-- PRO FEATURE: Answer unasnwered questions with AI! Let AI answer easy apply jobs' questions.
-- Fully customizable job preferences (advanced filters, search filters)
-- Can be used for many job search websites such as Linkedin, Glassdoor, AngelCo, Greenhouse, Monster, GLobalLogic and Djinni.
-
-**Important:** We have rebranded! **automated-bots.com is NOW Apllie.com**. This repository (Automated Bots - Easy Apply Jobs Bot) is now part of the Apllie ecosystem.
-
-To modify, use, get documentation or for your business enquiries regarding this bot, kindly contact us via: <br>
-[**help@apllie.com**](mailto:help@apllie.com?subject=Contact%20Via%20[GitHub]%20EasyApplyJobsBot)
-
-[**Or directly contact us from our website**](https://www.apllie.com/contact)<br>
-
-## Donation and Support 🥳
-
-With your support we build, update and work on this project. You can also purchase additional packages, tutorials and materials explaining how this bot is working. <br>
-
-There are several features and simplifications we'd like to add to this project. For that we need your support to cover costs. Your support is keeping this project alive.
-
-[**Donate & support!**](https://commerce.coinbase.com/checkout/923b8005-792f-4874-9a14-2992d0b30685)
-
-## Purchase additional materials and guides 😍
-
-You can currently, purchase full in depth detailed tutorial explaining how this bot is working, one hour booking session where i step by step build and run the bot on your machine or 5 videos
-showing how this can be used. To buy, support this project and help me add more features. <br>
-
-- [**Purchase online call tech support to install the bot for Windows**](https://commerce.coinbase.com/checkout/bfc45949-3719-4cac-8fc9-f9111b47a009)
-- [**Purchase online call tech support to install the bot for Linux**](https://commerce.coinbase.com/checkout/c27538b8-ddee-4c68-a0eb-da43e6014043)
-- [**Purchase online call tech support to install the bot for Mac OS**](https://commerce.coinbase.com/checkout/52472ffa-1653-4f56-b92b-60983e627e7c)
-- [**Purchase documentation of this bot for Windows**](https://commerce.coinbase.com/checkout/03546cb2-8691-4837-91ec-a86cae1cb25d)
-- [**Purchase documentation of this bot for Linux**](https://commerce.coinbase.com/checkout/b6ec4e61-cded-4845-a9b8-f87079482e7f)
-- [**Purchase documentation of this bot for Mac OS**](https://commerce.coinbase.com/checkout/effe4a67-895f-4862-ad77-954217d752e6)
-
-## Installation 🔌
-
-### Option 1: Docker Installation (Recommended) 🐳
-
-The easiest way to run the bot is using Docker. This method handles all dependencies automatically.
-
-**Prerequisites:**
-
-- Docker and Docker Compose installed on your system
-- [Install Docker](https://docs.docker.com/get-docker/) if you haven't already
-
-**Steps:**
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/wodsuz/EasyApplyJobsBot
-   cd EasyApplyJobsBot
-   ```
-
-2. Configure your settings:
-   - Edit `config.py` and enter your LinkedIn credentials (email and password) on lines 7 and 8
-   - Modify other settings in `config.py` according to your preferences
-   - Optionally edit `additionalQuestions.yaml` for custom question answers
-
-3. Build and run with Docker Compose:
-
-   ```bash
-   docker-compose up --build
-   ```
-
-   Or run in detached mode (background):
-
-   ```bash
-   docker-compose up -d --build
-   ```
-
-4. View logs:
-
-   ```bash
-   docker-compose logs -f
-   ```
-
-5. Stop the bot:
-   ```bash
-   docker-compose down
-   ```
-
-**Alternative: Using Docker directly (without docker-compose):**
-
-1. Build the Docker image:
-
-   ```bash
-   docker build -t easyapply-bot .
-   ```
-
-2. Run the container:
-   ```bash
-   docker run -it --rm \
-     -v $(pwd)/data:/app/data \
-     -v $(pwd)/cookies:/app/cookies \
-     -v $(pwd)/config.py:/app/config.py \
-     -v $(pwd)/additionalQuestions.yaml:/app/additionalQuestions.yaml \
-     easyapply-bot
-   ```
-
-**Note:** The `data/` and `cookies/` directories will be created automatically and persist your job application results and login sessions.
-
-### Option 2: Manual Installation
-
-- clone the repo `git clone https://github.com/wodsuz/EasyApplyJobsBot`
-- Make sure Python and pip is installed
-- Install dependencies with `pip3 install -r requirements.yaml` (Note: If pip doesn't recognize .yaml, you may need to install packages manually: `pip3 install selenium webdriver_manager selenium-stealth`)
-- Enter your linkedin credentials on lines 7 and 8 of config.py file (email and password)
-- Either create firefox Profile and put its path on line 14 of config.py (firefoxProfileRootDir) or Chrome profile path on line 16 (chromeProfilePath), or enter your linkedin credentials on lines 7 and 8 of config.py. - this feature is available currently only for Linkedin bot pro members)
-- Modify config.py according to your demands.
-- Run `python3 linkedin.py`
-- Check Applied Jobs DATA .txt file is generated under /data folder
-
-### Dry-Run Mode (Safe Simulation) 🧪
-
-If you want to see what the bot _would_ do without actually submitting any applications, you can enable **dry-run mode**.
-
-1. Open `config.py`
-2. Find the setting:
-   ```python
-   dryRun = False
-   ```
-3. Change it to:
-   ```python
-   dryRun = True
-   ```
-4. Run the bot as usual (Docker or manual).
-
-In dry-run mode:
-
-- The bot will browse job listings and open Easy Apply forms.
-- It will **not** click the final "Submit application" button.
-- The output file in the `data/` folder will contain lines like:
-  - `* 🧪 DRY RUN - Would apply to this job: https://www.linkedin.com/jobs/view/...`
-  - `* 🧪 DRY RUN - Would go through multi-step application: https://www.linkedin.com/jobs/view/...`
-
-## Features 💡
-
-- **Session summary** – At the end of each run, the bot prints and saves a summary: jobs processed, applied, blacklisted, already applied, could not apply, and run duration. The summary is appended to the day's data file (`data/Applied Jobs DATA - YYYYMMDD.txt`).
-- Ability to filter jobs, by easy apply, by location (Worldwide, Europe, Poland, etc.), by keyword (python, react, node), by experience, position, job type and date posted.
-- Apply based on your salary preferance (works best for job offers from States)
-- Automatically apply single page jobs in which you need to send your up-to-date CV and contact.
-- Automatically apply more than one page long offers with the requirements saved in LinkedIn like experience, legal rights, resume etc.
-- Output the results in a data txt file where you can later work on.
-- Print the links for the jobs that the bot couldn’t apply for because of extra requirements. (User can manually apply them to optimize the bot)
-- Put time breaks in between functions to prevent threshold.
-- Automatically apply for jobs.
-- Automatically run in the background.
-- Compatible with Firefox and Chrome.
-- Runs based on your preferences.
-- Optional follow or not follow company upon successful application.
-- Much more!
-
-## Supported Platforms
-
-| Browser | Mac | Windows | Linux-Ubuntu | Note                          |
-| ------- | --- | ------- | ------------ | ----------------------------- |
-| Chrome  | ✅  | ✅      | ✅           |
-| Firefox | ✅  | ✅      | ✅           | Only avalible for Pro version |
-
-## How to Set up (long old way) 🛠
-
-This tutorial briefly explains how to set up LinkedIn Easy Apply jobs bot. With few modifications you can make your own bot or try my other bots for other platforms.
-
-1. Install Firefox or Chrome. I was using Firefox for this so I will continue the usage of it on Firefox browser. Process would be similar on Chrome too.
-2. Install Python.
-3. Download Geckodriver put it in Python’s installation folder.
-4. Install selenium and dependencies: `pip install selenium webdriver_manager selenium-stealth` (Note: webdriver_manager automatically handles driver installation, so manual Geckodriver/ChromeDriver download is not needed)
-5. Clone the code
-6. Create a profile on Firefox, about:profiles (or Chrome profile via chrome://version/)
-7. Launch new profile, go Linkedin.com and log in your account
-8. Copy the root folder of your new profile, to do that type about:profiles on your Firefox search bar, copy the root folder C:\---\your-profile-name.
-9. Paste the root folder on config.py file (chromeProfilePath on line 16 or firefoxProfileRootDir on line 14)
-10. Enter your LinkedIn credentials on lines 7 and 8 of config.py (email and password)
-11. Modify/adapt the code and run
-12. After each run check the jobs that the bot didn’t apply automatically, apply them manually by saving your preferences
-13. Next time the bot will apply for more jobs based on your saved preferences on Linkedin.
-14. Feel free to contact me for any update/request or question.
-
-## Demo 🖥
-
-![banner](https://user-images.githubusercontent.com/34207598/189535377-98ca5bfc-8f4e-4f68-9b3c-59e259d4fe5f.png)
-![1](https://user-images.githubusercontent.com/34207598/128695723-2af373a6-3fbb-4dcc-9bba-24af57f17ee9.png)
-![2](https://user-images.githubusercontent.com/34207598/128695725-5250cc6d-72e7-4a79-b060-8decfb9be54a.png)
-![2022-09-11_18-08](https://user-images.githubusercontent.com/34207598/189535397-2673d603-9489-4104-a066-dd66aca624fd.png)
-![2022-09-11_18-09](https://user-images.githubusercontent.com/34207598/189535410-2131a9d0-fd63-419f-a5ea-c663103877d2.png)
-
-## Free vs Pro version
-
-| Category                                                           | Free Version | Pro Version        |
-| ------------------------------------------------------------------ | ------------ | ------------------ |
-| Supported Browsers                                                 | Chrome       | Firefox and Chrome |
-| Headless(invisible) Browser                                        | ❌           | ✅                 |
-| Login with Credentials                                             | ✅           | ✅                 |
-| Auto login based on Firefox Profile                                | ❌           | ✅                 |
-| Filter offers based on job location                                | ✅           | ✅                 |
-| Filter offers based on keyword                                     | ✅           | ✅                 |
-| Filter offers based on experience level                            | ✅           | ✅                 |
-| Filter offers based on date posted                                 | ✅           | ✅                 |
-| Filter offers based on salary                                      | ✅           | ✅                 |
-| Filter offers based on recent or relevent                          | ✅           | ✅                 |
-| Blacklist companies that you don't want to apply                   | ✅           | ✅                 |
-| Blacklist offer titles that you don't want to apply                | ✅           | ✅                 |
-| Follow or unfollow companies after application                     | ✅           | ✅                 |
-| Output skipped questions in txt file for late application          | ❌           | ✅                 |
-| Use AI to fill and answer skipped unanswered questions             | ❌           | ✅                 |
-| Only Apply these companies feature                                 | ❌           | ✅                 |
-| Only Apply titles having these keywords feature                    | ❌           | ✅                 |
-| Don't apply the job posted by the Hiring member                    | ❌           | ✅                 |
-| Only apply the job sposted by the Hiring member                    | ❌           | ✅                 |
-| Only apply jobs having less than x amount applications             | ❌           | ✅                 |
-| Only apply jobs having these keywords in the job description       | ❌           | ✅                 |
-| Dont't apply the jobs having these keywords in the job description | ❌           | ✅                 |
-| Apply companies having equal or more than employes                 | ❌           | ✅                 |
-| Only apply the ones linkedin is saying "you may be a goodfit"      | ❌           | ✅                 |
-| Only apply the ones you have skilled badge                         | ❌           | ✅                 |
-| Save the jobs by pressing SAVE button before apply                 | ❌           | ✅                 |
-| Sent a message to the hiring manager once you apply for the role   | ❌           | ✅                 |
-| List and output non Easy Apply jobs links                          | ❌           | ✅                 |
-| Check yes or no to all checkbox questions                          | ❌           | ✅                 |
-| Output file in txt format                                          | ✅           | ✅                 |
-| Output file in csv(excel) format                                   | ❌           | ✅                 |
-
-## Documentation
-
-[**Automated Bots - Easy Apply Jobs Config file Settings Document**](https://docs.google.com/document/d/1iqzsfily05ce1amr1ob01zemezzn3va2pbk3momn15g/edit?usp=sharing)
-
-## Frequently Asked Questions
-
-<details><summary> How to install and run the bot? </summary>
-<br>
-To install the bot simply clone the repo, install required packages (these are dependencies making the bot run properly), enter your credentials & edit the config file based on your preferences and run the bot with the command python3 [thePlatformName].py
-<br><br>
-To run the bot you need Python (general-purpose programming language), Pip (package manager for Python), Selenium (for browser automation) and some dependencies to be installed on your device. For more information and details, you can check the installation of each project on their specific site shown below.
-</details>
-
-<details><summary> Instalization is too complicated can you make it easier? </summary>
-<br>
-Yes, we are trying to improve the process of instalization meanwhile you can purchase and use the step by step instalization tutorials to install the bot properly on your device
-</details>
-
-<details><summary> What are the features of these bots? </summary>
-<br>
-Currently automated bots hold 3 different subgroups under one umbrella. One for applying for jobs automatically, one for listing businesses automatically and one for swiping & messaging automatically in dating apps. You can check the features of each bot on the homepage and their own GitHub repository that I share and update regularly. 
-</details>
-
-<details><summary> How much does it cost & how can I pay? </summary>
-<br>
-Each bot has a free and paid version. The free version comes with an open-source license that you can change & modify. For paid ones, you need to purchase coins and those coins will be deducted whenever the bot successfully acts (applying for jobs successfully, listing companies successfully or swiping & sending messages successfully). You can check our shop for the prices of each product. 
-</details>
-
-<details><summary> Would i get banned or my account be blocked? </summary>
-<br>
-No, since you run the bot on your own device and the traffic is coming from your own address, the risks of getting banned from any of the websites we support is very low. This is because you run the bot on your own device, your traffic will be similar with your own actions and the bot will act humanely meaning it will perform stopping waiting and skipping actions randomly.Meanwhile we dont recommend applying more than 200 jobs per day via job apply bot.
-</details>
-
-<details><summary>I have an error while running the bot, how can i fix? </summary>
-<br>
-When you have an error related to any of the bots. Please check the github project first. Someone else also might post a similar error. Then if its free version try Google the error, if that doesn't work kindly contact with us with our contact page.
-</details>
-
-<details><summary>What are the terms and rules of using these bots? </summary>
-<br>
-The free version comes with an open source license. You are free to modify and work in any way you want. Paid version comes with limited license meaning that you accept and approve that you will be using the bot for you only and you won't modify/sell/commercialize or steal in any way 
-</details>
-
-<details><summary>Linkedin pro bot will apply unanswered / additional questions? </summary>
-<br>
-Yes. Linkedin pro has several features for unanswered or additional questions. Firstly, it can answer a question based on Linkedin’s default value from previous applications of yours. Secondly, it can apply from a questions file - you need to add custom questions and answers in order for the bot to apply, thirdly AI can answer the questions for you. 
-</details>
-
-<details><summary>Do you have a bot for x website? </summary>
-<br>
-We currently support the sites we sell in our shop. Please check our shop in order to see if we support or not. We constantly add and update the bot, in the future we will have social media accounts to provide you better and faster updates. 
-</details>
-
-## Future Implementations
-
-- Add full support to other major job seeking websites (Glassdoor, AngelCo https://angel.co/l/2xRADV, Greenhouse, https://cryptocurrencyjobs.co/, Monster, GLobalLogic, djinni)
-
-## Special Thanks
-
-Special thanks to all the contributors who are constantly helping and keeping this repository active. Your contributions, whether they're bug reports, feature suggestions, or code improvements, are greatly appreciated. We couldn't do this without you!
-
-- Thanks a lot [@GabrielGircenko](https://github.com/GabrielGircenko) for putting his time and huge experince on this project. Please make sure to check his repo https://github.com/GabrielGircenko/EasyApplyJobsBot
+# AI Job Assistant
+
+An evidence-first job analysis system. It maintains a **verified truth model of a real
+candidate**, reads job descriptions, and produces an **auditable** verdict on fit —
+then stops there.
+
+> ## ⚠️ REAL APPLICATION SUBMISSION IS CURRENTLY DISABLED
+>
+> There is no code in `src/` that can submit a job application. Not disabled by a
+> feature flag alone — there is no submission code path to enable. `POST
+> /api/jobs/{id}/apply` always returns `submitted: false`. All 8 privileged safety
+> actions are denied by default, and the safety invariants make a permissive
+> configuration fail at process startup.
+>
+> **The legacy Selenium bot at the repository root (`linkedin.py`) can and does submit
+> real applications. It is not part of this system, is not reachable from the modern
+> CLI or API, and `docker compose up` runs it — not this software.** See
+> [Legacy Components](#legacy-components).
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Project Goal](#project-goal)
+- [Problem We Are Solving](#problem-we-are-solving)
+- [What The System Does](#what-the-system-does)
+- [Current Architecture](#current-architecture)
+- [System Flow](#system-flow)
+- [Core Components](#core-components)
+- [Current Capabilities](#current-capabilities)
+- [Current Project Status](#current-project-status)
+- [Technology Stack](#technology-stack)
+- [Repository Structure](#repository-structure)
+- [How It Works](#how-it-works)
+- [Safety & Submission Policy](#safety--submission-policy)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Running Locally](#running-locally)
+- [Testing](#testing)
+- [Zero-Cost Local Architecture](#zero-cost-local-architecture)
+- [Security & Privacy](#security--privacy)
+- [Known Limitations](#known-limitations)
+- [Legacy Components](#legacy-components)
+- [Future Roadmap](#future-roadmap)
+- [Team Development Areas](#team-development-areas)
+- [Core Design Principles](#core-design-principles)
+- [License](#license)
+- [Disclaimer](#disclaimer)
+
+---
+
+## Overview
+
+**AI Job Assistant** is a Python-first system for understanding job postings and
+comparing them against a candidate's own verified facts.
+
+The repository has two distinct halves, and it matters which one you are reading:
+
+| | **Modern system** — `src/` | **Legacy bot** — repository root, `legacy/` |
+|---|---|---|
+| Language | Python 3.11 + TypeScript | Python + Node/TypeScript |
+| Entry | `job_assistant.py`, FastAPI, React | `linkedin.py`, `legacy/express-server/` |
+| Submits applications | **No** | **Yes** |
+| Safety model | Server-enforced invariants | A single `if config.dryRun:` check |
+| Status | Active | Quarantined |
+
+Everything below describes the **modern system** unless explicitly labelled legacy.
+
+### Project history
+
+This repository descends from `wodsuz/EasyApplyJobsBot`, a Selenium-based LinkedIn
+auto-applier, which was rebranded "Apllie". The original marketing `README.md`,
+`linkedin.py`, `config.py`, `utils.py`, `constants.py`, `Dockerfile`, and
+`docker-compose.yml` are all still present at the root. The current system was built
+*alongside* them and then made canonical; the legacy code was quarantined rather than
+deleted so its behaviour stays auditable (`legacy/README.md`).
+
+The project self-describes in its own CLI as:
+
+```
+AI Job Assistant - Phase 2 foundation + Milestone 3 job intelligence
+(no browser, no submission)
+```
+
+---
+
+## Project Goal
+
+Give a job seeker a defensible, evidence-backed answer to **"does this job actually
+fit me, and can I prove it?"** — without inventing anything on their behalf.
+
+Concretely, the system is intended to help a candidate:
+
+- understand a job description on its own terms
+- extract the requirements a posting actually states
+- compare those requirements against **their own recorded, sourced facts**
+- evaluate fit with a deterministic hard gate before any scoring happens
+- manage resume variants and know which one suits which posting
+- keep a human review step in front of anything consequential
+- prepare for future applications **without ever submitting one today**
+
+### Current capability vs. long-term vision
+
+| | |
+|---|---|
+| **Current capability** | Read-only analysis. Offline ingestion of saved HTML. Deterministic extraction. Hard-gate veto. Auditable match verdicts. Human review queue. Evidence-backed profile. |
+| **Long-term vision** (not implemented) | Assisted application preparation: plan an application, classify its questions, resolve each answer from verified evidence, rehearse a dry run, and track outcomes — with a human approving every real action. |
+
+The system deliberately stops at the boundary between *analysing* an application and
+*submitting* one. That boundary is enforced in code, not by convention.
+
+---
+
+## Problem We Are Solving
+
+Auto-apply tools fail in a specific, predictable way: they confidently answer
+questions they do not know the answer to.
+
+A bot that guesses "requires visa sponsorship? yes" can cost a real person a visa or a
+job. A bot that invents a skill can produce a résumé that misrepresents them. A bot
+that reports a confident "92% match" with no explanation cannot be audited.
+
+This system takes the opposite position:
+
+1. **Unknown is a valid answer.** An empty profile is a *correct* profile, not a bug.
+   The codebase states this explicitly: an `UNKNOWN` fact must never carry a value,
+   because otherwise "I don't know" becomes indistinguishable from "yes".
+2. **Every claim carries its source.** A fact is only `VERIFIED` if something backs it.
+3. **Hard requirements are not scores.** Years-of-experience and work-authorisation
+   requirements are decided by a deterministic gate *before* any similarity scoring,
+   and a gate veto ends the evaluation.
+4. **Absence of evidence never becomes a failure.** If the profile does not state years
+   of experience, the verdict is `INSUFFICIENT_EVIDENCE` and the job goes to human
+   review — not a silent pass, and not a rejection.
+
+The result is a system that can say *"I don't know, and here is exactly what I would
+need to know"* — which is the thing a candidate actually needs.
+
+---
+
+## What The System Does
+
+**Does:**
+
+- Maintains an evidence-backed candidate profile with three-state facts
+- Validates that profile and reports what is missing for an application
+- Ingests resumes (`.txt`, `.md`, `.pdf`, `.docx`) with hashing and duplicate detection
+- Parses saved job-posting HTML **offline** — no scraping, no network fetching
+- Extracts requirements deterministically, with 21 requirement kinds
+- Applies a hard gate on years-of-experience and work-authorisation requirements
+- Produces a match verdict with a per-requirement audit trail
+- Ranks resume variants against a job by requirement coverage
+- Builds an 11-dimension fit report and a review queue
+- Optionally uses a **local Ollama** model to interpret a job description, with
+  deterministic fallback and a cross-check between the two
+- Serves all of the above over FastAPI and renders it in React
+- Enforces safety invariants at startup, before the database is even opened
+
+**Does not:**
+
+- Submit applications (no code exists)
+- Scrape or crawl job sites (no network client for job boards)
+- Fill forms, click buttons, or drive a browser in `src/`
+- Answer screening questions
+- Tailor, rewrite, or optimise résumés
+- Generate cover letters
+- Deploy to production
+
+---
+
+## Current Architecture
+
+Three tiers. The React app is presentation only; Python is canonical.
+
+```mermaid
+flowchart TB
+    subgraph Presentation["Presentation — React + Vite"]
+        UI["React 19 SPA<br/>7 tabs, no router, no state library"]
+    end
+
+    subgraph Boundary["API boundary — FastAPI"]
+        API["FastAPI :8000<br/>30 /api routes + root probe<br/>4 routers · CORS: 5173 only"]
+    end
+
+    subgraph Core["Canonical core — Python 3.11"]
+        ASST["assistant/<br/>Assistant facade + JobService"]
+        PROF["profile/<br/>Candidate Truth + validator"]
+        JOBS["jobs/<br/>requirements · hard_gate<br/>matching · explain"]
+        RES["resumes/<br/>parser + hashing"]
+        SAFE["safety/ + core/settings<br/>SafetyPolicy + invariants"]
+        AI["ai/<br/>provider ABC + registry"]
+    end
+
+    subgraph Store["Persistence"]
+        DB[("SQLite<br/>17 tables, 5 migrations")]
+    end
+
+    subgraph Optional["Optional, local, free"]
+        OL["Ollama :11434<br/>qwen2.5:7b"]
+    end
+
+    UI -->|"Vite dev proxy /api"| API
+    API --> ASST
+    ASST --> PROF & JOBS & RES
+    ASST --> SAFE
+    JOBS -.optional scorer.-> AI
+    AI -.requires_api_key=false.-> OL
+    PROF & RES & JOBS --> DB
+    SAFE -.refuses all 8 actions.-> ASST
+```
+
+### How the tiers relate
+
+- **React is presentation.** It holds no business logic and makes no decisions about
+  fit. Its only write attempt to safety settings is a toast that says it cannot.
+- **FastAPI is the API boundary.** It validates, redacts, and refuses. It contains no
+  matching logic — it delegates to the service layer.
+- **Python is the canonical core.** Every decision — extraction, gating, matching,
+  validation — lives here. The TypeScript in `legacy/` is a duplicate, quarantined
+  implementation, not a second source of truth.
+- **SQLite is local persistence.** One file, gitignored. JSON files are the
+  human-editable source of truth; SQLite is a queryable projection.
+
+### Runtime topology
+
+| Tier | Address | Started by |
+|---|---|---|
+| Vite dev server | `127.0.0.1:5173` | `npm run dev` |
+| FastAPI | `127.0.0.1:8000` | `uvicorn api.app:app` with `PYTHONPATH=src` |
+| Ollama *(optional)* | `127.0.0.1:11434` | external |
+
+The Vite dev server proxies `/api` → `http://127.0.0.1:8000`, so the browser makes
+same-origin requests and CORS is not exercised in the normal dev flow.
+
+---
+
+## System Flow
+
+### Job intelligence pipeline
+
+```mermaid
+flowchart TD
+    A["Saved HTML on disk<br/>(no network fetch)"] --> B["parse_job_page<br/>classify description quality"]
+    B --> C["Normalize<br/>title · company · text"]
+    C --> D["Deduplicate<br/>external_id → canonical_url → content"]
+    D --> E["Extract requirements<br/>deterministic rules"]
+    E -.optional.-> F["AI interpretation<br/>Ollama + grounding validation"]
+    F -.reconcile.-> E
+    E --> G["Candidate evidence<br/>profile facts → claims"]
+    G --> H{"Hard gate<br/>years · sponsorship"}
+    H -->|"HARD_MISMATCH"| I["Vetoed<br/>scorer never runs"]
+    H -->|"PASS / UNKNOWN / REVIEW"| J["Match<br/>claims then similarity"]
+    J --> K["Explain<br/>per-requirement lineage"]
+    K --> L{"Decision"}
+    L -->|"MATCH"| M["Ready for application"]
+    L -->|"INSUFFICIENT_EVIDENCE<br/>REVIEW_REQUIRED"| N["Human review queue"]
+    I --> N
+```
+
+Stages that exist in code are shown. Stages that do not exist (form filling, submission)
+are not shown.
+
+### Candidate truth → matching
+
+```mermaid
+flowchart LR
+    subgraph Truth["Candidate Truth"]
+        F["FactValue<br/>VERIFIED · INFERRED · UNKNOWN"]
+        E["Evidence<br/>source_type · id · location<br/>excerpt · confidence"]
+    end
+
+    F -->|"1:many, ordered"| E
+    F --> G["CandidateEvidence<br/>claims + gate scalars"]
+    E -.->|"provenance carried<br/>into explanation"| G
+
+    G --> Gate{"Hard gate"}
+    Req["Extracted requirements"] --> Gate
+    Gate -->|"veto"| Veto["HARD_MISMATCH<br/>deterministic"]
+    Gate -->|"pass/unknown"| Score["Scoring<br/>claims, then similarity"]
+    Score --> Verdict["Decision + audit trail"]
+```
+
+---
+
+## Core Components
+
+### Candidate Truth & Evidence
+
+Every leaf field of a candidate profile is a `FactValue`, never a bare string.
+
+| Status | Meaning | Application-safe |
+|---|---|---|
+| `VERIFIED` | Confirmed by the candidate or a deterministic source they accepted | **Yes** — the only one |
+| `INFERRED` | Deterministic parse, or an AI proposal | No |
+| `UNKNOWN` | Nothing known. *The correct default, not a defect.* | No |
+
+Model-enforced invariants (`src/core/evidence.py`):
+
+1. `UNKNOWN` must never carry a value — otherwise "I don't know" reads as "yes".
+2. `VERIFIED` / `INFERRED` must carry a value.
+3. `VERIFIED` must name its source — otherwise nothing is auditable.
+4. `extra="forbid"`, `validate_assignment=True` — assignment re-runs validation.
+
+`Evidence` is frozen and immutable, carrying `source_type`, `source_id`,
+`source_location`, a `text_excerpt` (truncated at 2000 chars), and a calibrated
+`confidence` in `[0,1]` — explicitly *"not how sure the model feels."*
+
+`is_application_safe` requires all three of: known, `VERIFIED`, **and** non-empty
+evidence.
+
+Every mutation is written to `fact_change_log` with `actor` and `actor_kind`
+(`HUMAN` | `DETERMINISTIC` | `AI`), storing before/after status and value.
+
+**Validation.** `CandidateProfileValidator` runs 10 rule groups and emits 22 stable
+codes. It reports; it never repairs. Eight fields are `REQUIRED_FOR_APPLICATION`:
+`identity.full_name`, `contact.email`, `contact.phone`, `location.current_country`,
+`experience.total_years_experience`, `education.highest_level`,
+`authorization.requires_sponsorship`, `availability.available_from`.
+
+### Resume Intelligence
+
+Four extractors, all deterministic, no LLM anywhere in the parse path:
+
+| Format | Backend |
+|---|---|
+| `.txt` | manual decode over `utf-8`, `utf-8-sig`, `cp1252`, `latin-1` |
+| `.md` | delegates to text; markdown syntax deliberately preserved |
+| `.pdf` | `pdfplumber` |
+| `.docx` | `python-docx` — paragraphs **and** table cells |
+
+- **Identity is content, not filename.** SHA-256 of raw bytes, plus a second
+  whitespace-collapsed text hash so the same résumé in a different container collides.
+- **Duplicate detection** raises unless explicitly allowed; cross-format duplicates are
+  annotated in metadata rather than rejected.
+- **A minimum of 80 extracted characters is required** by every extractor, so a scanned
+  PDF fails loudly instead of "succeeding" with zero content. There is no OCR.
+- **Originals are opened read-only** and never moved, renamed, or overwritten.
+- Variants carry `variant`, `role_focus` (a validated slug), `version`, and `skills`.
+
+Relevance lives in `src/jobs/relevance.py` and is **token-coverage only** — no scorer is
+passed in. A tie returns `REVIEW_REQUIRED` with no recommendation rather than guessing.
+
+### Job Intelligence
+
+18 modules. The implemented stages are ingestion, normalisation, deduplication,
+deterministic extraction, optional AI interpretation, reconciliation, candidate
+evidence, hard gate, matching, explanation, an 11-dimension report, relevance, and a
+review queue.
+
+**Job status** is a 17-state machine with an explicit transition table. Only two
+transitions are actually reachable today (`→ NORMALIZED`, `→ JD_PENDING`); the
+repository's own docs note that `APPLYING` and `APPLIED` are retained "because they
+already existed" and that **no code in this milestone can reach them.** The transition
+method exists and writes an audit row, but has no caller — the state machine is defined,
+not driven.
+
+**Hard gate** is narrow by design. It considers only `REQUIRED` requirements that
+carry `min_years` or are `SPONSORSHIP`. A veto ends evaluation before scoring runs.
+
+**Matching** applies authority in order: gate veto → exact claim membership →
+similarity. A scorer error degrades to `UNKNOWN`, never to a miss.
+
+**Caching** is durable and fingerprint-based:
+
+- analysis → `(job_id, content_hash, analyzer, analyzer_version, prompt_version)`
+- match → `(job_id, candidate_id, requirements_fingerprint, candidate_fingerprint, scorer_fingerprint)`
+
+Only `status='SUCCESS'` rows are served, so a failed AI attempt is recorded and then
+retried rather than cached as an answer. A failed run is never cached as a success.
+
+### AI Layer
+
+One abstract base class, one registry, **one working provider**.
+
+```mermaid
+flowchart LR
+    ABC["AIProvider (ABC)<br/>health_check · generate_text<br/>generate_structured · embed"]
+    REG["registry<br/>register_provider · build_provider"]
+    OL["OllamaProvider ✅<br/>registered, reachable"]
+    HF["HuggingFaceLocalProvider ❌<br/>cannot be imported"]
+
+    ABC -.implemented by.-> OL
+    ABC -.claims to implement.-> HF
+    REG --> OL
+    REG -.does not register.-> HF
+```
+
+| | Status |
+|---|---|
+| `AIProvider` ABC | IMPLEMENTED |
+| `OllamaProvider` | IMPLEMENTED — registered, reachable from CLI and status |
+| `HuggingFaceLocalProvider` | **BROKEN — cannot be imported** |
+| `LexicalScorer` | IMPLEMENTED — the default, offline, zero-dependency |
+| `EmbeddingScorer` | PARTIAL — requires a live embedding provider |
+| `classify_question_intent` | DISCONNECTED — no importer in `src/` |
+
+Transport is `urllib.request` only — no HTTP client dependency. Errors map to typed
+exceptions (`ProviderUnavailableError`, `ProviderTimeoutError`,
+`ModelNotFoundError`).
+
+**AI interpretation** of job descriptions is real, opt-in, and grounded
+(`src/jobs/interpret.py`): output is validated against a Pydantic schema, rejected if
+ungrounded in the posting, and on any provider failure the deterministic extraction is
+returned with `ai_fallback` recorded. A separate `reconcile` step cross-checks the two
+extractions.
+
+### Hugging Face
+
+**NOT CURRENTLY FUNCTIONAL.** This is the most important correction relative to older
+documentation.
+
+- The model id `sentence-transformers/all-MiniLM-L6-v2` appears in exactly one place in
+  `src/`: a constant in `src/ai/huggingface.py`.
+- **The module raises `ImportError` on import.** It imports `ModelMetadata` and
+  `ModelCapability`, neither of which exists in the codebase. It also implements
+  `supports` / `get_metadata` / `get_embeddings` rather than the ABC's methods, so it
+  would not satisfy the interface even if the imports were repaired.
+- It is **not registered** in the provider registry, and **not imported** by any module
+  in `src/`.
+- It depends on `fastembed`, which is **not in `requirements.txt`** and is not
+  installed. `sentence-transformers`, `torch`, and `transformers` are also undeclared.
+- Its design intends **local ONNX inference** (CPU-only, no HF token, no hosted
+  Inference API). Nothing in the repository performs hosted inference.
+- Its cache directory (`data/models/cache`) does not exist, and there is no prefetch or
+  warm-up script.
+
+The frontend's "Hugging Face AI" tab is a placeholder that does not mount its
+sub-components, and its status badges are hardcoded strings.
+
+> **Note.** The quarantined Node engine in `legacy/` contains a working-ish
+> `@xenova/transformers` implementation. `legacy/README.md` lists among its
+> deliberately-preserved defects that it "fell back to a synthetic hash projection
+> while still reporting HF semantic inference." The Python port carries the same
+> defect class in unimportable form — it substitutes a hash-based trigram vector when
+> model loading fails. **Do not treat any of it as a working semantic pipeline.**
+
+### Ollama
+
+The only live AI provider, and genuinely usable.
+
+| Property | Value |
+|---|---|
+| Default model | `qwen2.5:7b` |
+| Base URL | `http://localhost:11434` |
+| API key | **Not required** (`requires_api_key = False`) |
+| Endpoints used | `/api/tags`, `/api/generate`, `/api/embeddings` |
+| Embeddings | Declared supported; note `embedding_model` is unset by default, so it falls back to the chat model |
+
+Ollama is **entirely optional**. Every code path degrades cleanly: if the provider is
+unreachable, `ProviderUnavailableError` is raised with no silent fallback, and
+deterministic extraction and lexical scoring continue to work. No status endpoint ever
+probes the network — `/api/status` reports *configuration*, not reachability, by design.
+
+### Database
+
+SQLite via the standard library. Five plain SQL migrations, no ORM, no Alembic,
+applied in filename order and recorded in `schema_migrations`.
+
+**17 tables:** `schema_migrations`, `documents`, `evidence`, `candidate_profiles`,
+`candidate_facts`, `fact_evidence`, `resumes`, `resume_sections`, `model_runs`,
+`fact_change_log`, `jobs`, `job_requirements`, `job_extraction_runs`, `job_analyses`,
+`job_matches`, `job_state_events`, `job_reviews`.
+
+Deliberately **not** created: `applications`, `application_answers`,
+`application_events`, `question_memory`. There is no application storage because there
+is no application.
+
+WAL enabled, foreign keys on, autocommit with an explicit `transaction()` context
+manager, per-thread connections.
+
+### FastAPI
+
+One app factory. 30 operations under `/api` plus a root liveness route — 31 documented
+operations in total, across four routers.
+
+| Domain | Routes |
+|---|---|
+| Status | `/api/health`, `/api/ready`, `/api/status` |
+| Profile | read, set one fact, read one fact, validate, completeness, unknown fields |
+| Resumes | list, ingest, duplicate check, stored duplicates, variants, sections, read, delete |
+| Jobs | list, ingest, reviews, read, analysis, match, report, relevance, explanation, review state, resolve review, apply, delete |
+
+- **Safety invariants are asserted inside the lifespan, before the database is opened.**
+  An unsafe configuration fails process startup.
+- **No route writes safety settings.** There are zero `PUT` and zero `PATCH` handlers
+  in the entire surface, no safety-named path, and no route that mutates the policy.
+  This is regression-tested by walking the live OpenAPI document.
+- **No status endpoint performs network I/O.**
+- `POST /api/jobs/{id}/apply` returns **HTTP 200** with `submitted: false` and a
+  refusal reason. (It declares a `403` response it never emits.)
+- CORS allows exactly `http://localhost:5173` and `http://127.0.0.1:5173`, credentials
+  off. No wildcard.
+- Exception handlers map 22 typed domain errors to one `ErrorEnvelope` shape, with
+  secrets redacted.
+- **No authentication, no rate limiting.** Acceptable for a loopback-bound development
+  tool; it is not a public service.
+
+### React
+
+React 19 + Vite 8 + Tailwind CSS 4. Three runtime dependencies (`react`, `react-dom`,
+`lucide-react`). No router — a single `activeTab` state. No state library — plain
+hooks. No data-fetching library — a hand-rolled typed `fetch` wrapper in `src/lib/api/`.
+
+Seven tabs: Job Matching, Review Queue, Candidate Profile, Resume Vault, Auto-Fill Q&A,
+Hugging Face AI, Safety & Guardrails.
+
+| Tab | State |
+|---|---|
+| Safety & Guardrails | **Wired** (read-only, correctly) |
+| Job Matching | PARTIAL — 4 of 10 job endpoints used; the report/explanation/relevance surface `JobDetailModal` is built for is never fetched |
+| Review Queue | PARTIAL — derived client-side by filtering `jobs`; the dedicated queue endpoint is unused |
+| Candidate Profile | **Reads work; writes are silently discarded** — see [Known Limitations](#known-limitations) |
+| Resume Vault | PARTIAL — list only; ingest unreachable from the UI |
+| Auto-Fill Q&A | **Non-functional** — calls two endpoints that do not exist; 404s render as an empty table |
+| Hugging Face AI | **Stub** — renders a placeholder string; sub-components unmounted |
+
+### Safety Layer
+
+`src/safety/` is the only place that decides whether a privileged operation may happen.
+**Everything defaults to blocked.**
+
+| Action | Default | Blocked because |
+|---|---|---|
+| `NAVIGATE` | denied | `allow_browser_navigation=false` |
+| `READ_PAGE` | denied | needs browser navigation |
+| `FILL_FORM` | denied | `allow_form_filling=false` |
+| `CLICK` | denied | `allow_form_filling=false` |
+| `UPLOAD_FILE` | denied | `allow_file_upload=false` |
+| `ANSWER_QUESTION` | denied | needs form filling; also needs approval |
+| `SUBMIT_APPLICATION` | denied | `dry_run=true` — checked *first* |
+| `USE_VERIFIED_FACT` | denied | needs form filling |
+
+**0 of 8 permitted by default.** `SafetyPolicy.check()` evaluates hard switches before
+approval, so a disabled flag is reported as a disabled flag rather than as a missing
+approval.
+
+`assert_phase2_invariants()` raises at startup if `safe_mode`, `dry_run`, or
+`require_human_approval` is not true, or if `allow_final_submission` or
+`allow_form_filling` is true. There is deliberately no flag to switch it off.
+
+### Browser Automation
+
+`src/` contains **no browser automation and no submission code**. A security test
+asserts that no file under `src/` imports `selenium`.
+
+`automation/` exists but is **read-only by design**: it can open a URL and read
+`page_source`. It never types, never clicks, never submits. Its own docstring explains
+the intent — *"keeping the capability out of the reader is what stops 'just fetch the
+listing' from quietly growing into 'just apply'."*
+
+`automation/linkedin_source.py` can build LinkedIn search URLs, but **no module in
+`src/` imports it.** It is reachable only from tests, with an injected fetch function.
+
+### Guarding candidate truth from AI
+
+`ProfileService.update_fact()` is the live enforcement point:
+
+- AI writing a `VERIFIED` fact → `ImmutableFactError`
+- A `VERIFIED` fact without a source → `ImmutableFactError`
+- AI writing `UNKNOWN` with a value → silently demoted to `INFERRED`
+
+`suggest_fact()` is the only route by which AI output may enter a profile, and it
+hardcodes `status=INFERRED` with a fixed confidence. `import_facts()` refuses an AI
+actor outright.
+
+Actor classification defaults to `AI` for unrecognised writers, so an unnamed or
+unknown writer is treated as untrusted. An empty actor name raises rather than
+guessing.
+
+> **Honest scoping.** `safety.guards.assert_no_fact_mutation()` — the before/after diff
+> guard — is invoked by the acceptance suite and tests, but **not** on the production
+> write path. The enforced runtime guard is `ProfileService.update_fact()`. Likewise,
+> the `ai_attempts()` regression counter is defined but never called. These are
+> verification tools, not live protections.
+
+---
+
+## Current Capabilities
+
+| Capability | Status |
+|---|---|
+| Evidence-backed candidate profile | IMPLEMENTED |
+| Three-state facts with model invariants | IMPLEMENTED |
+| Profile validation (22 codes, 8 required fields) | IMPLEMENTED |
+| Fact change audit trail | IMPLEMENTED |
+| Resume ingest: txt / md / pdf / docx | IMPLEMENTED |
+| Resume hashing + duplicate detection | IMPLEMENTED |
+| Resume variants + section indexing | IMPLEMENTED |
+| Offline job ingest from saved HTML | IMPLEMENTED |
+| Deterministic requirement extraction (21 kinds) | IMPLEMENTED |
+| Job deduplication (3-tier identity) | IMPLEMENTED |
+| Hard gate (years, sponsorship) | IMPLEMENTED |
+| Match verdict + per-requirement explanation | IMPLEMENTED |
+| 11-dimension report | IMPLEMENTED (one dimension always `NOT_SCORED`) |
+| Resume relevance by coverage | IMPLEMENTED |
+| Review queue + reason derivation | IMPLEMENTED |
+| Durable analysis + match caching | IMPLEMENTED |
+| Ollama text + structured generation | IMPLEMENTED |
+| Ollama embeddings | PARTIAL — needs `embedding_model` set |
+| AI job-description interpretation | IMPLEMENTED, CLI-only |
+| AI ↔ deterministic reconciliation | IMPLEMENTED |
+| Lexical scorer | IMPLEMENTED (default) |
+| Model-run audit records | IMPLEMENTED |
+| Acceptance suite (24 steps) | IMPLEMENTED |
+| FastAPI boundary (31 operations) | IMPLEMENTED |
+| React presentation (7 tabs) | PARTIAL |
+| Safety invariants | IMPLEMENTED |
+| **Hugging Face embeddings** | **BROKEN — module cannot be imported** |
+| Question intent classification | DISCONNECTED |
+| Question answering | NOT IMPLEMENTED |
+| Résumé tailoring / rewriting | NOT IMPLEMENTED |
+| ATS optimisation | NOT IMPLEMENTED |
+| PDF/DOCX regeneration | NOT IMPLEMENTED |
+| Cover-letter generation | NOT IMPLEMENTED |
+| Live job-site scraping | NOT IMPLEMENTED |
+| Automated form filling | NOT IMPLEMENTED |
+| **Application submission** | **DISABLED — no code path exists** |
+
+---
+
+## Current Project Status
+
+| Area | Status | Notes |
+|---|---|---|
+| Architecture | IMPLEMENTED | React → FastAPI → Python core → SQLite; legacy quarantined |
+| Backend | IMPLEMENTED | 31 routes, safety asserted pre-DB, no safety write path |
+| Frontend | PARTIAL | Builds and typechecks clean; 3 of 7 tabs incomplete |
+| Candidate Truth | IMPLEMENTED | Model invariants enforced; AI cannot create `VERIFIED` |
+| Resume | IMPLEMENTED | 4 formats, deterministic, duplicates detected, no tailoring |
+| Job Intelligence | IMPLEMENTED | Full analysis pipeline; state machine defined but not driven |
+| AI (Ollama) | IMPLEMENTED | Live, local, no API key; optional with clean degradation |
+| AI interpretation | PARTIAL | CLI only; not exposed over HTTP |
+| Hugging Face | BROKEN | Module raises `ImportError`; unregistered; deps undeclared |
+| Ollama | IMPLEMENTED | Optional; unreachable provider fails loudly, never silently |
+| Browser Automation | DISABLED | None in `src/`; `automation/` is read-only and unwired |
+| Application Intelligence | NOT IMPLEMENTED | No `ApplicationPlan`, `FormField`, `ApplicationSession`, `AnswerEvidence` |
+| Submission | DISABLED | No code path; not enableable by configuration |
+| Packaging | PARTIAL | No `pyproject.toml`; `fastapi`/`uvicorn` missing from `requirements.txt` |
+| Docker | DISCONNECTED | Runs the legacy Selenium bot, not this system |
+| Test suite | IMPLEMENTED | 1153 tests passing |
+
+---
+
+## Technology Stack
+
+Only currently-used technologies are listed.
+
+| Layer | Technology |
+|---|---|
+| **Frontend** | React 19, Vite 8, Tailwind CSS 4, TypeScript 7, `lucide-react` |
+| **API** | FastAPI, Uvicorn, Pydantic v2, Starlette CORS middleware |
+| **Core language** | Python 3.11 |
+| **Database** | SQLite via `stdlib sqlite3` (WAL, FKs on) — no ORM |
+| **Validation / config** | Pydantic v2, `pydantic-settings` |
+| **Resume parsing** | `pdfplumber` (PDF), `python-docx` (DOCX), `stdlib` (TXT/MD) |
+| **AI provider** | Ollama over `urllib` (HTTP, no client library) |
+| **Embeddings** | Lexical scorer (`stdlib`); embedding scorer via Ollama |
+| **Browser automation** | None in `src/`. `automation/` uses Selenium *read-only* |
+| **Testing** | `pytest` (1153 tests) |
+| **Frontend testing** | **None** — no JS runner configured |
+| **Config** | `.env` + `pydantic-settings`; `.env.example` |
+| **Build** | Vite (frontend). No Python packaging — run from source |
+
+Not present: no ORM, no Alembic, no Redis, no message queue, no Docker image for the
+modern system, no CI configuration, no auth layer.
+
+---
+
+## Repository Structure
+
+```
+.
+├── src/                      # ← the canonical system
+│   ├── api/                  # FastAPI boundary: app factory, 4 routers, schemas, errors
+│   ├── assistant/            # Assistant facade, JobService, ProfileService wiring, CLI, acceptance
+│   ├── audit/                # Structured audit events + logger façade
+│   ├── core/                 # Cross-cutting: settings, safety enums, evidence, errors, actors, hashing
+│   ├── database/             # SQLite connection, transactions, repositories, 5 migrations
+│   ├── jobs/                 # Job intelligence: acquisition → requirements → gate → match → explain
+│   ├── lib/api/              # Frontend typed API client
+│   ├── profile/              # Candidate Truth: models, validator, service
+│   ├── resumes/              # Resume parsing, hashing, models, service
+│   ├── safety/               # Action policy, approval tokens, fact-mutation guards
+│   ├── components/           # React components (one per tab + shared)
+│   ├── types/api.ts          # TS mirror of the FastAPI response schemas
+│   ├── App.tsx               # React root; tab state and data loading
+│   └── vite-env.d.ts
+├── automation/               # Read-only page fetching. Never imported by src/
+├── tests/                    # 1153 pytest tests + synthetic fixtures
+├── docs/                     # Architecture and milestone notes (partly outdated — see below)
+├── legacy/                   # QUARANTINED: duplicate Node engines. Do not reactivate
+├── data/                     # Local runtime data. Gitignored.
+├── job_assistant.py          # CLI entrypoint (sys.path shim → assistant.cli)
+├── linkedin.py               # ⚠️ LEGACY Selenium auto-applier. Can submit.
+├── config.py / utils.py / constants.py   # ⚠️ LEGACY bot config and helpers
+├── Dockerfile / docker-compose.yml       # ⚠️ LEGACY — builds and runs linkedin.py
+├── package.json / vite.config.ts / tsconfig.json
+├── requirements.txt          # ⚠️ missing fastapi + uvicorn
+└── .env.example
+```
+
+### Notable documentation drift
+
+Several files in `docs/` describe an intended system rather than the running one.
+Treat them as design history, not specification:
+
+- `docs/HUGGINGFACE_LOCAL_PROVIDER.md` describes a milestone whose Python
+  implementation cannot be imported.
+- `docs/SETUP.md` states "903 tests"; the actual count is **1153**.
+- `docs/R1B_RECOVERY_STATUS.md` documents a `/api/ai/status` route that does not exist,
+  describes `apply` as returning `403` when it returns `200`, and gives resume
+  sub-resource paths that are actually candidate-scoped.
+
+---
+
+## How It Works
+
+### A single job, end to end
+
+1. **Capture** — a posting is saved to disk as HTML. Nothing is fetched. `job discover`
+   parses local files; its `--url` flag records provenance and is never requested.
+2. **Parse & classify** — description quality is graded (partial ≥150 chars, complete
+   ≥400). A page that asks for verification instead of showing the posting is classified
+   `BLOCKED` and **fails**. It is not retried, solved, or worked around.
+3. **Normalise & deduplicate** — identity resolves in three tiers: external id, then
+   canonical URL, then content hash.
+4. **Extract requirements** — a deterministic rule engine finds required/preferred
+   statements, classifies 21 kinds, and extracts minimum years. Optionally an Ollama
+   model interprets the description instead; its output is schema-validated against the
+   posting and reconciled against the deterministic result.
+5. **Build candidate evidence** — verified profile facts become claims plus the two
+   gate scalars. Provenance is carried through.
+6. **Hard gate** — required years-of-experience and sponsorship requirements are
+   evaluated deterministically. A veto ends evaluation; the scorer never runs.
+7. **Match** — exact claim membership first, then similarity. Missing data yields
+   `UNKNOWN`, never a failure.
+8. **Explain** — one audit row per requirement, citing both the posting text and the
+   candidate field it came from. An unevaluated row is never filled in.
+9. **Review** — anything doubtful is queued with a named reason for a human.
+
+### Caching
+
+Repeat work is cheap and correct:
+
+- Re-analysing an unchanged description returns the cached result.
+- Re-matching returns the cached verdict when requirements, candidate, and scorer
+  fingerprints all match.
+- A **failed** AI run is recorded but never served, so the next attempt retries.
+- Gate results and scores are deliberately **not** cached standalone — a partial cache
+  is worse than none, because it cannot be spotted.
+
+---
+
+## Safety & Submission Policy
+
+### Real application submission is currently disabled.
+
+This is structural, not configurational.
+
+**Layer 1 — defaults.** `allow_final_submission=false`, `dry_run=true`,
+`safe_mode=true`, `require_human_approval=true`.
+
+**Layer 2 — construction.** A Pydantic model validator makes `allow_final_submission=true`
+*unconstructible* unless safe mode and dry-run are both off and human approval is on.
+
+**Layer 3 — startup assertion.** `assert_phase2_invariants()` raises `ConfigurationError`
+if the permissive combination is ever assembled. It runs inside the FastAPI lifespan
+**before the database is opened**, so an unsafe config never serves a request. It is
+re-checked on every `/api/ready`.
+
+**Layer 4 — policy check.** `SafetyPolicy.check()` refuses `SUBMIT_APPLICATION` on
+`dry_run` first, then on the submission flag, then safe mode, then approval.
+
+**Layer 5 — no implementation.** There is no form-filling code, no submit control, no
+browser driver in `src/`. A security test asserts no file under `src/` imports
+`selenium`.
+
+### The boundary is fail-closed
+
+`enforce_source_mode()` allows exactly eight read-and-analyse actions — `DISCOVER`,
+`FETCH`, `PARSE`, `NORMALIZE`, `PERSIST`, `READ`, `ANALYZE`, `MATCH`. Everything else,
+including any unrecognised action, raises `ApplicationBoundaryError`. The allowlist
+cannot be widened by adding a caller.
+
+### What the AI may and may not do
+
+| | |
+|---|---|
+| **May** | Propose a fact as `INFERRED` via `suggest_fact()` |
+| **May** | Interpret a job description, grounded and schema-validated |
+| **May not** | Create a `VERIFIED` fact — raises `ImmutableFactError` |
+| **May not** | Change or remove a verified fact |
+| **May not** | Write to a real application form |
+
+### Anti-evasion posture
+
+`src/` and `automation/` contain **no** CAPTCHA solving, MFA bypass, anti-detection,
+user-agent spoofing, proxy rotation, or rate-limit evasion.
+
+Blocked pages are *detected and refused* with a typed `SOURCE_BLOCKED` error. This is
+refusal, not circumvention.
+
+The legacy root scripts **do** contain anti-detection (`selenium-stealth`,
+`--disable-blink-features=AutomationControlled`) and randomised delays. Those belong to
+the legacy bot and are **not** a supported feature of this system.
+
+---
+
+## Installation
+
+### Prerequisites
+
+| Requirement | Version | Required |
+|---|---|---|
+| Python | 3.11+ | **Yes** |
+| Node.js | 20+ (verified on 24.19.0) | **Yes**, for the frontend |
+| SQLite | ships with Python | **Yes** |
+| Ollama | any recent | Optional |
+| Git | any | Recommended |
+
+### Backend / CLI
+
+```bash
+git clone <repo-url>
+cd job-applying-bot
+
+python -m venv .venv
+# Windows:      .venv\Scripts\activate
+# macOS/Linux:  source .venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+> ### ⚠️ Known packaging gap — verified
+>
+> `requirements.txt` **does not include `fastapi` or `uvicorn`**, even though the API
+> layer requires both. A clean install per the command above gives you a working **CLI
+> and core**, but the HTTP server will not start.
+>
+> Verified working versions in this environment:
+>
+> ```bash
+> pip install "fastapi>=0.128" "uvicorn>=0.41"
+> ```
+>
+> This is a repository defect, not a design choice. There is also **no
+> `pyproject.toml`**, so the project is not installable as a package and cannot declare
+> its dependencies or a console script. This is reported, not fixed, per the
+> documentation-only scope of this change.
+
+Initialise the database:
+
+```bash
+python job_assistant.py db init
+```
+
+### Frontend
+
+```bash
+npm install
+```
+
+### Optional: Ollama
+
+```bash
+ollama serve
+ollama pull qwen2.5:7b
+```
+
+Fully optional. Without it, everything except AI interpretation and embedding-based
+scoring still works via deterministic extraction and the lexical scorer.
+
+---
+
+## Configuration
+
+Copy the template and edit:
+
+```bash
+cp .env.example .env      # Windows: copy .env.example .env
+```
+
+`.env` is gitignored. **Never commit real credentials.**
+
+Section fields use a double underscore — `ASSISTANT_SAFETY__DRY_RUN` configures
+`safety.dry_run`.
+
+### Variables actually read by the current runtime
+
+| Variable | Default | Notes |
+|---|---|---|
+| `ASSISTANT_APPLICATION__NAME` | `AI Job Assistant` | Display name |
+| `ASSISTANT_APPLICATION__CANDIDATE_ID` | `primary` | Candidate key |
+| `ASSISTANT_DATABASE__PATH` | `data/assistant.db` | SQLite file |
+| `ASSISTANT_DATABASE__ENABLE_WAL` | `true` | |
+| `ASSISTANT_SAFETY__SAFE_MODE` | `true` | **Invariant** |
+| `ASSISTANT_SAFETY__DRY_RUN` | `true` | **Invariant** |
+| `ASSISTANT_SAFETY__REQUIRE_HUMAN_APPROVAL` | `true` | **Invariant** |
+| `ASSISTANT_SAFETY__ALLOW_FINAL_SUBMISSION` | `false` | **Invariant** |
+| `ASSISTANT_SAFETY__ALLOW_FORM_FILLING` | `false` | **Invariant** |
+| `ASSISTANT_SAFETY__ALLOW_BROWSER_NAVIGATION` | `false` | |
+| `ASSISTANT_SAFETY__ALLOW_FILE_UPLOAD` | `false` | |
+| `ASSISTANT_SAFETY__MAX_APPLICATIONS_PER_RUN` | `5` | |
+| `ASSISTANT_SAFETY__BLOCK_ON_CAPTCHA` | `true` | A blocking switch, not a bypass |
+| `ASSISTANT_SAFETY__BLOCK_ON_MFA` | `true` | A blocking switch, not a bypass |
+| `ASSISTANT_AI__PROVIDER` | `ollama` | Only `ollama` is registered |
+| `ASSISTANT_AI__MODEL` | `qwen2.5:7b` | |
+| `ASSISTANT_AI__BASE_URL` | `http://localhost:11434` | |
+| `ASSISTANT_AI__EMBEDDING_MODEL` | *(empty)* | Empty ⇒ falls back to the chat model |
+| `ASSISTANT_AI__API_KEY` | *(empty)* | Hosted providers only |
+| `ASSISTANT_LOGGING__LEVEL` | `INFO` | |
+| `ASSISTANT_LOGGING__FORMAT` | `json` | |
+| `ASSISTANT_LOGGING__LOG_RESUME_BODIES` | `false` | Keep false — résumé bodies are private |
+| `VITE_API_BASE` | `/api` | Frontend only; unset → rides the Vite proxy |
+
+The five safety invariants are asserted at startup. Changing one to a permissive value
+**prevents the process from booting** — this is intended.
+
+Legacy flat names at the bottom of `.env.example` (`DRY_RUN`, `LINKEDIN_*`,
+`APPLICANT_*`) belong to the legacy bot and are read by `linkedin.py`.
+
+> `ApiSettings` (host, port, CORS origins) is configurable via
+> `ASSISTANT_API__*` but is **not documented in `.env.example`**. Its defaults are
+> correct for local development.
+
+---
+
+## Running Locally
+
+You need **two terminals**. There is no combined script.
+
+### Terminal 1 — API
+
+`src/` must be on `PYTHONPATH`. There is no packaging metadata, so nothing does this
+for you.
+
+```bash
+# Windows PowerShell
+$env:PYTHONPATH="$PWD\src"
+python -m uvicorn api.app:app --host 127.0.0.1 --port 8000
+```
+
+```bash
+# macOS / Linux
+PYTHONPATH=src python -m uvicorn api.app:app --host 127.0.0.1 --port 8000
+```
+
+The factory form also works:
+
+```bash
+PYTHONPATH=src python -m uvicorn api.app:create_app --factory --host 127.0.0.1 --port 8000
+```
+
+Verify:
+
+```bash
+curl http://127.0.0.1:8000/api/ready
+# {"status":"ready","checks":{"sqlite.readable":true,"schema.migrated":true,"safety.invariants":true},...}
+```
+
+Interactive API docs: <http://127.0.0.1:8000/docs>
+
+### Terminal 2 — Frontend
+
+```bash
+npm run dev
+```
+
+Serves <http://127.0.0.1:5173> and proxies `/api` → `127.0.0.1:8000`.
+
+> The Navbar renders a hardcoded `"Port 3000 Verified"` label. The real dev port is
+> **5173**.
+
+### CLI — no server needed
+
+```bash
+python job_assistant.py status              # safety, paths, DB counts, redacted config
+python job_assistant.py safety              # which privileged actions are permitted
+python job_assistant.py db init             # create + migrate the database
+python job_assistant.py db tables           # list tables
+
+python job_assistant.py profile init        # create an empty profile
+python job_assistant.py profile show
+python job_assistant.py profile set identity.full_name "Example Name"
+python job_assistant.py profile validate
+python job_assistant.py profile unknown
+
+python job_assistant.py resume ingest PATH [--variant ...] [--role-focus ...]
+python job_assistant.py resume list
+python job_assistant.py resume show ID
+
+python job_assistant.py ai health           # live provider probe (the CLI does probe)
+python job_assistant.py ai models
+
+python job_assistant.py job list
+python job_assistant.py job discover PATH   # offline: parses local HTML files
+python job_assistant.py job ingest PATH
+python job_assistant.py job analyze ID [--ai] [--model ...]
+python job_assistant.py job match ID [--scorer none|lexical|embedding]
+python job_assistant.py job report ID
+python job_assistant.py job relevance ID
+python job_assistant.py job explain ID
+python job_assistant.py job queue
+python job_assistant.py job resolve ID --note "..."
+
+python job_assistant.py acceptance          # 24-step acceptance run
+```
+
+Global flag: `--env-file PATH`.
+
+Exit codes: `78` configuration error, `1` assistant error, `130` interrupt.
+
+`job discover` reads **local files only**. Its `--url` flag is recorded as provenance
+and never fetched. There is no live job scraping anywhere in `src/`.
+
+### Web application workflow
+
+```mermaid
+flowchart LR
+    B["Browser"] --> V["Vite :5173"]
+    V -->|"/api proxied"| F["FastAPI :8000"]
+    F --> S["assistant services"]
+    S --> DB[("SQLite")]
+    S -.optional.-> O["Ollama"]
+    V -.build.-> D["dist/ — no server<br/>configured to serve it"]
+```
+
+**PARTIAL.** The dev path works. A production `dist/` bundle is generated by
+`npm run build` but **no server or reverse proxy is configured to serve it**, and the
+frontend assumes a same-origin `/api`. There is no deployment configuration in this
+repository.
+
+---
+
+## Testing
+
+**Framework:** `pytest`. **No config file** — `tests/conftest.py` arranges `sys.path`
+directly.
+
+```bash
+python -m pytest                       # full suite
+python -m pytest -q                    # quiet
+python -m pytest tests/test_safety.py  # single file
+```
+
+**Verified during this audit: `1153 passed`, 0 failures, 0 errors** (Python 3.11.8,
+pytest 8.3.3). Eleven warnings, all a cosmetic `HTTP_422` deprecation.
+
+> `docs/SETUP.md` says 903 tests. That figure is stale.
+
+### Coverage categories
+
+| Area | Files |
+|---|---|
+| Requirements extraction | `test_job_requirements.py` (106 tests) |
+| Persistence, dedup, caching | `test_job_persistence.py`, `test_job_analysis.py` |
+| Offline discovery & page parsing | `test_job_discovery.py`, `test_job_extraction.py` |
+| Gate & matching authority order | `test_job_hard_gate.py`, `test_job_matching.py` |
+| Explanation lineage | `test_job_explain.py` |
+| 11-dimension report | `test_job_dimensions.py` |
+| Review queue | `test_job_review.py` |
+| AI interpretation & reconciliation | `test_job_interpret.py`, `test_job_reconcile.py` |
+| Relevance | `test_job_relevance.py` |
+| Candidate truth & evidence | `test_core_evidence.py`, `test_profile.py` |
+| Resumes & hashing | `test_resumes.py` |
+| Safety | `test_safety.py` |
+| **Security** | `test_security.py` |
+| API boundary | `test_api.py` |
+| CLI | `test_job_cli.py` |
+| Acceptance | `test_acceptance.py` |
+| Legacy still-importable | `test_legacy.py` |
+
+### Acceptance tests
+
+`src/assistant/acceptance.py` runs **24 numbered steps** entirely locally against
+synthetic fixtures and a temp database. It opens no browser and submits nothing. Step 17
+asserts that `SUBMIT_APPLICATION`, `FILL_FORM`, and `NAVIGATE` are all refused, then
+performs a real mutation attempt and requires the fact guard to reject it.
+
+`tests/test_acceptance.py` asserts `passed == 24` and byte-compares the real profile file
+before and after a run to prove it was never written.
+
+### Security tests
+
+`tests/test_security.py` reads the repository's own git index rather than mocking. It
+asserts that no credential-shaped string appears in any tracked file, that `.env` and
+the real profile JSON are gitignored, that secrets are redacted from logs and settings
+reprs, that **no file under `src/` imports selenium**, and that fixtures contain no
+plausible PII.
+
+### Frontend tests
+
+**None.** No JS test runner is configured. `npm run typecheck` (`tsc --noEmit`) passes
+clean and is the only automated frontend check.
+
+> `npm test`, `npm run test:hf`, and `npm run test:hf-smoke` are **broken** — they point
+> at `src/ai/*.ts` files that were moved to `legacy/`. `src/ai/` contains only Python.
+> Do not use them.
+
+---
+
+## Zero-Cost Local Architecture
+
+The ₹0 path: a complete local development setup costs nothing. Every component below is
+free and self-hosted.
+
+| Component | Cost | Role |
+|---|---|---|
+| Python 3.11 | Free | Canonical core |
+| FastAPI + Uvicorn | Free | API boundary |
+| SQLite (bundled) | Free | Persistence |
+| Pydantic | Free | Validation |
+| React + Vite + Tailwind | Free | Presentation |
+| `pytest` | Free | Testing |
+| **Ollama** + `qwen2.5:7b` | Free | Optional local AI, **no API key** |
+| **Lexical scorer** | Free | Default similarity — pure stdlib, no model, no network |
+
+**With zero external services**, the full deterministic pipeline works: ingest →
+extract → gate → match → explain → review. This is the default and intended path.
+
+### Local / free vs. external
+
+**Local and free:** everything in the table above.
+
+**Optional, and *not* free by default:** any hosted AI provider. Setting
+`ASSISTANT_AI__API_KEY` implies a hosted provider, and only `ollama` is currently
+registered — pointing at a hosted provider raises `ConfigurationError: unknown AI
+provider`. There is no code path to a paid service today.
+
+The Hugging Face route, if repaired, would run **local ONNX inference on CPU** and
+require no token. It is currently non-functional, so it is not part of any cost path.
+
+---
+
+## Security & Privacy
+
+- **Secrets live outside source.** `.env` is gitignored. `tests/test_security.py` fails
+  the build if a credential-shaped string appears in any git-tracked file.
+- **Candidate data is local.** SQLite, profile JSON, and résumé files all live under
+  `data/`, which is gitignored, including the real `candidate_profile.json`.
+- **The example profile is committed; the real one is not.** Only synthetic fixtures and
+  `.example.json` are tracked, using `.invalid` domains and obviously-fake phone numbers.
+- **Logs are redacted.** `redact()` masks registered secrets in arbitrary text.
+  Registration refuses secrets under 3 characters so masking cannot corrupt unrelated
+  output. `GET /api/status` returns only `*_present: boolean` for secrets.
+- **Résumé bodies are not logged** by default (`LOG_RESUME_BODIES=false`).
+- **Model runs store hashes, not prompts.** `ModelRun` records input/output SHA-256 and
+  character counts. Prompt bodies are not persisted; the optional preview is clamped to
+  280 characters, and credential-shaped metadata keys are rejected.
+- **Evidence is immutable and frozen**, so an audit trail cannot be edited after the fact.
+- **Safety is server-side.** No API route can modify safety settings; this is
+  regression-tested against the live OpenAPI document.
+- **Status endpoints never probe the network**, so polling cannot leak traffic patterns
+  or incur provider cost.
+- **Local-first.** No telemetry, no analytics, no outbound calls except to a
+  user-configured AI provider.
+
+**Not yet present:** no authentication, no rate limiting, no request IDs, no CSRF
+protection. Appropriate for a loopback-bound development tool; it is **not** hardened
+for exposure.
+
+---
+
+## Known Limitations
+
+Bugs and gaps found during this audit. Reported, not fixed, per documentation scope.
+
+### Functional defects
+
+| Severity | Issue |
+|---|---|
+| High | **Profile edits are silently discarded.** The React save handler accepts the updated profile and ignores it, re-validating instead of writing. The UI reports "Saved!" for changes that were never persisted. `profileApi.updateFact` exists but has no call site. |
+| High | **The Auto-Fill Q&A tab calls two endpoints that do not exist** and checks neither response status, so 404s render as an empty table rather than an error. |
+| High | **`npm test` / `test:hf` / `test:hf-smoke` are broken** — they reference TypeScript files that were quarantined. |
+| High | **`fastapi` and `uvicorn` are missing from `requirements.txt`**, so a clean install cannot start the API. |
+| Medium | **`src/ai/huggingface.py` cannot be imported** — it imports three symbols that do not exist and implements the wrong interface. |
+| Medium | **Latent `NameError` in the résumé parser.** A page-count failure path calls an undefined `log.debug`. |
+| Medium | **The Hugging Face tab renders a placeholder**; all four imported sub-components are unmounted, and its status badges are hardcoded strings rather than derived from the API. |
+| Medium | **`docker compose up` runs the legacy Selenium bot**, not this system. The image never copies `src/`. |
+| Low | 18 of 29 API-client methods are never called, including the whole report/explanation/relevance surface the job detail modal is built for. |
+| Low | `tsconfig.json` includes `server.ts`, which no longer exists. |
+| Low | The Navbar shows a hardcoded port label. The Vite proxy `rewrite` is an identity function. |
+| Low | The API's `apply` route declares a `403` response it never emits. |
+
+### Design limitations
+
+- The job status machine is **defined but never driven**; `APPLYING`/`APPLIED` are
+  unreachable by construction.
+- One dimension of the 11-dimension report (`seniority_match`) always returns
+  `NOT_SCORED`.
+- Résumé relevance is lexical coverage only — it receives no scorer.
+- Ollama's `embed()` embeds only the first text of a batch.
+- `AISettings.max_retries` is parsed but never used; there is no retry loop.
+- AI job interpretation is CLI-only and not exposed over HTTP.
+- `assert_no_fact_mutation()` and `ai_attempts()` are verification tools, not live
+  runtime guards.
+
+### Operational limitations
+
+- No `pyproject.toml` — not installable, no declared dependencies, no console script.
+- `PYTHONPATH=src` must be set manually for the API; nothing documents or enforces it.
+- No reverse proxy or static server for a production `dist/` build.
+- No frontend test suite.
+- No CI configuration.
+- Several files in `docs/` describe an intended system rather than the running one.
+
+---
+
+## Legacy Components
+
+The repository contains a second, older system. It is **not** part of the architecture
+described above.
+
+### `legacy/` — quarantined duplicate engines
+
+`legacy/README.md` titles it *"QUARANTINED LEGACY CODE — DO NOT RE-ACTIVATE"* and
+states that if a capability is missing from the Python core, *"it is missing. It is not
+a reason to re-enable anything in this directory."*
+
+It holds a Node/TypeScript Express server with **second implementations** of AI
+providers, embedding caches, hard-gate logic, matching, and relevance — plus one Python
+file that imports seven symbols which no longer exist and **cannot execute**.
+
+Defects deliberately preserved for audit, per `legacy/README.md`:
+
+1. Bound `0.0.0.0` with unrestricted CORS and **no authentication**.
+2. `PUT /api/safety` let **any unauthenticated caller** enable real submission.
+3. The apply route reported a live submission that never happened, even in dry-run.
+4. Candidate PII hardcoded in source.
+5. An embedding scorer that fell back to a synthetic hash projection while still
+   reporting semantic inference.
+
+None of this is imported by the Python core, the FastAPI boundary, or the React layer.
+
+### Root-level bot files
+
+| File | Status |
+|---|---|
+| `job_assistant.py` | **Modern.** A 44-line `sys.path` shim into `assistant.cli`. Not legacy. |
+| `linkedin.py` | ⚠️ **Legacy, and it can submit real applications.** |
+| `config.py`, `utils.py`, `constants.py` | ⚠️ Legacy bot config and Selenium helpers |
+| `additionalQuestions.yaml` | Legacy. Nothing in `src/` reads it. |
+
+`linkedin.py` is a working LinkedIn auto-applier: it applies `selenium-stealth`, logs
+in with stored credentials, persists sessions as pickled cookies, and clicks
+`Submit application`. Its **only** guard is a hand-written `if config.dryRun: return`,
+and `config.py`'s `dryRun` is a plain module constant with no invariant behind it. In
+dry-run it still performs the real login and Easy Apply click-through before the check.
+
+### Docker is legacy
+
+`Dockerfile` copies only root-level `*.py` (never `src/`), installs only the legacy
+Selenium dependencies, and runs `CMD ["python3", "linkedin.py"]`.
+`docker-compose.yml` adds `restart: unless-stopped` and live-mounts `config.py`.
+
+**`docker compose up` does not run this system.** There is no container image for the
+FastAPI/React application.
+
+---
+
+## Future Roadmap
+
+High-level only. All items are **FUTURE**; none is scheduled, and no dates are implied.
+
+- **Application planning** — derive a structured plan from a job and verified evidence,
+  as a reviewable artefact rather than an action.
+- **Application intelligence** — model questions, form fields, and sessions as
+  first-class, evidence-linked domain objects.
+- **Question classification** — wire up the existing `question_intent` module behind a
+  real API route; the classifier exists and is currently unreachable.
+- **Evidence-backed answer resolution** — answer a question *only* from a verified
+  fact, and emit `INSUFFICIENT_EVIDENCE` rather than guessing.
+- **Human review workspace** — make the review queue a genuine decision surface, with
+  side-by-side posting and candidate evidence.
+- **Controlled dry-run form workflow** — if browser automation is ever added, keep it
+  read-only or dry-run-only, behind the existing fail-closed boundary.
+- **Application tracking** — record outcomes and learn from them, once submission is
+  ever deliberately enabled.
+- **Engineering prerequisites** — add `pyproject.toml` with real dependency
+  declarations, complete the requirements manifest, repair or remove the Hugging Face
+  module, add a frontend test runner, and serve `dist/` for review.
+
+---
+
+## Team Development Areas
+
+Logical areas for contribution. No individuals are assigned.
+
+| Area | Scope |
+|---|---|
+| **Backend** | FastAPI routes, Pydantic schemas, error envelopes, packaging (`pyproject.toml`), dependency manifests |
+| **Frontend** | Wire the unwired API client methods, fix the profile-save defect, replace the AI tab placeholder, add error and loading states |
+| **AI / ML** | Repair or remove `src/ai/huggingface.py`; batch embedding; retry policy; question-intent wiring; evaluation harnesses |
+| **Résumé Intelligence** | Additional extractors, OCR path, section detection quality, relevance scoring beyond token coverage |
+| **Job Intelligence** | Extraction rule coverage, requirement-kind tuning, the inert `seniority_match` dimension, state-machine wiring |
+| **Application Intelligence** | The next domain: plans, questions, answers, sessions — design and implementation |
+| **Testing** | Frontend test infrastructure, coverage for the API client, property-based tests for the state machine |
+| **Security** | Authn/authz if ever exposed beyond loopback, rate limiting, request IDs, secret-scanning in CI |
+| **Documentation** | Correcting the drift in `docs/`, keeping this README accurate as the system changes |
+| **Safety** | Keeping the fail-closed boundary intact; reviewing any change that widens an allowlist |
+
+---
+
+## Core Design Principles
+
+1. **Candidate truth over AI assumptions.** An empty profile is a correct profile. The
+   system is built to be useful while knowing nothing.
+2. **Evidence over unsupported claims.** A fact is only `VERIFIED` if something backs
+   it. Nothing is application-safe without evidence.
+3. **Hard requirements over opaque scores.** Eligibility is decided deterministically,
+   before scoring. A gate veto ends evaluation.
+4. **AI assists decisions; it does not invent facts.** It may propose `INFERRED`. It may
+   not create `VERIFIED`.
+5. **Absence of evidence is not failure.** Unknown yields `UNKNOWN` and a human queue
+   item — never a silent pass and never a rejection.
+6. **Fail closed.** Unlisted actions are refused. Blocked pages are reported, not
+   circumvented. Untrusted writers are assumed.
+7. **React is presentation.** It renders and it requests. It decides nothing about fit.
+8. **FastAPI is the boundary.** It validates, redacts, and refuses. It holds no domain
+   logic.
+9. **Python is the canonical core.** One implementation of every decision. Duplicates
+   are quarantined, not maintained in parallel.
+10. **SQLite is local persistence.** One file, no server, no telemetry.
+11. **Safety is enforced server-side.** No client can relax it, because no client can
+    write it.
+12. **Real application submission remains disabled.** And it is disabled structurally —
+    there is no code to enable.
+
+---
+
+## License
+
+**Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+(CC BY-NC-SA 4.0).**
+
+See [`LICENSE`](./LICENSE). This is inherited from the upstream project and is
+**not** MIT. It is unchanged by this documentation update.
+
+The three licence elements are binding:
+
+- **Attribution** — credit the creator, link the licence, indicate changes.
+- **NonCommercial** — **the material may not be used for commercial purposes.**
+- **ShareAlike** — derivatives must be distributed under the same licence.
+
+**Third-party components** carry their own licences, including `pdfplumber`,
+`python-docx`, Pydantic, FastAPI, Uvicorn, React, Tailwind, and Ollama. Any model
+weights used would require separate attribution under their own terms; the
+`sentence-transformers/all-MiniLM-L6-v2` reference in this repository is currently in
+non-functional code.
+
+---
+
+## Disclaimer
+
+- **This is a development project.** It is a working analysis system, not a product,
+  and not deployed anywhere.
+- **Some capabilities are partial, deferred, or disconnected**, and this document says
+  so explicitly. Read the [Current Project Status](#current-project-status) table
+  before relying on any feature.
+- **Real application submission is currently disabled**, and no code path to enable it
+  exists.
+- **Automated interaction with job platforms may be subject to those platforms' terms
+  of service.** The modern system in `src/` performs no such interaction at all — it
+  parses HTML you supply. The legacy bot at the repository root does interact with
+  LinkedIn and may breach LinkedIn's terms; it is unsupported, unmaintained, and
+  should not be operated.
+- **The frontend is a prototype.** Several tabs are incomplete, and one silently
+  discards edits. Do not treat it as a system of record.
+- **Candidate data is sensitive.** It stays on your machine. Handle `data/` and `.env`
+  accordingly.
+- No legal conclusions are offered beyond what is verifiable from this repository.
+
+---
+
+**README reflects the verified state of the repository as audited against the source
+code. Where documentation and code disagreed, the code won and the discrepancy was
+recorded in [Known Limitations](#known-limitations).**

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   UserCheck,
   CheckCircle,
@@ -11,7 +11,8 @@ import {
   Sparkles,
   ExternalLink,
 } from 'lucide-react';
-import type { CandidateProfile, FactStatus } from '../types/index.js';
+import type { CandidateProfile, FactStatus, ProfileValidationResponse, FactValue } from '../types/api.js';
+import { profileApi } from '../lib/api/index.js';
 
 interface CandidateProfileTabProps {
   profile: CandidateProfile | null;
@@ -19,31 +20,50 @@ interface CandidateProfileTabProps {
   onValidateProfile: () => Promise<any>;
 }
 
+/** The five skill buckets defined by SkillsSection in the profile schema. */
+type SkillGroup = 'proficient' | 'expert' | 'familiar' | 'tools' | 'languages';
+
+const SKILL_GROUPS: Array<{ key: SkillGroup; label: string }> = [
+  { key: 'proficient', label: 'Proficient' },
+  { key: 'expert', label: 'Expert' },
+  { key: 'familiar', label: 'Familiar' },
+  { key: 'tools', label: 'Tools' },
+  { key: 'languages', label: 'Languages' },
+];
+
+/** A fact's value is UNKNOWN (null) until proven, so coerce defensively. */
+const asStringList = (fact: FactValue | undefined): string[] =>
+  Array.isArray(fact?.value) ? (fact!.value as string[]) : [];
+
 export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
   profile,
   onUpdateProfile,
   onValidateProfile,
 }) => {
   const [formData, setFormData] = useState<CandidateProfile | null>(profile);
-  const [validationResult, setValidationResult] = useState<any>(null);
+  const [validationResult, setValidationResult] = useState<ProfileValidationResponse | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   // New skill form
   const [newSkillName, setNewSkillName] = useState('');
-  const [newSkillYears, setNewSkillYears] = useState(3);
-  const [newSkillProficiency, setNewSkillProficiency] = useState<'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'>('Advanced');
-  const [newSkillCategory, setNewSkillCategory] = useState('LANGUAGES');
+  const [newSkillGroup, setNewSkillGroup] = useState<SkillGroup>('proficient');
 
-  if (!formData) return null;
+  // Reload formData when profile changes
+  useEffect(() => {
+    setFormData(profile);
+  }, [profile]);
 
   const handleSave = async () => {
+    if (!formData) return;
     setIsSaving(true);
     try {
       await onUpdateProfile(formData);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err) {
+      console.error(err);
     } finally {
       setIsSaving(false);
     }
@@ -60,25 +80,47 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
   };
 
   const addSkill = () => {
-    if (!newSkillName.trim()) return;
-    const updatedSkills = [
-      ...formData.skills,
-      {
-        name: newSkillName.trim(),
-        years: Number(newSkillYears),
-        proficiency: newSkillProficiency,
-        category: newSkillCategory,
-        status: 'VERIFIED' as FactStatus,
+    if (!newSkillName.trim() || !formData) return;
+    const name = newSkillName.trim();
+    const current = asStringList(formData.skills?.[newSkillGroup]);
+    if (current.some((s) => s.toLowerCase() === name.toLowerCase())) return;
+    setFormData({
+      ...formData,
+      skills: {
+        ...formData.skills,
+        [newSkillGroup]: {
+          ...formData.skills![newSkillGroup],
+          value: [...current, name],
+          status: 'VERIFIED',
+        },
       },
-    ];
-    setFormData({ ...formData, skills: updatedSkills });
+    });
     setNewSkillName('');
   };
 
-  const removeSkill = (index: number) => {
-    const updatedSkills = formData.skills.filter((_, i) => i !== index);
-    setFormData({ ...formData, skills: updatedSkills });
+  const removeSkill = (group: SkillGroup, index: number) => {
+    if (!formData) return;
+    const current = asStringList(formData.skills?.[group]);
+    setFormData({
+      ...formData,
+      skills: {
+        ...formData.skills,
+        [group]: {
+          ...formData.skills![group],
+          value: current.filter((_, i) => i !== index),
+        },
+      },
+    });
   };
+
+  // Helper to update a nested fact value
+  const updateFact = (path: string, value: any) => {
+    if (!formData) return;
+    // This is a simplified update - a full implementation would use
+    // a deep path setter. For now we rely on the form inputs directly.
+  };
+
+  if (!formData) return null;
 
   return (
     <div className="space-y-6">
@@ -138,7 +180,7 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
               Validation Result: {validationResult.is_valid ? 'Profile Complete & Valid' : 'Missing Required Application Fields'}
             </span>
             <span className="ml-auto text-xs bg-slate-900/60 px-2 py-0.5 rounded border border-current">
-              Completeness: {validationResult.completeness}%
+              Completeness: {Math.round(validationResult.completeness * 100)}%
             </span>
           </div>
 
@@ -148,10 +190,10 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
             </div>
           )}
 
-          {validationResult.findings.length > 0 && (
+          {validationResult.issues.length > 0 && (
             <div className="mt-2 text-xs text-slate-300 space-y-0.5">
-              {validationResult.findings.map((f: string, i: number) => (
-                <div key={i}>• {f}</div>
+              {validationResult.issues.map((issue, i) => (
+                <div key={i}>• [{issue.severity}] {issue.code}: {issue.message}</div>
               ))}
             </div>
           )}
@@ -174,13 +216,13 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
               <label className="block text-xs font-medium text-slate-400 mb-1">Full Legal Name</label>
               <input
                 type="text"
-                value={formData.identity.full_name.value || ''}
+                value={formData.identity?.full_name?.value || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
                     identity: {
                       ...formData.identity,
-                      full_name: { ...formData.identity.full_name, value: e.target.value },
+                      full_name: { ...formData.identity!.full_name, value: e.target.value },
                     },
                   })
                 }
@@ -192,13 +234,13 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
               <label className="block text-xs font-medium text-slate-400 mb-1">Email Address</label>
               <input
                 type="email"
-                value={formData.identity.email.value || ''}
+                value={formData.contact?.email?.value || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    identity: {
-                      ...formData.identity,
-                      email: { ...formData.identity.email, value: e.target.value },
+                    contact: {
+                      ...formData.contact,
+                      email: { ...formData.contact!.email, value: e.target.value },
                     },
                   })
                 }
@@ -210,13 +252,13 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
               <label className="block text-xs font-medium text-slate-400 mb-1">Phone Number</label>
               <input
                 type="text"
-                value={formData.identity.phone.value || ''}
+                value={formData.contact?.phone?.value || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    identity: {
-                      ...formData.identity,
-                      phone: { ...formData.identity.phone, value: e.target.value },
+                    contact: {
+                      ...formData.contact,
+                      phone: { ...formData.contact!.phone, value: e.target.value },
                     },
                   })
                 }
@@ -228,13 +270,13 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
               <label className="block text-xs font-medium text-slate-400 mb-1">Current Location</label>
               <input
                 type="text"
-                value={formData.identity.location.value || ''}
+                value={formData.location?.current_city?.value || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    identity: {
-                      ...formData.identity,
-                      location: { ...formData.identity.location, value: e.target.value },
+                    location: {
+                      ...formData.location,
+                      current_city: { ...formData.location!.current_city, value: e.target.value },
                     },
                   })
                 }
@@ -246,13 +288,13 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
               <label className="block text-xs font-medium text-slate-400 mb-1">LinkedIn Profile URL</label>
               <input
                 type="text"
-                value={formData.identity.linkedin_url.value || ''}
+                value={formData.contact?.linkedin_url?.value || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    identity: {
-                      ...formData.identity,
-                      linkedin_url: { ...formData.identity.linkedin_url, value: e.target.value },
+                    contact: {
+                      ...formData.contact,
+                      linkedin_url: { ...formData.contact!.linkedin_url, value: e.target.value },
                     },
                   })
                 }
@@ -261,16 +303,16 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">GitHub / Portfolio URL</label>
+              <label className="block text-xs font-medium text-slate-400 mb-1">Website / Portfolio</label>
               <input
                 type="text"
-                value={formData.identity.github_url.value || ''}
+                value={formData.contact?.website?.value || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    identity: {
-                      ...formData.identity,
-                      github_url: { ...formData.identity.github_url, value: e.target.value },
+                    contact: {
+                      ...formData.contact,
+                      website: { ...formData.contact!.website, value: e.target.value },
                     },
                   })
                 }
@@ -294,18 +336,18 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
               <div>
                 <div className="font-semibold text-white">Requires Visa Sponsorship</div>
                 <div className="text-xs text-slate-400">
-                  Controls hard gate evaluation for jobs stating &quot;No sponsorship provided&quot;
+                  Controls hard gate evaluation for jobs stating "No sponsorship provided"
                 </div>
               </div>
               <select
-                value={formData.work_authorization.requires_sponsorship.value ? 'yes' : 'no'}
+                value={formData.authorization?.requires_sponsorship?.value ? 'yes' : 'no'}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    work_authorization: {
-                      ...formData.work_authorization,
+                    authorization: {
+                      ...formData.authorization,
                       requires_sponsorship: {
-                        ...formData.work_authorization.requires_sponsorship,
+                        ...formData.authorization!.requires_sponsorship,
                         value: e.target.value === 'yes',
                       },
                     },
@@ -324,14 +366,14 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
               </label>
               <input
                 type="text"
-                value={formData.work_authorization.visa_status.value || ''}
+                value={formData.authorization?.visa_status?.value || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    work_authorization: {
-                      ...formData.work_authorization,
+                    authorization: {
+                      ...formData.authorization,
                       visa_status: {
-                        ...formData.work_authorization.visa_status,
+                        ...formData.authorization!.visa_status,
                         value: e.target.value,
                       },
                     },
@@ -350,14 +392,14 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
                   type="number"
                   step="0.5"
                   min="0"
-                  value={formData.experience.total_years.value || 0}
+                  value={formData.experience?.total_years_experience?.value || 0}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
                       experience: {
                         ...formData.experience,
-                        total_years: {
-                          ...formData.experience.total_years,
+                        total_years_experience: {
+                          ...formData.experience!.total_years_experience,
                           value: parseFloat(e.target.value) || 0,
                         },
                       },
@@ -369,18 +411,18 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
 
               <div>
                 <label className="block text-xs font-medium text-slate-400 mb-1">
-                  Current / Target Seniority
+                  Target Headline
                 </label>
                 <input
                   type="text"
-                  value={formData.experience.seniority_level.value || ''}
+                  value={formData.identity?.headline?.value || ''}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      experience: {
-                        ...formData.experience,
-                        seniority_level: {
-                          ...formData.experience.seniority_level,
+                      identity: {
+                        ...formData.identity,
+                        headline: {
+                          ...formData.identity!.headline,
                           value: e.target.value,
                         },
                       },
@@ -404,37 +446,36 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
             </p>
           </div>
           <span className="text-xs text-slate-400 font-mono">
-            {formData.skills.length} Registered Skills
+            {SKILL_GROUPS.reduce(
+              (total, group) => total + asStringList(formData.skills?.[group.key]).length,
+              0,
+            )}{' '}
+            Registered Skills
           </span>
         </div>
 
         {/* Add Skill Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 bg-slate-950 p-3 rounded-xl border border-slate-800">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 bg-slate-950 p-3 rounded-xl border border-slate-800">
           <input
             type="text"
             placeholder="Skill Name (e.g. Next.js, Go, Kafka)"
             value={newSkillName}
             onChange={(e) => setNewSkillName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') addSkill();
+            }}
             className="sm:col-span-2 bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:border-blue-500"
           />
-          <input
-            type="number"
-            min="1"
-            max="30"
-            placeholder="Years"
-            value={newSkillYears}
-            onChange={(e) => setNewSkillYears(parseInt(e.target.value, 10) || 1)}
-            className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:border-blue-500"
-          />
           <select
-            value={newSkillProficiency}
-            onChange={(e) => setNewSkillProficiency(e.target.value as any)}
+            value={newSkillGroup}
+            onChange={(e) => setNewSkillGroup(e.target.value as SkillGroup)}
             className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:border-blue-500"
           >
-            <option value="Beginner">Beginner</option>
-            <option value="Intermediate">Intermediate</option>
-            <option value="Advanced">Advanced</option>
-            <option value="Expert">Expert</option>
+            {SKILL_GROUPS.map((group) => (
+              <option key={group.key} value={group.key}>
+                {group.label}
+              </option>
+            ))}
           </select>
           <button
             type="button"
@@ -446,35 +487,48 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
           </button>
         </div>
 
-        {/* Skills Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
-          {formData.skills.map((skill, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition-colors"
-            >
-              <div>
-                <div className="text-xs font-bold text-white">{skill.name}</div>
-                <div className="text-[11px] text-slate-400">
-                  {skill.years} yrs • {skill.proficiency}
+        {/* Skill Groups */}
+        <div className="space-y-3">
+          {SKILL_GROUPS.map((group) => {
+            const names = asStringList(formData.skills?.[group.key]);
+            const status = formData.skills?.[group.key]?.status;
+            return (
+              <div key={group.key} className="bg-slate-950/60 border border-slate-800 rounded-xl p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-slate-200">{group.label}</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
+                    {status || 'UNKNOWN'} • {names.length}
+                  </span>
                 </div>
+                {names.length === 0 ? (
+                  <div className="text-[11px] text-slate-600 font-mono">No skills recorded</div>
+                ) : (
+                  <div className="flex flex-wrap gap-1.5">
+                    {names.map((skill, index) => (
+                      <div
+                        key={`${group.key}-${skill}-${index}`}
+                        className="flex items-center gap-1.5 pl-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors"
+                      >
+                        <span className="text-xs font-semibold text-white">{skill}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeSkill(group.key, index)}
+                          className="text-slate-500 hover:text-rose-400 p-0.5 cursor-pointer"
+                          aria-label={`Remove ${skill}`}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
-                  {skill.status}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => removeSkill(index)}
-                  className="text-slate-500 hover:text-rose-400 p-1"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
   );
 };
+
+export default CandidateProfileTab;
