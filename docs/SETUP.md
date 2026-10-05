@@ -37,16 +37,32 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-`requirements.txt` contains two groups:
+`requirements.txt` installs the project plus its `[dev]` extra. Dependencies are
+declared in `pyproject.toml`:
 
 | Group | Packages | Used by |
 |---|---|---|
-| Legacy bot | `selenium`, `webdriver_manager`, `selenium-stealth`, `pyyaml` | `linkedin.py`, `utils.py`, `config.py` |
-| Phase 2 + Milestone 3 | `pydantic`, `pydantic-settings`, `pdfplumber`, `python-docx`, `pytest` | `src/` and `tests/` |
+| Runtime | `fastapi`, `uvicorn`, `pydantic`, `pydantic-settings`, `pdfplumber`, `python-docx` | `src/api/`, `src/core/`, `src/candidate_profile/`, `src/resumes/` |
+| `[dev]` | `pytest`, plus `selenium`, `webdriver_manager`, `selenium-stealth`, `pyyaml` | `tests/`; the Selenium packages are needed **only** by `test_legacy.py`, which proves the quarantined root bot still imports |
+| `[embeddings]` | `fastembed` | optional — local Hugging Face sentence embeddings |
 
 `pdfplumber` is needed only to ingest PDFs and `python-docx` only for DOCX; both are
 optional at runtime — the parsers raise a clear `ResumeParseError` naming the missing
 package rather than failing obscurely.
+
+### Optional: local semantic embeddings
+
+```bash
+python -m pip install -e ".[embeddings]"
+```
+
+This adds the `huggingface` provider, which computes real sentence embeddings on CPU
+via ONNX Runtime — no API key, no hosted inference, ₹0. It downloads
+`sentence-transformers/all-MiniLM-L6-v2` (~90 MB) on first use and caches it. Select it
+with `ASSISTANT_AI__PROVIDER=huggingface`, then match with `--scorer embedding`.
+
+Without this extra everything still works: extraction is deterministic and
+`--scorer lexical` is the default.
 
 ---
 
@@ -225,12 +241,15 @@ created at `data/assistant.db` (git-ignored).
 ## 10. Run the tests
 
 ```powershell
-python -m pytest -q                            # full suite: 903 tests
+python -m pytest -q                            # full suite: 1196 tests
 python -m pytest -q tests\test_database.py     # persistence
 python -m pytest -q tests\test_resumes.py      # parsers, hashing, duplicates
 python -m pytest -q tests\test_security.py     # ignore rules, redaction
 python -m pytest -q tests\test_legacy.py       # legacy imports
 python -m pytest -q tests\test_settings_and_ai.py
+python -m pytest -q tests\test_ai_providers.py     # provider contract, no model needed
+# Real model inference is opt-in: it downloads ~90 MB on first run.
+$env:JOB_ASSISTANT_HF_TESTS='1'; python -m pytest -q tests\test_ai_huggingface_real.py
 python -m pytest -q tests\test_job_*.py        # Milestone 3: extraction,
                                                # requirements, gate, matching,
                                                # explain, review, service, CLI

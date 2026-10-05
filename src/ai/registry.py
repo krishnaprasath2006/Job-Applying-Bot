@@ -70,4 +70,13 @@ def _register_ollama() -> None:
     register_provider("ollama", lambda settings: OllamaProvider(settings))
 
 
+def _register_huggingface() -> None:
+    from ai.huggingface import HuggingFaceLocalProvider
+
+    register_provider(
+        "huggingface", lambda settings: HuggingFaceLocalProvider(settings)
+    )
+
+
 _register_ollama()
+_register_huggingface()

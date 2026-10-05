@@ -407,34 +407,37 @@ extractions.
 
 ### Hugging Face
 
-**NOT CURRENTLY FUNCTIONAL.** This is the most important correction relative to older
-documentation.
+**IMPLEMENTED (R2—C).** Real local sentence embeddings, no API key, no hosted inference.
 
-- The model id `sentence-transformers/all-MiniLM-L6-v2` appears in exactly one place in
-  `src/`: a constant in `src/ai/huggingface.py`.
-- **The module raises `ImportError` on import.** It imports `ModelMetadata` and
-  `ModelCapability`, neither of which exists in the codebase. It also implements
-  `supports` / `get_metadata` / `get_embeddings` rather than the ABC's methods, so it
-  would not satisfy the interface even if the imports were repaired.
-- It is **not registered** in the provider registry, and **not imported** by any module
-  in `src/`.
-- It depends on `fastembed`, which is **not in `requirements.txt`** and is not
-  installed. `sentence-transformers`, `torch`, and `transformers` are also undeclared.
-- Its design intends **local ONNX inference** (CPU-only, no HF token, no hosted
-  Inference API). Nothing in the repository performs hosted inference.
-- Its cache directory (`data/models/cache`) does not exist, and there is no prefetch or
-  warm-up script.
+| Property | Value |
+|———|———|
+| Class | `HuggingFaceLocalProvider` in `src/ai/huggingface.py` |
+| Registry key | `huggingface` |
+| Checkpoint | `sentence—transformers/all—MiniLM—L6—v2` (384—dim, Apache—2.0, ~90 MB) |
+| Runtime | ONNX Runtime on CPU, via `fastembed` |
+| Install | `pip install —e ".[embeddings]"` |
+| Cache | `data/models/cache`, or `$HF_HOME` |
 
-The frontend's "Hugging Face AI" tab is a placeholder that does not mount its
-sub-components, and its status badges are hardcoded strings.
+It implements the same `AIProvider` contract as Ollama and is **embedding—only**:
+`generate_text` and `generate_structured` raise `AIProviderError`, because a
+sentence encoder cannot generate text. Use `ollama` for generation.
 
-> **Note.** The quarantined Node engine in `legacy/` contains a working-ish
-> `@xenova/transformers` implementation. `legacy/README.md` lists among its
-> deliberately-preserved defects that it "fell back to a synthetic hash projection
-> while still reporting HF semantic inference." The Python port carries the same
-> defect class in unimportable form — it substitutes a hash-based trigram vector when
-> model loading fails. **Do not treat any of it as a working semantic pipeline.**
+**It never fabricates a vector.** An earlier version substituted a hash—based
+trigram projection when the model failed to load and returned it as semantic
+inference. That defect is removed and guarded by tests
+(`tests/test_ai_providers.py`): every failure — missing extra, undownloadable
+checkpoint, inference error, wrong dimension, wrong vector count — raises. No
+substitute vector, no padding, no silent truncation. `health_check()` reports
+`available=False` unless inference actually ran.
 
+Measured on the shipped model:
+
+| Pair | Cosine |
+|———|———|
+| "Experience with PyTorch and Kubernetes" vs "Kubernetes and PyTorch experience wanted" | 0.98 |
+| "Experience with PyTorch and Kubernetes" vs "Bake sourdough bread at home" | 0.00 |
+
+See [`docs/HUGGINGFACE_LOCAL_PROVIDER.md`](docs/HUGGINGFACE_LOCAL_PROVIDER.md).
 ### Ollama
 
 The only live AI provider, and genuinely usable.
@@ -606,7 +609,7 @@ guessing.
 | FastAPI boundary (31 operations) | IMPLEMENTED |
 | React presentation (7 tabs) | PARTIAL |
 | Safety invariants | IMPLEMENTED |
-| **Hugging Face embeddings** | **BROKEN — module cannot be imported** |
+| **Hugging Face embeddings** | IMPLEMENTED - real local ONNX inference, opt-in extra |
 | Question intent classification | DISCONNECTED |
 | Question answering | NOT IMPLEMENTED |
 | Résumé tailoring / rewriting | NOT IMPLEMENTED |
@@ -631,14 +634,14 @@ guessing.
 | Job Intelligence | IMPLEMENTED | Full analysis pipeline; state machine defined but not driven |
 | AI (Ollama) | IMPLEMENTED | Live, local, no API key; optional with clean degradation |
 | AI interpretation | PARTIAL | CLI only; not exposed over HTTP |
-| Hugging Face | BROKEN | Module raises `ImportError`; unregistered; deps undeclared |
+| Hugging Face | IMPLEMENTED | Registered; real 384-dim embeddings; never fabricates a vector |
 | Ollama | IMPLEMENTED | Optional; unreachable provider fails loudly, never silently |
 | Browser Automation | DISABLED | None in `src/`; `automation/` is read-only and unwired |
 | Application Intelligence | NOT IMPLEMENTED | No `ApplicationPlan`, `FormField`, `ApplicationSession`, `AnswerEvidence` |
 | Submission | DISABLED | No code path; not enableable by configuration |
 | Packaging | IMPLEMENTED | `pyproject.toml` declares deps and packages; installs and imports cleanly with no `PYTHONPATH` |
 | Docker | IMPLEMENTED | Image runs the canonical FastAPI app; no browser, no legacy bot |
-| Test suite | IMPLEMENTED | 1153 tests passing |
+| Test suite | IMPLEMENTED | 1196 tests passing |
 
 ---
 
@@ -657,7 +660,7 @@ Only currently-used technologies are listed.
 | **AI provider** | Ollama over `urllib` (HTTP, no client library) |
 | **Embeddings** | Lexical scorer (`stdlib`); embedding scorer via Ollama |
 | **Browser automation** | None in `src/`. `automation/` uses Selenium *read-only* |
-| **Testing** | `pytest` (1153 tests) |
+| **Testing** | `pytest` (1196 tests; 12 real-model tests opt-in) |
 | **Frontend testing** | **None** — no JS runner configured |
 | **Config** | `.env` + `pydantic-settings`; `.env.example` |
 | **Build** | Vite (frontend). No Python packaging — run from source |
@@ -687,7 +690,7 @@ modern system, no CI configuration, no auth layer.
 │   ├── App.tsx               # React root; tab state and data loading
 │   └── vite-env.d.ts
 ├── automation/               # Read-only page fetching. Never imported by src/
-├── tests/                    # 1153 pytest tests + synthetic fixtures
+├── tests/                    # 1196 pytest tests + synthetic fixtures
 ├── docs/                     # Architecture and milestone notes (partly outdated — see below)
 ├── legacy/                   # QUARANTINED: duplicate Node engines. Do not reactivate
 ├── data/                     # Local runtime data. Gitignored.
@@ -707,7 +710,7 @@ Treat them as design history, not specification:
 
 - `docs/HUGGINGFACE_LOCAL_PROVIDER.md` describes a milestone whose Python
   implementation cannot be imported.
-- `docs/SETUP.md` states "903 tests"; the actual count is **1153**.
+- `docs/SETUP.md` states "903 tests"; the actual count is **1196**.
 - `docs/R1B_RECOVERY_STATUS.md` documents a `/api/ai/status` route that does not exist,
   describes `apply` as returning `403` when it returns `200`, and gives resume
   sub-resource paths that are actually candidate-scoped.
@@ -1041,7 +1044,7 @@ python -m pytest -q                    # quiet
 python -m pytest tests/test_safety.py  # single file
 ```
 
-**Verified during this audit: `1153 passed`, 0 failures, 0 errors** (Python 3.11.8,
+**Verified during this audit: `1196 passed`, 0 failures, 0 errors** (Python 3.11.8,
 pytest 8.3.3). Eleven warnings, all a cosmetic `HTTP_422` deprecation.
 
 > `docs/SETUP.md` says 903 tests. That figure is stale.
@@ -1128,12 +1131,13 @@ extract → gate → match → explain → review. This is the default and inten
 **Local and free:** everything in the table above.
 
 **Optional, and *not* free by default:** any hosted AI provider. Setting
-`ASSISTANT_AI__API_KEY` implies a hosted provider, and only `ollama` is currently
+`ASSISTANT_AI__API_KEY` implies a hosted provider, and only the two local providers are
 registered — pointing at a hosted provider raises `ConfigurationError: unknown AI
 provider`. There is no code path to a paid service today.
 
-The Hugging Face route, if repaired, would run **local ONNX inference on CPU** and
-require no token. It is currently non-functional, so it is not part of any cost path.
+Both registered providers are free: Ollama for generation, and the `huggingface`
+provider for **local ONNX inference on CPU**, which needs no token and no hosted
+inference. The latter costs a one-time ~90 MB model download.
 
 ---
 
@@ -1175,7 +1179,7 @@ Resolved during R2-A and listed under [Fixed in R2-A](#fixed-in-r2-a). What rema
 | Severity | Issue |
 |---|---|
 | High | **An explicit top-level `packages` list silently omits subpackages** in a non-editable install. Fixed in R2-B by switching to `packages.find`, but worth remembering: `api.routes`, `api.schemas`, and `database.repositories` were absent from the installed wheel. |
-| Medium | **`src/ai/huggingface.py` cannot be imported** — it imports three symbols that do not exist and implements the wrong interface. |
+
 | Medium | **The Hugging Face tab renders a placeholder**; all four imported sub-components are unmounted, and its status badges are hardcoded strings rather than derived from the API. |
 | Low | 17 of 29 API-client methods are never called, including the whole report/explanation/relevance surface the job detail modal is built for. |
 | Low | `tsconfig.json` includes `server.ts`, which no longer exists. |
@@ -1310,9 +1314,9 @@ High-level only. All items are **FUTURE**; none is scheduled, and no dates are i
   read-only or dry-run-only, behind the existing fail-closed boundary.
 - **Application tracking** — record outcomes and learn from them, once submission is
   ever deliberately enabled.
-- **Engineering prerequisites** — add `pyproject.toml` with real dependency
-  declarations, complete the requirements manifest, repair or remove the Hugging Face
-  module, add a frontend test runner, and serve `dist/` for review.
+- **Engineering prerequisites** — add a frontend test runner, serve `dist/` for review, and
+  add CI. (Packaging, the `profile` collision, and the Hugging Face provider were
+  resolved in R2-A/R2-B/R2-C.)
 
 ---
 
@@ -1324,7 +1328,7 @@ Logical areas for contribution. No individuals are assigned.
 |---|---|
 | **Backend** | FastAPI routes, Pydantic schemas, error envelopes, packaging (`pyproject.toml`), dependency manifests |
 | **Frontend** | Wire the unwired API client methods, fix the profile-save defect, replace the AI tab placeholder, add error and loading states |
-| **AI / ML** | Repair or remove `src/ai/huggingface.py`; batch embedding; retry policy; question-intent wiring; evaluation harnesses |
+| **AI / ML** | Batch embedding; Ollama retry policy; wiring the disconnected `question_intent` classifier behind a real route; embedding evaluation harnesses |
 | **Résumé Intelligence** | Additional extractors, OCR path, section detection quality, relevance scoring beyond token coverage |
 | **Job Intelligence** | Extraction rule coverage, requirement-kind tuning, the inert `seniority_match` dimension, state-machine wiring |
 | **Application Intelligence** | The next domain: plans, questions, answers, sessions — design and implementation |
@@ -1377,10 +1381,10 @@ The three licence elements are binding:
 - **ShareAlike** — derivatives must be distributed under the same licence.
 
 **Third-party components** carry their own licences, including `pdfplumber`,
-`python-docx`, Pydantic, FastAPI, Uvicorn, React, Tailwind, and Ollama. Any model
-weights used would require separate attribution under their own terms; the
-`sentence-transformers/all-MiniLM-L6-v2` reference in this repository is currently in
-non-functional code.
+`python-docx`, Pydantic, FastAPI, Uvicorn, React, Tailwind, and Ollama. The
+embedding model used by the `huggingface` provider,
+`sentence-transformers/all-MiniLM-L6-v2`, is **Apache-2.0** and requires
+attribution to its authors when redistributed.
 
 ---
 

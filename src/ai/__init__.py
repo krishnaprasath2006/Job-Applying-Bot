@@ -1,5 +1,6 @@
-﻿"""AI provider interface and the default local provider."""
+﻿"""AI provider interface and the local providers."""
 
+from ai.huggingface import HuggingFaceLocalProvider
 from ai.ollama_provider import OllamaProvider
 from ai.provider import (
     AIProvider,
@@ -16,6 +17,7 @@ __all__ = [
     "EmbeddingResult",
     "GenerationOptions",
     "HealthStatus",
+    "HuggingFaceLocalProvider",
     "OllamaProvider",
     "StructuredResult",
     "TextResult",

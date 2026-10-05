@@ -248,6 +248,9 @@ logs/
 data/model_runs/
 data/embeddings/
 data/vector_store/
+# Downloaded model weights (Hugging Face sentence-transformer checkpoints).
+# Large binaries, reproducible from the model id; never commit them.
+data/models/
 
 # PDF/DOCX files anywhere in the repo (resumes must never be tracked)
 *.pdf

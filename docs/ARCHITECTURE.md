@@ -212,7 +212,8 @@ Boundaries:
 
 ```
 caller ─► ai.registry.build_provider(AISettings) ─► AIProvider (interface)
-                                                     └── OllamaProvider
+                                                     ├── OllamaProvider      ("ollama")
+                                                     └── HuggingFaceLocalProvider ("huggingface")
 ```
 
 The caller depends on the interface and the configuration, never on a concrete class.
@@ -222,6 +223,17 @@ they would be used.
 Failure behaviour is a design decision: an unreachable provider raises
 `ProviderUnavailableError` (or returns `available=False` from `health_check()`). The
 system never falls back to another provider and never fabricates a response.
+
+That last clause is load-bearing and was violated once. `HuggingFaceLocalProvider`
+previously substituted a hash-based trigram projection when its model failed to load,
+returning the stand-in as a semantic embedding. It is removed, and
+`tests/test_ai_providers.py` now asserts no fabricated-vector path survives.
+
+The two providers are not interchangeable. `HuggingFaceLocalProvider` is
+**embedding-only** — `all-MiniLM-L6-v2` encodes text and cannot generate it — so its
+`generate_text` / `generate_structured` raise rather than pretend. Ollama covers
+generation. `EmbeddingScorer` accepts either; `LexicalScorer` remains the default so
+the whole pipeline works with no model present.
 
 `ModelRun` records the execution, including `analysis_source`, so a later phase can tell
 grounded output from model knowledge.

@@ -28,6 +28,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Local semantic embeddings (src/ai/huggingface.py).
+#
+# An extra rather than a runtime requirement: the embedding provider is
+# optional, and pulling ~200 MB of ONNX Runtime into every install to obtain a
+# capability the default configuration does not use would be a bad trade. The
+# module imports without it and reports the provider unavailable with the
+# install command, so nothing breaks when it is absent.
+embeddings = ["fastembed>=0.4"]
+
 # Everything needed to run the test suite.
 #
 # Selenium and friends are here, not in the main dependency list, because they
@@ -41,6 +50,7 @@ dev = [
     "webdriver_manager>=3.8.0",
     "selenium-stealth>=1.0.0",
     "pyyaml>=5.1",
+    "fastembed>=0.4",
 ]
 
 [project.scripts]
