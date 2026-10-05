@@ -1,4 +1,4 @@
-﻿"""Candidate profile validation.
+"""Candidate profile validation.
 
 The validator **reports**; it never repairs. There is deliberately no
 ``fix_profile`` function. Silently correcting a contradictory date range or
@@ -25,7 +25,7 @@ from core.enums import (
 )
 from core.errors import ProfileValidationError
 from core.hashing import parse_iso_date, utc_now
-from profile.models import CandidateProfile
+from candidate_profile.models import CandidateProfile
 
 __all__ = ["ValidationIssue", "ValidationReport", "CandidateProfileValidator"]
 

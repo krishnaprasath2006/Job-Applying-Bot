@@ -1,22 +1,27 @@
-﻿"""Candidate profile: domain model, template, validation, persistence.
+"""Candidate profile: domain model, template, validation, persistence.
 
-``profile.models`` and ``profile.validator`` are the domain layer and depend on
-nothing but ``core``. ``profile.service`` is the application layer and depends
-on the database layer.
+``candidate_profile.models`` and ``candidate_profile.validator`` are the domain
+layer and depend on nothing but ``core``. ``candidate_profile.service`` is the
+application layer and depends on the database layer.
 
 ``ProfileService`` is therefore exported lazily via PEP 562 rather than eagerly.
 Importing it at module scope would create a cycle:
 
-    profile/__init__ -> profile.service -> database.repositories
-      -> database/repositories/__init__ -> profiles -> profile.models -> profile/__init__
+    candidate_profile/__init__
+      -> candidate_profile.service
+      -> database.repositories
+      -> database/repositories/__init__
+      -> profiles
+      -> candidate_profile.models
+      -> candidate_profile/__init__
 
 The names below keep working; only the import timing changed.
 """
 
 from typing import TYPE_CHECKING, Any
 
-from profile.models import CandidateProfile, build_empty_profile, with_fact_update
-from profile.validator import (
+from candidate_profile.models import CandidateProfile, build_empty_profile, with_fact_update
+from candidate_profile.validator import (
     REQUIRED_FOR_APPLICATION,
     CandidateProfileValidator,
     ValidationIssue,
@@ -24,7 +29,7 @@ from profile.validator import (
 )
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
-    from profile.service import ProfileService
+    from candidate_profile.service import ProfileService
 
 __all__ = [
     "CandidateProfile",
@@ -37,7 +42,7 @@ __all__ = [
     "with_fact_update",
 ]
 
-_LAZY = {"ProfileService": "profile.service"}
+_LAZY = {"ProfileService": "candidate_profile.service"}
 
 
 def __getattr__(name: str) -> Any:

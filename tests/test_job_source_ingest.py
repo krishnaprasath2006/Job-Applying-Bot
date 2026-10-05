@@ -21,7 +21,7 @@ from jobs.acquisition import parse_job_page
 from jobs.models import Job, JobStatus
 from jobs.records import PROVENANCE_KEY
 from jobs.source import SearchQuery
-from profile.service import ProfileService
+from candidate_profile.service import ProfileService
 
 PAGE_URL = "https://www.linkedin.com/jobs/view/4000000021"
 

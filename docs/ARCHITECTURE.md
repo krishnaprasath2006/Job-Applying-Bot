@@ -23,7 +23,7 @@ automation/                  browser side (Milestone 3, outside src/)
 src/                         assistant (Phase 2 foundation + Milestone 3)
 ├── core/                    primitives: settings, enums, errors, evidence, hashing
 ├── safety/                  policy and guards
-├── profile/                 candidate truth
+├── candidate_profile/        candidate truth
 ├── resumes/                 ingestion and parsing
 ├── database/                SQLite, migrations, repositories
 ├── jobs/                    job intelligence: models, dedup, requirements,
@@ -203,7 +203,7 @@ Boundaries:
 - Row → domain-model translation happens in the repository, never in a caller.
 - Migrations run once and are recorded; `002` and `003` are additive because
   `001` will not re-run.
-- Domain modules (`profile`, `resumes`, `jobs`) do not import `database` at module scope,
+- Domain modules (`candidate_profile`, `resumes`, `jobs`) do not import `database` at module scope,
   which is what keeps the layering acyclic.
 
 ---
@@ -234,7 +234,7 @@ grounded output from model knowledge.
 |---|---|---|
 | AI inference | `src/ai/` | choose actions, reach the browser, mutate facts |
 | Browser | legacy `linkedin.py` | be reached from `src/` |
-| Validation | `profile/validator.py` | modify the profile it validates |
+| Validation | `candidate_profile/validator.py` | modify the profile it validates |
 | Human approval | `safety/policies.py` | be minted by an AI actor, reused |
 | Storage | `database/repositories/` | be called directly with SQL from above |
 | Mutation of verified facts | `safety/guards.py` | be bypassed by an AI actor |
@@ -307,7 +307,7 @@ a test run cannot touch real data.
 | 8 | Unqualified requirements cannot be scored | `jobs/models.py` |
 | 9 | An unreachable provider raises; it never fabricates | `ai/` |
 | 10 | Secrets never reach log output or `status` | `core/redaction.py` |
-| 11 | One candidate's profile is never served for another | `profile/service.py` |
+| 11 | One candidate's profile is never served for another | `candidate_profile/service.py` |
 | 12 | A test run never writes to real candidate data | acceptance sandbox |
 | 13 | The original resume is never modified | `resumes/service.py` |
 | 14 | Migrations apply exactly once | `schema_migrations` |
@@ -336,5 +336,5 @@ automation/ ────────► selenium        (never imported by src/)
 ```
 
 Domain packages re-export through PEP 562 lazy `__getattr__`, which is what removed the
-circular import between `profile` and `database.repositories` found in the first
+circular import between `candidate_profile` and `database.repositories` found in the first
 recovery assessment. All modules import cleanly.

@@ -227,7 +227,7 @@ flowchart TB
 | Tier | Address | Started by |
 |---|---|---|
 | Vite dev server | `127.0.0.1:5173` | `npm run dev` |
-| FastAPI | `127.0.0.1:8000` | `uvicorn api.app:app` with `PYTHONPATH=src` |
+| FastAPI | `127.0.0.1:8000` | `uvicorn api.app:app` (after `pip install -e ".[dev]"`) |
 | Ollama *(optional)* | `127.0.0.1:11434` | external |
 
 The Vite dev server proxies `/api` → `http://127.0.0.1:8000`, so the browser makes
@@ -636,7 +636,7 @@ guessing.
 | Browser Automation | DISABLED | None in `src/`; `automation/` is read-only and unwired |
 | Application Intelligence | NOT IMPLEMENTED | No `ApplicationPlan`, `FormField`, `ApplicationSession`, `AnswerEvidence` |
 | Submission | DISABLED | No code path; not enableable by configuration |
-| Packaging | PARTIAL | `pyproject.toml` declares all runtime deps; the `profile` package name still collides with the stdlib, so `src/` must precede stdlib on `sys.path` |
+| Packaging | IMPLEMENTED | `pyproject.toml` declares deps and packages; installs and imports cleanly with no `PYTHONPATH` |
 | Docker | IMPLEMENTED | Image runs the canonical FastAPI app; no browser, no legacy bot |
 | Test suite | IMPLEMENTED | 1153 tests passing |
 
@@ -679,7 +679,7 @@ modern system, no CI configuration, no auth layer.
 │   ├── database/             # SQLite connection, transactions, repositories, 5 migrations
 │   ├── jobs/                 # Job intelligence: acquisition → requirements → gate → match → explain
 │   ├── lib/api/              # Frontend typed API client
-│   ├── profile/              # Candidate Truth: models, validator, service
+│   ├── candidate_profile/  # Candidate Truth: models, validator, service
 │   ├── resumes/              # Resume parsing, hashing, models, service
 │   ├── safety/               # Action policy, approval tokens, fact-mutation guards
 │   ├── components/           # React components (one per tab + shared)
@@ -836,21 +836,19 @@ Dependencies are declared in `pyproject.toml`; `requirements.txt` is a thin shim
 installs the project plus the `[dev]` extra. `fastapi` and `uvicorn` are declared, so a
 clean install can start the API.
 
-> ### ⚠️ Known limitation: the `profile` package name
->
-> `src/profile` collides with the **`profile` module in the Python standard library**,
-> which still ships in Python ≤ 3.11 (it was removed in 3.12). The standard library
-> precedes `site-packages` on `sys.path`, so `import profile` resolves to the stdlib
-> profiler and every canonical import fails — for *any* installed distribution, on
-> Windows and Linux alike.
->
-> This is why the two supported entry points both prepend `src` to `sys.path`
-> (`job_assistant.py` and `tests/conftest.py`), and why the Dockerfile sets
-> `PYTHONPATH=/app/src`. It is also why no console script is declared.
->
-> **Practical effect:** run the project from a checkout using `python job_assistant.py`
-> or `PYTHONPATH=src uvicorn api.app:app`. A properly fixing this means renaming the
-> package, which is a structural change and deliberately out of scope for now.
+An install exposes a console script for the CLI:
+
+```bash
+job-assistant status
+```
+
+> The candidate-truth package was renamed from `profile` to **`candidate_profile`** in
+> R2-B. The old name collided with the **`profile` module in the Python standard
+> library** (shipped until 3.12), and the standard library precedes `site-packages` on
+> `sys.path` — so `import profile` resolved to the stdlib profiler and every canonical
+> import failed for *any* installed distribution. There is now no `PYTHONPATH`
+> requirement: an installed copy imports normally from any working directory, and the
+> container runs with `PYTHONPATH` unset.
 
 Initialise the database:
 
@@ -935,25 +933,21 @@ You need **two terminals**. There is no combined script.
 
 ### Terminal 1 — API
 
-`src/` must be on `PYTHONPATH`. There is no packaging metadata, so nothing does this
-for you.
+Install the project first (`pip install -e ".[dev]"`). After that, no `PYTHONPATH` is
+needed — the packages resolve from the installation.
 
 ```bash
-# Windows PowerShell
-$env:PYTHONPATH="$PWD\src"
 python -m uvicorn api.app:app --host 127.0.0.1 --port 8000
-```
-
-```bash
-# macOS / Linux
-PYTHONPATH=src python -m uvicorn api.app:app --host 127.0.0.1 --port 8000
 ```
 
 The factory form also works:
 
 ```bash
-PYTHONPATH=src python -m uvicorn api.app:create_app --factory --host 127.0.0.1 --port 8000
+python -m uvicorn api.app:create_app --factory --host 127.0.0.1 --port 8000
 ```
+
+> Running **without installing**? Set `PYTHONPATH=src`, or use
+> `python job_assistant.py` for the CLI — the shim prepends `src` itself.
 
 Verify:
 
@@ -1180,7 +1174,7 @@ Resolved during R2-A and listed under [Fixed in R2-A](#fixed-in-r2-a). What rema
 
 | Severity | Issue |
 |---|---|
-| High | **`src/profile` shadows the stdlib `profile` module** on Python ≤ 3.11, so no installed distribution can import the canonical packages. Requires `src` to precede stdlib on `sys.path`. |
+| High | **An explicit top-level `packages` list silently omits subpackages** in a non-editable install. Fixed in R2-B by switching to `packages.find`, but worth remembering: `api.routes`, `api.schemas`, and `database.repositories` were absent from the installed wheel. |
 | Medium | **`src/ai/huggingface.py` cannot be imported** — it imports three symbols that do not exist and implements the wrong interface. |
 | Medium | **The Hugging Face tab renders a placeholder**; all four imported sub-components are unmounted, and its status badges are hardcoded strings rather than derived from the API. |
 | Low | 17 of 29 API-client methods are never called, including the whole report/explanation/relevance surface the job detail modal is built for. |
@@ -1201,6 +1195,7 @@ Resolved during R2-A and listed under [Fixed in R2-A](#fixed-in-r2-a). What rema
 | Docker ran the legacy auto-applier | Rewritten to build and run the canonical FastAPI app |
 | `src/lib/` excluded from git by an unanchored `lib/` rule | Rule anchored to `/lib/`; 9 frontend client files recovered |
 | `POST /api/profile` dead-ended when the JSON copy was missing | Route re-exports the JSON from the database via the service's existing rebuild path |
+| `src/profile` shadowed the stdlib `profile` module, so no installed distribution could import the canonical packages | Package renamed to `candidate_profile`; `PYTHONPATH` no longer required; console script `job-assistant` now possible |
 
 ### Design limitations
 
@@ -1217,7 +1212,8 @@ Resolved during R2-A and listed under [Fixed in R2-A](#fixed-in-r2-a). What rema
 
 ### Operational limitations
 
-- `PYTHONPATH=src` must be set for the API, because of the `profile` package collision.
+- No `PYTHONPATH` requirement after `pip install`; it is only needed when running
+  straight from a checkout without installing.
   It is documented and set in the Dockerfile, but not enforced by the tooling.
 - Two independent settings control storage — `ASSISTANT_APPLICATION__PATHS_ROOT` and
   `ASSISTANT_DATABASE__PATH`. Setting only the first leaves the database resolving

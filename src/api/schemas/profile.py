@@ -1,6 +1,6 @@
 """Profile request and response models.
 
-Responses reuse ``profile.models`` and ``profile.validator`` types where one
+Responses reuse ``candidate_profile.models`` and ``candidate_profile.validator`` types where one
 exists, so the wire shape is the domain shape rather than a hand-kept copy that
 drifts. Only the write payload is defined here, because the HTTP edge is the
 only place a partial update is expressed.
@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from core.evidence import Evidence
 from core.enums import FactStatus
-from profile.models import CandidateProfile
+from candidate_profile.models import CandidateProfile
 
 __all__ = [
     "FactUpdate",

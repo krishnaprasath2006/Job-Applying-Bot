@@ -25,7 +25,7 @@ from api.schemas import (
     UnknownFieldsResponse,
 )
 from core.enums import FactStatus
-from profile.models import build_empty_profile
+from candidate_profile.models import build_empty_profile
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 

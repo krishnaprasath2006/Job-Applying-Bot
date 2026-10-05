@@ -1,4 +1,4 @@
-﻿"""Candidate profile persistence.
+"""Candidate profile persistence.
 
 A profile is stored twice on purpose:
 
@@ -31,7 +31,7 @@ from core.evidence import Evidence, Fact
 from core.hashing import sha256_text, utc_now
 from database.repositories.base import BaseRepository, from_json_text, to_json_text
 from database.repositories.documents import DocumentRepository, EvidenceRepository
-from profile.models import CandidateProfile
+from candidate_profile.models import CandidateProfile
 
 __all__ = [
     "DETERMINISTIC_ACTOR_PREFIXES",

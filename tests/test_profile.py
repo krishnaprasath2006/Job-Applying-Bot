@@ -8,8 +8,8 @@ import pytest
 
 from core.enums import EvidenceSourceType, FactStatus, ValidationCode, ValidationSeverity
 from core.evidence import Evidence, FactValue
-from profile.models import CandidateProfile, build_empty_profile
-from profile.validator import REQUIRED_FOR_APPLICATION, CandidateProfileValidator
+from candidate_profile.models import CandidateProfile, build_empty_profile
+from candidate_profile.validator import REQUIRED_FOR_APPLICATION, CandidateProfileValidator
 
 _EVIDENCE = [
     Evidence(

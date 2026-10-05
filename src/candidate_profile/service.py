@@ -22,8 +22,8 @@ from core.hashing import utc_now
 from core.logging_config import get_logger, log_event
 from database.connection import Database
 from database.repositories.profiles import TRUSTED_ACTORS, ProfileRepository, classify_actor
-from profile.models import CandidateProfile, build_empty_profile
-from profile.validator import CandidateProfileValidator, ValidationReport
+from candidate_profile.models import CandidateProfile, build_empty_profile
+from candidate_profile.validator import CandidateProfileValidator, ValidationReport
 
 __all__ = ["ProfileService"]
 
@@ -31,7 +31,7 @@ __all__ = ["ProfileService"]
 #: name. Any other id gets its own file.
 DEFAULT_CANDIDATE_ID = "primary"
 
-_log = get_logger("profile.service")
+_log = get_logger("candidate_profile.service")
 
 
 class ProfileService:
@@ -437,7 +437,7 @@ class ProfileService:
         ]
 
     def validator_required(self) -> tuple[str, ...]:
-        from profile.validator import REQUIRED_FOR_APPLICATION
+        from candidate_profile.validator import REQUIRED_FOR_APPLICATION
 
         return REQUIRED_FOR_APPLICATION
 

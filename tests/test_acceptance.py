@@ -23,8 +23,8 @@ from assistant.acceptance import FIXTURES, AcceptanceRunner, run_acceptance
 from assistant.app import build_assistant
 from core.errors import ProfileNotFoundError
 from core.settings import load_settings
-from profile.models import build_empty_profile
-from profile.service import ProfileService
+from candidate_profile.models import build_empty_profile
+from candidate_profile.service import ProfileService
 
 
 @pytest.fixture()
@@ -332,7 +332,7 @@ class TestEvidenceExcerptsSurvive:
 
     def test_the_two_representations_agree_about_safety(self, db, tmp_path: Path) -> None:
         from core.enums import EvidenceSourceType, FactStatus
-        from profile.models import build_empty_profile
+        from candidate_profile.models import build_empty_profile
 
         section = build_empty_profile("x").identity
 

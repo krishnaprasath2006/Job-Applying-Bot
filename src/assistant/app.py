@@ -23,7 +23,7 @@ from database.repositories.model_runs import ModelRunRepository
 from database.repositories.profiles import ProfileRepository
 from database.repositories.resumes import ResumeRepository
 from resumes.service import ResumeService
-from profile.service import ProfileService
+from candidate_profile.service import ProfileService
 from safety.policies import SafetyPolicy
 from assistant.job_service import JobService
 

@@ -20,7 +20,7 @@ from core.enums import EvidenceSourceType, FactStatus
 from core.evidence import Evidence, Fact
 from jobs.candidate import CandidateClaim, CandidateEvidence, FactRef
 from jobs.models import RequirementKind
-from profile.models import build_empty_profile
+from candidate_profile.models import build_empty_profile
 
 
 def facts_from_fixture(payload: dict) -> list[Fact]:

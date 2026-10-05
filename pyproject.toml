@@ -19,7 +19,7 @@ dependencies = [
     # API boundary (src/api/)
     "fastapi>=0.110",
     "uvicorn>=0.27",
-    # Domain models, settings, validation (src/core/, src/profile/, src/jobs/)
+    # Domain models, settings, validation (src/core/, src/candidate_profile/, src/jobs/)
     "pydantic>=2.0.0",
     "pydantic-settings>=2.0.0",
     # Resume text extraction (src/resumes/)
@@ -43,41 +43,45 @@ dev = [
     "pyyaml>=5.1",
 ]
 
-# NOTE: no [project.scripts] entry point is declared, deliberately.
+[project.scripts]
+# Console script for the existing, real entry point in src/assistant/cli.py.
 #
-# A console script (`job-assistant = "assistant.cli:main"`) would resolve to the
-# real function, but it cannot work: the stdlib ships a top-level `profile`
-# module in Python <= 3.11, and `src/profile` is one of this project's
-# top-level packages. `Lib/` precedes `site-packages` on sys.path, so `import
-# profile` resolves to the stdlib profiler and every canonical import fails.
-#
-# The repository already solves this correctly by prepending `src` to sys.path
-# in its two entry points (job_assistant.py and tests/conftest.py). Use
-# `python job_assistant.py`. See "Known limitation: the `profile` package name"
-# in README.md.
-#
-# Fixing this properly means renaming the package, which is a structural change
-# and out of scope for R2-A.
+# This is now possible. It was previously withheld because the package was named
+# `profile`, which collides with the stdlib profiler shipped in Python <= 3.11:
+# `Lib/` precedes `site-packages`, so `import profile` resolved to the stdlib and
+# every canonical import failed for any installed distribution. The package is
+# now `candidate_profile`, so an installed console script resolves correctly.
+job-assistant = "assistant.cli:main"
 
-# Explicit package list rather than automatic discovery.
-#
 # src/ is the import root: modules use absolute imports such as
 # `from core.settings import ...`, so every package sits directly under src/.
-# src/components, src/lib and src/types are TypeScript-only and deliberately
-# excluded, as is src/__pycache__.
+#
+# Discovery rather than a flat list, because a list of top-level names omits
+# subpackages -- `api.routes`, `api.schemas` and `database.repositories` were
+# silently left out of a non-editable install, which only worked while
+# PYTHONPATH pointed at the source tree. `include` keeps discovery explicit so
+# the TypeScript-only trees (src/components, src/lib, src/types) and
+# src/database/migrations are never picked up: find_packages requires an
+# __init__.py, which none of them have.
+#
+# `candidate_profile` was renamed from `profile` in R2-B to remove the stdlib
+# collision described above.
 [tool.setuptools]
 package-dir = { "" = "src" }
-packages = [
-    "ai",
-    "api",
-    "assistant",
-    "audit",
-    "core",
-    "database",
-    "jobs",
-    "profile",
-    "resumes",
-    "safety",
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = [
+    "ai*",
+    "api*",
+    "assistant*",
+    "audit*",
+    "candidate_profile*",
+    "core*",
+    "database*",
+    "jobs*",
+    "resumes*",
+    "safety*",
 ]
 
 [tool.setuptools.package-data]

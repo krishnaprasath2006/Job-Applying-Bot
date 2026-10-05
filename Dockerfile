@@ -18,12 +18,15 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# The canonical packages live directly under src/ and use absolute imports
-# (`from core.settings import ...`), so src/ must precede the standard library
-# on sys.path. This is the same arrangement job_assistant.py and
-# tests/conftest.py use. It is required, not cosmetic: one package is named
-# `profile`, which collides with the stdlib `profile` module on Python <= 3.11.
-ENV PYTHONPATH=/app/src
+# No PYTHONPATH is set. `pip install .` below copies every package into
+# site-packages, so `api.app`, `core.settings` and `candidate_profile.models`
+# all import normally.
+#
+# R2-B removed the previous `ENV PYTHONPATH=/app/src`. It existed only because
+# the package was named `profile`, which shadowed the stdlib profiler shipped in
+# Python <= 3.11; the stdlib precedes site-packages on sys.path, so the installed
+# copy was unreachable. The package is now `candidate_profile` and installs
+# cleanly.
 
 # Copy the package sources alongside the metadata. Both are required before
 # `pip install .`: setuptools resolves the wheel's contents from src/, so

@@ -29,7 +29,7 @@ from core.errors import (
 from core.evidence import Evidence, Fact
 from database.connection import Database
 from database.connection import _MIGRATIONS_DIR
-from profile.models import build_empty_profile
+from candidate_profile.models import build_empty_profile
 from resumes.models import Resume, ResumeSection
 
 _EVIDENCE = [
@@ -104,7 +104,7 @@ def profile_repo(db: Database):
 @pytest.fixture
 def saved_profile(profile_repo, db: Database):
     """A profile row that exists, with one verified fact already written."""
-    from profile.models import CandidateProfile
+    from candidate_profile.models import CandidateProfile
 
     profile_repo.create(CandidateProfile(candidate_id="primary"))
     profile = build_empty_profile("primary").with_update(

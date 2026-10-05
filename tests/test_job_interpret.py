@@ -46,7 +46,7 @@ from jobs.interpret import (
     validate_extraction,
 )
 from jobs.models import Job
-from profile.service import ProfileService
+from candidate_profile.service import ProfileService
 
 EVIDENCE_YEARS = "5+ years of hands-on machine learning experience"
 EVIDENCE_SKILL = "Strong Python and SQL"

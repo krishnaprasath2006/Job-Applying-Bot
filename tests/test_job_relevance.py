@@ -49,7 +49,7 @@ ROWS = [a_row("Python"), a_row("SQL")]
 
 @pytest.fixture()
 def profiles(tmp_path, db):
-    from profile.service import ProfileService
+    from candidate_profile.service import ProfileService
 
     service = ProfileService(db, storage_path=tmp_path / "candidate_profile.json")
     service.create_profile("primary", persist_json=True, actor="user")

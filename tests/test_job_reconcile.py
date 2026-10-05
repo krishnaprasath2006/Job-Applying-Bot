@@ -35,7 +35,7 @@ from test_job_analysis import POSTING, a_candidate, make_job
 from test_job_interpret import FakeProvider
 
 from assistant.job_service import JobService
-from profile.service import ProfileService
+from candidate_profile.service import ProfileService
 
 # A description long enough to be usable (> 150 chars) whose prose the
 # deterministic extractor reads differently from the model: the model

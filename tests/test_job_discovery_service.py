@@ -27,7 +27,7 @@ from core.enums import (
 from jobs.models import JobStatus
 from jobs.records import PROVENANCE_KEY, enforce_source_mode
 from jobs.source import JobSource, SearchQuery, parse_listing
-from profile.service import ProfileService
+from candidate_profile.service import ProfileService
 
 LISTING = "search_results.html"
 EMPTY = "search_results_empty.html"

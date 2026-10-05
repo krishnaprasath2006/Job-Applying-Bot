@@ -70,7 +70,7 @@ from jobs.review import (
     ReviewQueue,
 )
 from jobs.source import JobSource, SearchQuery, job_link_id
-from profile.service import ProfileService
+from candidate_profile.service import ProfileService
 
 __all__ = ["DiscoveryOutcome", "IngestResult", "JobService"]
 

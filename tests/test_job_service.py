@@ -18,7 +18,7 @@ from core.evidence import Evidence
 from core.enums import EvidenceSourceType
 from jobs.candidate import CandidateEvidence
 from jobs.models import Job, RequirementKind
-from profile.service import ProfileService
+from candidate_profile.service import ProfileService
 
 FIXTURE_PAGE = "job_detail.html"
 YEARS_FIELD = "experience.total_years_experience"
