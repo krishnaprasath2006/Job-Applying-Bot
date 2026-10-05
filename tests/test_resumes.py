@@ -286,3 +286,40 @@ class TestSectionModel:
     def test_unknown_section_type_is_refused(self) -> None:
         with pytest.raises(ValueError):
             ResumeSection(section_type="gossip", raw_text="x", char_count=1)
+
+
+class TestPageCountIsBestEffort:
+    """A PDF whose page count cannot be read must still be handled gracefully.
+
+    Regression: ``_page_count`` reported its own failures through a module-level
+    ``log`` that was never defined, so a PDF whose page tree could not be read
+    raised ``NameError`` from inside the ingest path. That turned "the page count
+    is unavailable" into "this resume cannot be parsed", contradicting the
+    method's own documented contract that it must never abort ingestion.
+    """
+
+    def test_the_parser_module_defines_its_logger(self) -> None:
+        # Direct guard for the regression: the name the failure path used must
+        # exist, so it cannot silently disappear again.
+        import resumes.parser as parser_module
+
+        assert hasattr(parser_module, "log")
+
+    def test_an_unreadable_page_tree_reports_no_count_instead_of_raising(
+        self, monkeypatch
+    ) -> None:
+        import pdfplumber
+        from pdfminer.pdfparser import PDFSyntaxError
+
+        def _boom(path, *args, **kwargs):
+            raise PDFSyntaxError("page tree is corrupt")
+
+        monkeypatch.setattr(pdfplumber, "open", _boom)
+        assert ResumeParser()._page_count(_PDF, ResumeFileType.PDF) is None
+
+    def test_page_count_is_none_for_non_pdf_input(self) -> None:
+        # The short-circuit that runs before any of this matters.
+        assert (
+            ResumeParser()._page_count(FIXTURES / "synthetic_resume.txt", ResumeFileType.TXT)
+            is None
+        )

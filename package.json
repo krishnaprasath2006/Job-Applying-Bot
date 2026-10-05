@@ -6,10 +6,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "tsx src/ai/test_hf1_suite.ts",
-    "test:hf": "tsx src/ai/test_hf1_suite.ts",
-    "test:hf-smoke": "tsx src/ai/smoke_test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm run build",
+    "test:backend": "python -m pytest"
   },
   "dependencies": {
     "lucide-react": "^1.49.0",

@@ -11,6 +11,7 @@ import { HuggingFaceAITab } from './components/HuggingFaceAITab.js';
 import { JobDetailModal } from './components/JobDetailModal.js';
 import type { Job, CandidateProfile, Resume, SafetyReport, MatchResult } from './types/api.js';
 import { API, isApiErrorCode } from './lib/api/index.js';
+import { diffProfileFacts } from './lib/profileDiff.js';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<TabType>('jobs');
@@ -122,21 +123,44 @@ export function App() {
     }
   }, [jobs, showToast]);
 
-  const handleUpdateProfile = useCallback(async (updated: CandidateProfile) => {
-    try {
-      await API.profile.validate();
-      const [profileRes, jobsRes] = await Promise.all([
-        API.profile.get(),
-        API.jobs.list(),
-      ]);
-      setProfile(profileRes.exists ? profileRes.profile : null);
-      setJobs(jobsRes.jobs || []);
-      showToast('Candidate facts validated; matches recalculated');
-    } catch (err) {
-      console.error(err);
-      showToast('Failed to update candidate facts', 'error');
-    }
-  }, [showToast]);
+/**
+   * Persist profile edits.
+   *
+   * The API writes one fact per request, so this diffs the edited profile
+   * against the version currently held in state and posts only what changed.
+   * Each response is the authoritative profile, so the last one becomes state.
+   *
+   * Re-throws on failure: the caller must not report a save that did not
+   * happen.
+   */
+  const handleUpdateProfile = useCallback(
+    async (updated: CandidateProfile) => {
+      const changes = diffProfileFacts(profile, updated);
+
+      if (changes.length === 0) {
+        showToast('No changes to save', 'info');
+        return;
+      }
+
+      try {
+        let latest: Awaited<ReturnType<typeof API.profile.updateFact>> | null = null;
+        for (const change of changes) {
+          latest = await API.profile.updateFact('primary', change);
+        }
+
+        const profileRes = latest ?? (await API.profile.get());
+        setProfile(profileRes.exists ? profileRes.profile : null);
+        showToast(
+          `Saved ${changes.length} candidate ${changes.length === 1 ? 'fact' : 'facts'}`,
+        );
+      } catch (err) {
+        console.error(err);
+        showToast('Failed to save candidate facts — nothing was stored', 'error');
+        throw err;
+      }
+    },
+    [profile, showToast],
+  );
 
   const handleValidateProfile = useCallback(async () => {
     try {

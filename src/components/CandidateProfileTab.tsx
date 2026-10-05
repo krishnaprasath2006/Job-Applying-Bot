@@ -45,6 +45,7 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
   const [isValidating, setIsValidating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // New skill form
   const [newSkillName, setNewSkillName] = useState('');
@@ -58,12 +59,18 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
   const handleSave = async () => {
     if (!formData) return;
     setIsSaving(true);
+    setSaveError(null);
     try {
       await onUpdateProfile(formData);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
       console.error(err);
+      setSaveError(
+        err instanceof Error
+          ? err.message
+          : 'The server rejected these facts. Nothing was saved.',
+      );
     } finally {
       setIsSaving(false);
     }
@@ -91,7 +98,10 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
         [newSkillGroup]: {
           ...formData.skills![newSkillGroup],
           value: [...current, name],
-          status: 'VERIFIED',
+          // A skill typed into this form is a claim, not a sourced fact. The
+          // server stores a human claim as INFERRED, and asserting VERIFIED
+          // here would show a status the backend will not keep.
+          status: 'INFERRED',
         },
       },
     });
@@ -160,6 +170,18 @@ export const CandidateProfileTab: React.FC<CandidateProfileTabProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Save failure is shown here, not only as a toast: a save that did not
+          persist must never read as a success. */}
+      {saveError && (
+        <div className="flex items-start gap-2 p-4 rounded-xl border bg-rose-950/30 border-rose-800/50 text-rose-200">
+          <AlertCircle className="w-5 h-5 shrink-0 text-rose-400" />
+          <div>
+            <div className="font-semibold">Nothing was saved</div>
+            <p className="text-sm mt-0.5 break-words">{saveError}</p>
+          </div>
+        </div>
+      )}
 
       {/* Validation Result Findings Banner */}
       {validationResult && (

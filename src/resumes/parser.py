@@ -20,8 +20,15 @@ from typing import Callable, Optional
 from core.enums import ResumeFileType, ResumeStatus, SectionType
 from core.errors import ResumeParseError
 from core.hashing import utc_now
+from core.logging_config import get_logger
 from resumes.models import PARSER_NAME, PARSER_VERSION, Resume, ResumeSection
 from resumes.hashing import MIN_TEXT_CHARS, ensure_ingestable, hash_file, hash_text
+
+# Structured logger. Defined because _page_count() reports its own best-effort
+# failures at debug level, and an undefined name there would raise NameError in
+# the middle of an otherwise successful ingest -- turning "the page count is
+# unavailable" into "this resume cannot be parsed".
+log = get_logger("resumes.parser")
 
 __all__ = [
     "ResumeParser",

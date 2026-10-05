@@ -510,9 +510,9 @@ Hugging Face AI, Safety & Guardrails.
 | Safety & Guardrails | **Wired** (read-only, correctly) |
 | Job Matching | PARTIAL — 4 of 10 job endpoints used; the report/explanation/relevance surface `JobDetailModal` is built for is never fetched |
 | Review Queue | PARTIAL — derived client-side by filtering `jobs`; the dedicated queue endpoint is unused |
-| Candidate Profile | **Reads work; writes are silently discarded** — see [Known Limitations](#known-limitations) |
+| Candidate Profile | **Wired end-to-end** — edits are diffed and written fact-by-fact via `POST /api/profile` |
 | Resume Vault | PARTIAL — list only; ingest unreachable from the UI |
-| Auto-Fill Q&A | **Non-functional** — calls two endpoints that do not exist; 404s render as an empty table |
+| Auto-Fill Q&A | **Truthful not-implemented panel** — the dead fetches were removed; no endpoints invented |
 | Hugging Face AI | **Stub** — renders a placeholder string; sub-components unmounted |
 
 ### Safety Layer
@@ -636,8 +636,8 @@ guessing.
 | Browser Automation | DISABLED | None in `src/`; `automation/` is read-only and unwired |
 | Application Intelligence | NOT IMPLEMENTED | No `ApplicationPlan`, `FormField`, `ApplicationSession`, `AnswerEvidence` |
 | Submission | DISABLED | No code path; not enableable by configuration |
-| Packaging | PARTIAL | No `pyproject.toml`; `fastapi`/`uvicorn` missing from `requirements.txt` |
-| Docker | DISCONNECTED | Runs the legacy Selenium bot, not this system |
+| Packaging | PARTIAL | `pyproject.toml` declares all runtime deps; the `profile` package name still collides with the stdlib, so `src/` must precede stdlib on `sys.path` |
+| Docker | IMPLEMENTED | Image runs the canonical FastAPI app; no browser, no legacy bot |
 | Test suite | IMPLEMENTED | 1153 tests passing |
 
 ---
@@ -694,9 +694,9 @@ modern system, no CI configuration, no auth layer.
 ├── job_assistant.py          # CLI entrypoint (sys.path shim → assistant.cli)
 ├── linkedin.py               # ⚠️ LEGACY Selenium auto-applier. Can submit.
 ├── config.py / utils.py / constants.py   # ⚠️ LEGACY bot config and helpers
-├── Dockerfile / docker-compose.yml       # ⚠️ LEGACY — builds and runs linkedin.py
+├── Dockerfile / docker-compose.yml       # Canonical FastAPI image (no browser, no legacy bot)
 ├── package.json / vite.config.ts / tsconfig.json
-├── requirements.txt          # ⚠️ missing fastapi + uvicorn
+├── requirements.txt          # thin shim: installs the project plus the [dev] extra
 └── .env.example
 ```
 
@@ -829,25 +829,28 @@ python -m venv .venv
 # Windows:      .venv\Scripts\activate
 # macOS/Linux:  source .venv/bin/activate
 
-pip install -r requirements.txt
+pip install -r requirements.txt          # or: pip install -e ".[dev]"
 ```
 
-> ### ⚠️ Known packaging gap — verified
+Dependencies are declared in `pyproject.toml`; `requirements.txt` is a thin shim that
+installs the project plus the `[dev]` extra. `fastapi` and `uvicorn` are declared, so a
+clean install can start the API.
+
+> ### ⚠️ Known limitation: the `profile` package name
 >
-> `requirements.txt` **does not include `fastapi` or `uvicorn`**, even though the API
-> layer requires both. A clean install per the command above gives you a working **CLI
-> and core**, but the HTTP server will not start.
+> `src/profile` collides with the **`profile` module in the Python standard library**,
+> which still ships in Python ≤ 3.11 (it was removed in 3.12). The standard library
+> precedes `site-packages` on `sys.path`, so `import profile` resolves to the stdlib
+> profiler and every canonical import fails — for *any* installed distribution, on
+> Windows and Linux alike.
 >
-> Verified working versions in this environment:
+> This is why the two supported entry points both prepend `src` to `sys.path`
+> (`job_assistant.py` and `tests/conftest.py`), and why the Dockerfile sets
+> `PYTHONPATH=/app/src`. It is also why no console script is declared.
 >
-> ```bash
-> pip install "fastapi>=0.128" "uvicorn>=0.41"
-> ```
->
-> This is a repository defect, not a design choice. There is also **no
-> `pyproject.toml`**, so the project is not installable as a package and cannot declare
-> its dependencies or a console script. This is reported, not fixed, per the
-> documentation-only scope of this change.
+> **Practical effect:** run the project from a checkout using `python job_assistant.py`
+> or `PYTHONPATH=src uvicorn api.app:app`. A properly fixing this means renaming the
+> package, which is a structural change and deliberately out of scope for now.
 
 Initialise the database:
 
@@ -1091,12 +1094,19 @@ plausible PII.
 
 ### Frontend tests
 
-**None.** No JS test runner is configured. `npm run typecheck` (`tsc --noEmit`) passes
-clean and is the only automated frontend check.
+**None.** No JS test runner is configured. The frontend is checked by:
 
-> `npm test`, `npm run test:hf`, and `npm run test:hf-smoke` are **broken** — they point
-> at `src/ai/*.ts` files that were moved to `legacy/`. `src/ai/` contains only Python.
-> Do not use them.
+```bash
+npm run typecheck     # tsc --noEmit
+npm run build         # vite build
+npm run verify        # both of the above
+npm run test:backend  # the authoritative Python suite
+```
+
+> The former `npm test`, `test:hf`, and `test:hf-smoke` scripts were **removed**: they
+> pointed at `src/ai/*.ts` files that were quarantined to `legacy/`, so they could only
+> ever fail. They were replaced with the commands above rather than pointed at anything
+> new.
 
 ---
 
@@ -1164,24 +1174,33 @@ for exposure.
 
 ## Known Limitations
 
-Bugs and gaps found during this audit. Reported, not fixed, per documentation scope.
+Resolved during R2-A and listed under [Fixed in R2-A](#fixed-in-r2-a). What remains:
 
 ### Functional defects
 
 | Severity | Issue |
 |---|---|
-| High | **Profile edits are silently discarded.** The React save handler accepts the updated profile and ignores it, re-validating instead of writing. The UI reports "Saved!" for changes that were never persisted. `profileApi.updateFact` exists but has no call site. |
-| High | **The Auto-Fill Q&A tab calls two endpoints that do not exist** and checks neither response status, so 404s render as an empty table rather than an error. |
-| High | **`npm test` / `test:hf` / `test:hf-smoke` are broken** — they reference TypeScript files that were quarantined. |
-| High | **`fastapi` and `uvicorn` are missing from `requirements.txt`**, so a clean install cannot start the API. |
+| High | **`src/profile` shadows the stdlib `profile` module** on Python ≤ 3.11, so no installed distribution can import the canonical packages. Requires `src` to precede stdlib on `sys.path`. |
 | Medium | **`src/ai/huggingface.py` cannot be imported** — it imports three symbols that do not exist and implements the wrong interface. |
-| Medium | **Latent `NameError` in the résumé parser.** A page-count failure path calls an undefined `log.debug`. |
 | Medium | **The Hugging Face tab renders a placeholder**; all four imported sub-components are unmounted, and its status badges are hardcoded strings rather than derived from the API. |
-| Medium | **`docker compose up` runs the legacy Selenium bot**, not this system. The image never copies `src/`. |
-| Low | 18 of 29 API-client methods are never called, including the whole report/explanation/relevance surface the job detail modal is built for. |
+| Low | 17 of 29 API-client methods are never called, including the whole report/explanation/relevance surface the job detail modal is built for. |
 | Low | `tsconfig.json` includes `server.ts`, which no longer exists. |
 | Low | The Navbar shows a hardcoded port label. The Vite proxy `rewrite` is an identity function. |
 | Low | The API's `apply` route declares a `403` response it never emits. |
+
+### Fixed in R2-A
+
+| Was | Resolution |
+|---|---|
+| `fastapi`/`uvicorn` undeclared | Declared in `pyproject.toml`; `requirements.txt` installs the project |
+| No `pyproject.toml` | Added; explicit package list, migrations shipped via `package-data` |
+| Profile edits silently discarded | `handleUpdateProfile` diffs and writes fact-by-fact; a failure re-throws and the tab shows "Nothing was saved" |
+| Auto-Fill Q&A called dead endpoints | Fetches removed; replaced with a truthful capability-status panel |
+| Résumé parser `NameError` | Module logger added; 3 regression tests |
+| `npm test`/`test:hf`/`test:hf-smoke` broken | Removed; replaced with `typecheck`, `build`, `verify`, `test:backend` |
+| Docker ran the legacy auto-applier | Rewritten to build and run the canonical FastAPI app |
+| `src/lib/` excluded from git by an unanchored `lib/` rule | Rule anchored to `/lib/`; 9 frontend client files recovered |
+| `POST /api/profile` dead-ended when the JSON copy was missing | Route re-exports the JSON from the database via the service's existing rebuild path |
 
 ### Design limitations
 
@@ -1198,12 +1217,16 @@ Bugs and gaps found during this audit. Reported, not fixed, per documentation sc
 
 ### Operational limitations
 
-- No `pyproject.toml` — not installable, no declared dependencies, no console script.
-- `PYTHONPATH=src` must be set manually for the API; nothing documents or enforces it.
+- `PYTHONPATH=src` must be set for the API, because of the `profile` package collision.
+  It is documented and set in the Dockerfile, but not enforced by the tooling.
+- Two independent settings control storage — `ASSISTANT_APPLICATION__PATHS_ROOT` and
+  `ASSISTANT_DATABASE__PATH`. Setting only the first leaves the database resolving
+  relative to the working directory, which can put it outside the intended data tree.
 - No reverse proxy or static server for a production `dist/` build.
-- No frontend test suite.
+- No frontend test runner.
 - No CI configuration.
-- Several files in `docs/` describe an intended system rather than the running one.
+- Several files in `docs/` describe an intended system rather than the running one;
+  `docs/SETUP.md` also still claims 903 tests.
 
 ---
 
@@ -1248,14 +1271,28 @@ in with stored credentials, persists sessions as pickled cookies, and clicks
 and `config.py`'s `dryRun` is a plain module constant with no invariant behind it. In
 dry-run it still performs the real login and Easy Apply click-through before the check.
 
-### Docker is legacy
+### Docker now runs the canonical application
 
-`Dockerfile` copies only root-level `*.py` (never `src/`), installs only the legacy
-Selenium dependencies, and runs `CMD ["python3", "linkedin.py"]`.
-`docker-compose.yml` adds `restart: unless-stopped` and live-mounts `config.py`.
+The Dockerfile was rewritten during R2-A. It **previously** copied only root-level
+`*.py` (never `src/`), installed Chrome plus ~35 X11 libraries for the legacy bot, and
+ran `CMD ["python3", "linkedin.py"]` — an auto-applier under `restart: unless-stopped`.
 
-**`docker compose up` does not run this system.** There is no container image for the
-FastAPI/React application.
+The current image:
+
+- builds and runs `uvicorn api.app:app`
+- contains **no browser, no Chrome, and no Selenium**
+- does **not** copy `linkedin.py`, `config.py`, `utils.py`, or `constants.py`
+- pins every safety switch to its safe value, so a permissive mistake is a failed
+  startup rather than a running-but-unsafe service
+- exposes a health check on `/api/ready`, which verifies SQLite, migrations, **and** the
+  safety invariants
+
+```bash
+docker compose up --build                        # API on http://127.0.0.1:8000
+docker compose run --rm cli status               # one-off CLI in the same image
+```
+
+The legacy bot is no longer containerised at all.
 
 ---
 

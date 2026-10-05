@@ -1,25 +1,60 @@
-version: '3.8'
+# Canonical AI Job Assistant -- API service.
+#
+# Runs the FastAPI application from src/api/. This does NOT run the legacy
+# Selenium bot: the previous compose service mounted config.py and started
+# `python3 linkedin.py` with `restart: unless-stopped`, i.e. an auto-applier
+# that could submit real applications. That is not part of this system.
+#
+#   docker compose up --build          # API on http://127.0.0.1:8000
+#   docker compose run --rm cli status # one-off CLI against the same image
+#
+# The React frontend is not containerised here. Run it with `npm run dev`
+# (port 5173), which proxies /api to 127.0.0.1:8000.
 
 services:
-  easyapply-bot:
+  api:
     build: .
-    container_name: easyapply-jobs-bot
+    image: job-applying-bot:2.0.0
+    container_name: job-assistant-api
+    ports:
+      - "127.0.0.1:8000:8000"
     volumes:
-      # Mount data directory to persist job application results
+      # SQLite database, profile JSON, parsed resume text.
       - ./data:/app/data
-      # Mount cookies directory to persist login sessions
-      - ./cookies:/app/cookies
-      # Mount config file so users can edit it without rebuilding
-      - ./config.py:/app/config.py
-      # Mount additional questions file
-      - ./additionalQuestions.yaml:/app/additionalQuestions.yaml
     environment:
-      - DISPLAY=:99
-    # Uncomment the following lines if you want to run in headless mode by default
-    # environment:
-    #   - DISPLAY=:99
-    #   - HEADLESS=true
+      # Safety switches are pinned to their safe values. The application
+      # refuses to start if any of these is permissive, so a mistake here is a
+      # failed startup rather than a running-but-unsafe service.
+      ASSISTANT_SAFETY__SAFE_MODE: "true"
+      ASSISTANT_SAFETY__DRY_RUN: "true"
+      ASSISTANT_SAFETY__REQUIRE_HUMAN_APPROVAL: "true"
+      ASSISTANT_SAFETY__ALLOW_FINAL_SUBMISSION: "false"
+      ASSISTANT_SAFETY__ALLOW_FORM_FILLING: "false"
+      ASSISTANT_SAFETY__ALLOW_BROWSER_NAVIGATION: "false"
+      ASSISTANT_SAFETY__ALLOW_FILE_UPLOAD: "false"
+      ASSISTANT_APPLICATION__CANDIDATE_ID: "primary"
+      ASSISTANT_DATABASE__PATH: "/app/data/assistant.db"
+      # Ollama is optional and expected to run on the Docker host. Comment this
+      # out to run with deterministic extraction and the lexical scorer only.
+      ASSISTANT_AI__PROVIDER: "ollama"
+      ASSISTANT_AI__BASE_URL: "http://host.docker.internal:11434"
+      ASSISTANT_LOGGING__FORMAT: "json"
+    extra_hosts:
+      # Lets the container reach an Ollama running on the host.
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
-    # Remove stdin_open and tty if you want to run in detached mode
-    stdin_open: true
-    tty: true
+
+  # One-shot CLI in the same image, e.g.
+  #   docker compose run --rm cli job-assistant.py acceptance
+  cli:
+    build: .
+    image: job-applying-bot:2.0.0
+    profiles: ["tools"]
+    volumes:
+      - ./data:/app/data
+    environment:
+      ASSISTANT_SAFETY__DRY_RUN: "true"
+      ASSISTANT_SAFETY__ALLOW_FINAL_SUBMISSION: "false"
+      ASSISTANT_DATABASE__PATH: "/app/data/assistant.db"
+    entrypoint: ["python", "job_assistant.py"]
+    command: ["status"]

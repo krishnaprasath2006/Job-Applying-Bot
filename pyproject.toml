@@ -1,0 +1,92 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "job-applying-bot"
+version = "2.0.0"
+description = "Evidence-first job analysis assistant: candidate truth, job intelligence, and human review."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "CC-BY-NC-SA-4.0" }
+
+# Runtime dependencies for the canonical application in src/.
+#
+# These are the libraries src/ actually imports. The API boundary (FastAPI,
+# Uvicorn) was previously undeclared, which made a clean install unable to start
+# the server; it is declared here.
+dependencies = [
+    # API boundary (src/api/)
+    "fastapi>=0.110",
+    "uvicorn>=0.27",
+    # Domain models, settings, validation (src/core/, src/profile/, src/jobs/)
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    # Resume text extraction (src/resumes/)
+    "pdfplumber>=0.10.0",
+    "python-docx>=1.1.0",
+]
+
+[project.optional-dependencies]
+# Everything needed to run the test suite.
+#
+# Selenium and friends are here, not in the main dependency list, because they
+# are used *only* by the quarantined legacy bot at the repository root
+# (utils.py, linkedin.py). tests/test_legacy.py imports those modules to prove
+# they are still intact, so the test extra needs them. The canonical application
+# in src/ imports no browser automation at all.
+dev = [
+    "pytest>=8.0.0",
+    "selenium>=4.0.0",
+    "webdriver_manager>=3.8.0",
+    "selenium-stealth>=1.0.0",
+    "pyyaml>=5.1",
+]
+
+# NOTE: no [project.scripts] entry point is declared, deliberately.
+#
+# A console script (`job-assistant = "assistant.cli:main"`) would resolve to the
+# real function, but it cannot work: the stdlib ships a top-level `profile`
+# module in Python <= 3.11, and `src/profile` is one of this project's
+# top-level packages. `Lib/` precedes `site-packages` on sys.path, so `import
+# profile` resolves to the stdlib profiler and every canonical import fails.
+#
+# The repository already solves this correctly by prepending `src` to sys.path
+# in its two entry points (job_assistant.py and tests/conftest.py). Use
+# `python job_assistant.py`. See "Known limitation: the `profile` package name"
+# in README.md.
+#
+# Fixing this properly means renaming the package, which is a structural change
+# and out of scope for R2-A.
+
+# Explicit package list rather than automatic discovery.
+#
+# src/ is the import root: modules use absolute imports such as
+# `from core.settings import ...`, so every package sits directly under src/.
+# src/components, src/lib and src/types are TypeScript-only and deliberately
+# excluded, as is src/__pycache__.
+[tool.setuptools]
+package-dir = { "" = "src" }
+packages = [
+    "ai",
+    "api",
+    "assistant",
+    "audit",
+    "core",
+    "database",
+    "jobs",
+    "profile",
+    "resumes",
+    "safety",
+]
+
+[tool.setuptools.package-data]
+# Plain-SQL migrations are read from disk at runtime; without this they are
+# absent from a non-editable install and database initialisation fails.
+database = ["migrations/*.sql"]
+
+[tool.pytest.ini_options]
+# Declared here so `pytest` works from the repository root without a conftest
+# flag. tests/conftest.py still owns sys.path arrangement, which is what keeps
+# the root-level legacy modules importable for tests/test_legacy.py.
+testpaths = ["tests"]

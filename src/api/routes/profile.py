@@ -79,6 +79,20 @@ def update_fact(
         target = assistant.profile_service.path_for(candidate_id)
         if target is not None:
             empty_profile.save(target)
+    else:
+        # ``profile_exists`` is true when *either* store has the profile, so a
+        # row in the database whose JSON working copy has been moved or deleted
+        # reaches this point with nothing to load: ``load_profile`` refuses that
+        # state on purpose, because silently rebuilding would hide the loss.
+        #
+        # Left alone, that makes this endpoint permanently unusable until
+        # somebody restores the file by hand. Rebuild the JSON from the
+        # database instead, which is the explicit opt-in the service provides
+        # for exactly this case, and never touches the facts.
+        target = assistant.profile_service.path_for(candidate_id)
+        if target is not None and not target.is_file():
+            restored = assistant.profile_service.load_profile_from_database(candidate_id)
+            restored.save(target)
 
     update_kwargs = {
         "path": payload.field_path,
