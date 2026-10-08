@@ -2,7 +2,53 @@
 
 import type { ErrorEnvelope } from '../../types/api.js';
 
-const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+/**
+ * How the frontend finds the canonical FastAPI backend.
+ *
+ * Browser development talks to the Vite dev server, so a relative ``/api`` is
+ * correct: the dev proxy in ``vite.config.ts`` forwards it to FastAPI on
+ * 127.0.0.1:8000.
+ *
+ * A Tauri desktop build is different. The webview serves the packaged bundle
+ * from its own asset origin (``http://tauri.localhost`` on Windows and Linux,
+ * ``tauri://localhost`` on macOS), so a relative ``/api`` would resolve to the
+ * webview itself rather than to the backend. The desktop shell therefore
+ * injects ``window.__JOB_ASSISTANT__.apiBase`` once it knows the backend's
+ * address (Phase 2: the managed sidecar's port). Until that exists, a desktop
+ * build falls back to the documented local development port.
+ *
+ * FastAPI remains the only backend in every mode.
+ */
+declare global {
+  interface Window {
+    __JOB_ASSISTANT__?: {
+      /** Absolute base URL of the local FastAPI service, e.g. ``http://127.0.0.1:8000/api``. */
+      apiBase?: string;
+    };
+  }
+}
+
+/** Backend address a desktop build uses until the shell injects a runtime one. */
+const DESKTOP_FALLBACK_API_BASE = 'http://127.0.0.1:8000/api';
+
+/** Whether this page is being served by the Tauri shell rather than a browser. */
+function isDesktopShell(): boolean {
+  const { protocol, hostname } = window.location;
+  return hostname === 'tauri.localhost' || protocol === 'tauri:';
+}
+
+function resolveApiBase(): string {
+  const injected = window.__JOB_ASSISTANT__?.apiBase;
+  const base =
+    injected ||
+    import.meta.env.VITE_API_BASE ||
+    (isDesktopShell() ? DESKTOP_FALLBACK_API_BASE : '/api');
+  // Requests are built by concatenation below, so a trailing slash would
+  // produce ``//`` in every path.
+  return base.replace(/\/+$/, '');
+}
+
+const API_BASE = resolveApiBase();
 
 export class ApiError extends Error {
   public readonly code: string;

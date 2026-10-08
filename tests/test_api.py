@@ -524,9 +524,20 @@ class TestAdapterDiscipline:
         assert ApiSettings().host == "127.0.0.1"
 
     def test_cors_origins_default_to_local_frontend_only(self) -> None:
+        # "Local frontend" now has two forms: the Vite dev server (browser
+        # development) and the Tauri desktop shell's asset origin, which is
+        # still served from this machine. The rule that matters is unchanged:
+        # an exact allowlist of local origins, never a wildcard, and no
+        # credentials.
         defaults = ApiSettings()
-        assert all(
-            origin.startswith("http://localhost") or origin.startswith("http://127.0.0.1")
-            for origin in defaults.cors_origins
+        local_prefixes = (
+            "http://localhost",
+            "http://127.0.0.1",
+            "http://tauri.localhost",
+            "tauri://localhost",
         )
+        assert all(
+            origin.startswith(local_prefixes) for origin in defaults.cors_origins
+        )
+        assert "*" not in defaults.cors_origins
         assert defaults.cors_allow_credentials is False

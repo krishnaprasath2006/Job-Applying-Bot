@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Phase 1 shell capability: window lifecycle only. No filesystem, shell, HTTP, dialog, clipboard, or notification permissions are granted. Every product behaviour goes through the local FastAPI boundary, so Tauri needs no privileged APIs of its own.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

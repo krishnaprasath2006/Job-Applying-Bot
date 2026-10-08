@@ -355,8 +355,17 @@ class ApiSettings(_Base):
     port: int = Field(default=8000, ge=1, le=65535)
     cors_origins: list[str] = Field(
         default_factory=lambda: [
+            # Browser development: the Vite dev server.
             "http://localhost:5173",
             "http://127.0.0.1:5173",
+            # Desktop shell (Tauri 2), which serves the packaged frontend from
+            # its own asset origin: ``http://tauri.localhost`` on Windows and
+            # Linux, ``tauri://localhost`` on macOS. A desktop build is
+            # therefore a cross-origin client of this loopback API and must be
+            # listed explicitly. The allowlist stays exact: no wildcard, no
+            # credentials, and every entry is a page served from this machine.
+            "http://tauri.localhost",
+            "tauri://localhost",
         ],
     )
     cors_allow_credentials: bool = False
