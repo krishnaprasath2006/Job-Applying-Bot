@@ -1,0 +1,21 @@
+# Desktop shell for the AI Job Assistant (Tauri 2).
+#
+# This crate exists to open a window and host the React bundle. It is
+# deliberately dependency-light: no plugins, no HTTP client, no database, no
+# domain logic. Everything the product does lives in the canonical Python core
+# under src/ and reaches the UI through the local FastAPI boundary.
+#
+# Tauri 2 requires Rust 1.77.2 or newer (MSRV of the tauri crate).
+
+[package]
+name = "job-assistant-desktop"
+version = "2.0.0"
+description = "Windows desktop shell for the AI Job Assistant (Tauri 2)."
+edition = "2021"
+publish = false
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
