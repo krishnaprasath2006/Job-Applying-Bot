@@ -101,14 +101,17 @@ class ApplicationRepository(BaseRepository):
 
         Args:
             app_id: Application tracking ID.
-            payload: ApplicationUpdate model.
+            payload: ApplicationUpdate model or dict.
 
         Returns:
             Updated application dict.
         """
         from api.schemas.application import ApplicationUpdate as AU
 
-        payload_dict = payload.model_dump(exclude_unset=True)
+        if isinstance(payload, dict):
+            payload_dict = payload
+        else:
+            payload_dict = payload.model_dump(exclude_unset=True)
         now = utc_now()
 
         update_vals: dict[str, Any] = {"updated_at": now.isoformat()}
@@ -184,6 +187,7 @@ class ApplicationRepository(BaseRepository):
         *,
         status: Optional[str] = None,
         job_id: Optional[str] = None,
+        company: Optional[str] = None,
         limit: int = 100,
         offset: int = 0,
     ) -> tuple[list[dict[str, Any]], int]:
@@ -192,6 +196,7 @@ class ApplicationRepository(BaseRepository):
         Args:
             status: Filter by status string.
             job_id: Filter by job ID.
+            company: Filter by company name.
             limit: Maximum results.
             offset: Pagination offset.
 
@@ -208,6 +213,10 @@ class ApplicationRepository(BaseRepository):
         if job_id is not None:
             query += " AND job_id = ?"
             params.append(job_id)
+
+        if company is not None:
+            query += " AND company LIKE ?"
+            params.append(f"%{company}%")
 
         # Count total
         count_query = f"SELECT COUNT(*) FROM ({query}) AS subq"
@@ -275,8 +284,15 @@ class ApplicationRepository(BaseRepository):
             "note": note or "",
         }
 
-        # Store audit event (TODO: create application_audit_events table)
-        # For now, just return the transition info
+        # Store audit event
+        try:
+            self.db.execute(
+                "INSERT INTO application_audit_events (id, application_id, from_status, to_status, changed_at, actor, note) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (transition_record["id"], transition_record["application_id"], transition_record["from_status"], transition_record["to_status"], transition_record["changed_at"], transition_record["actor"], transition_record["note"]),
+            )
+        except Exception:
+            pass  # Audit table might not exist yet
+
         return {
             "from_status": from_status,
             "to_status": new_status,

@@ -40,6 +40,7 @@ export const ApplicationTrackerPage = () => {
   const [view, setView] = useState<'board' | 'list'>('list');
   const [selectedApp, setSelectedApp] = useState<ApplicationSummary | null>(null);
   const [editingApp, setEditingApp] = useState(null as any);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     const toastDiv = document.createElement('div');
@@ -64,22 +65,16 @@ export const ApplicationTrackerPage = () => {
     return colors[status] || 'bg-slate-500/20 text-slate-400';
   };
 
-  // Application list loaded from API
   const loadApplications = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const result: any = await api.get('/applications');
       setApplications(result.applications || result || []);
-      setError(null);
     } catch (err: any) {
       console.error('Failed to load applications:', err);
       setError(err.message || 'Failed to load applications');
       showToast('Failed to load applications', 'error');
-      // Fallback: try listing via jobs if applications API unavailable
-      try {
-        const jobsResult: any = await api.get('/jobs?status=SAVED');
-        setApplications(jobsResult.jobs || []);
-      } catch {}
     } finally {
       setLoading(false);
     }
@@ -107,20 +102,97 @@ export const ApplicationTrackerPage = () => {
   }, []);
 
   const deleteApp = useCallback(async (appId: string) => {
-    showToast('Application management API not yet available', 'error');
-  }, []);
+    if (showDeleteConfirm && showDeleteConfirm !== appId) return;
+    setShowDeleteConfirm(null);
+    try {
+      await api.delete(`/applications/${appId}`);
+      showToast('Application deleted successfully', 'success');
+      loadApplications();
+    } catch (err: any) {
+      console.error('Failed to delete application:', err);
+      showToast('Failed to delete application: ' + (err.message || 'Unknown error'), 'error');
+    }
+  }, [showDeleteConfirm, loadApplications]);
 
   const createApp = useCallback(async (payload: { job_id: string; status: ApplicationStatus; notes: string }) => {
-    showToast('Application management API not yet available', 'error');
-  }, []);
+    try {
+      const result: any = await api.post('/applications', payload);
+      showToast('Application created successfully', 'success');
+      loadApplications();
+    } catch (err: any) {
+      console.error('Failed to create application:', err);
+      showToast('Failed to create application: ' + (err.message || 'Unknown error'), 'error');
+    }
+  }, [loadApplications]);
 
   const updateApp = useCallback(async (appId: string, payload: { status: ApplicationStatus; notes: string; application_date: string | null; next_followup: string | null; interviewer_name: string | null; interviewer_contact: string | null }) => {
-    showToast('Application management API not yet available', 'error');
+    try {
+      const result: any = await api.patch(`/applications/${appId}`, payload);
+      showToast('Application updated successfully', 'success');
+      setEditingApp(null);
+      loadApplications();
+    } catch (err: any) {
+      console.error('Failed to update application:', err);
+      showToast('Failed to update application: ' + (err.message || 'Unknown error'), 'error');
+    }
   }, [loadApplications]);
 
   useEffect(() => {
     loadApplications();
   }, [loadApplications]);
+
+  // Determine which section to render
+  let section: any = null;
+  
+  if (loading) {
+    section = <div>Loading applications...</div>;
+  } else if (error) {
+    section = (
+      <div className='mb-4' role='alert'>
+        <span>Failed to load applications: {error}</span>
+        <button onClick={loadApplications} className='mt-2 bg-emerald-600 text-emerald-200 px-3 py-1 rounded-sm text-sm'>Retry</button>
+      </div>
+    );
+  } else if (applications.length === 0) {
+    section = <div className='mb-4' role='alert'>No applications found</div>;
+  } else {
+    section = (
+      <div className='space-y-4'>
+        {searchFilteredApplications.map((app) => {
+          const statusColorVal = statusColor(app.status);
+          return (
+            <div key={app.id} className='p-4 rounded-lg bg-slate-800 border border-slate-700'>
+              <div className='flex flex-col gap-2'>
+                <h3 className='text-sm font-medium'>{app.job?.title || 'Unknown Job'}</h3>
+                <p className='text-xs text-slate-400'>{app.job?.company || ''}</p>
+                <span className={statusColorVal}>{app.status}</span>
+                <div className='text-xs text-slate-500'>
+                  created {app.created_at && new Date(app.created_at).toLocaleDateString()}
+                </div>
+              </div>
+              <div className='flex gap-2 text-xs'>
+                <button
+                  onClick={() => setEditApp(app.id, {
+                    status: app.status,
+                    notes: app.notes || '',
+                    application_date: app.application_date,
+                    next_followup: app.next_followup,
+                    interviewer_name: app.interviewer_name,
+                    interviewer_contact: app.interviewer_contact,
+                  })}
+                  className='underline text-blue-400 cursor-pointer'
+                >Edit</button>
+                <button
+                  onClick={() => setShowDeleteConfirm(app.id)}
+                  className='underline text-red-400 cursor-pointer'
+                >Delete</button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <div className='min-h-screen p-4 sm:p-6 lg:p-8'>
@@ -132,7 +204,7 @@ export const ApplicationTrackerPage = () => {
         <select
           value={filterStatus === 'all' ? '' : filterStatus}
           onChange={(e) => setFilterStatus(e.target.value as ApplicationStatus)}
-          className='w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus:border-blue-500'
+          className='w-full bg-slate-900 border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus-border-blue-500'
         >
           <option value='all'>All Statuses</option>
           <option value='SAVED'>SAVED</option>
@@ -152,11 +224,161 @@ export const ApplicationTrackerPage = () => {
           placeholder='Search by company or job title...'
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className='w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors'
+          className='w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus-border-blue-500 transition-colors'
         />
       </div>
-      <div className='mb-4'>Application list not available via API in this release. Use the job analysis or review queue features.</div>
-      <div className='mb-4'>Loading applications...</div>
+      {section}
+      {/* Create form button */}
+      {editingApp === null && (!loading || applications.length > 0) && (
+        <div className='mb-4 cursor-pointer text-sm text-blue-400 underline' style={{display: 'inline-block'}}
+          onClick={() => setEditingApp({
+            id: '' as any,
+            data: {
+              status: 'SAVED' as ApplicationStatus,
+              notes: '' as string,
+              application_date: null as string | null,
+              next_followup: null as string | null,
+              interviewer_name: '' as string | null,
+              interviewer_contact: '' as string | null,
+            }
+          })}
+        >
+          + Create new application
+        </div>
+      )}
+      {/* Edit form */}
+      {editingApp !== null && (
+        <div className='fixed inset-0 bg-slate-900/60 backdrop-blur-z flex items-center justify-center z-50' role='dialog' aria-modal='true'>
+          <div className='bg-slate-800 rounded-lg p-6 w-full max-w-md border border-slate-700'>
+            <h2 className='text-xl font-bold text-slate-100 mb-4'>{editingApp.id ? 'Edit Application' : 'Create Application'}</h2>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target as HTMLFormElement);
+                const payload = {
+                  job_id: editingApp.id || '' as any,
+                  status: formData.get('status') as ApplicationStatus,
+                  notes: formData.get('notes') as string,
+                  application_date: formData.get('application_date') as string | null,
+                  next_followup: formData.get('next_followup') as string | null,
+                  interviewer_name: formData.get('interviewer_name') as string | null,
+                  interviewer_contact: formData.get('interviewer_contact') as string | null,
+                } as any;
+                if (editingApp.id) {
+                  updateApp(editingApp.id, {
+                    status: payload.status,
+                    notes: payload.notes,
+                    application_date: payload.application_date,
+                    next_followup: payload.next_followup,
+                    interviewer_name: payload.interviewer_name,
+                    interviewer_contact: payload.interviewer_contact,
+                  });
+                } else {
+                  createApp(payload);
+                }
+              }}
+            >
+              <div className='mb-3'>
+                <label className='text-slate-300 text-sm'>Job ID</label>
+                <input
+                  type='text'
+                  name='job_id'
+                  value={editingApp.data.job_id || ''}
+                  className='w-full bg-slate-700 border border-slate-600 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus-border-blue-500'
+                  disabled
+                />
+              </div>
+              <div className='mb-3'>
+                <label className='text-slate-300 text-sm'>Status</label>
+                <select
+                  name='status'
+                  className='w-full bg-slate-700 border border-slate-600 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus-border-blue-500'
+                >
+                  {['SAVED', 'INTERESTED', 'PREPARING', 'APPLIED', 'ASSESSMENT', 'INTERVIEW', 'OFFER', 'REJECTED', 'WITHDRAWN'].map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+              <div className='mb-3'>
+                <label className='text-slate-300 text-sm'>Notes</label>
+                <textarea
+                  name='notes'
+                  rows={3}
+                  className='w-full bg-slate-700 border border-slate-600 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus-border-blue-500'
+                >{editingApp.data.notes || ''}</textarea>
+              </div>
+              <div className='mb-3'>
+                <label className='text-slate-300 text-sm'>Application Date</label>
+                <input
+                  type='date'
+                  name='application_date'
+                  value={editingApp.data.application_date || ''}
+                  className='w-full bg-slate-700 border border-slate-600 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus-border-blue-500'
+                />
+              </div>
+              <div className='mb-3'>
+                <label className='text-slate-300 text-sm'>Next Follow-up</label>
+                <input
+                  type='date'
+                  name='next_followup'
+                  value={editingApp.data.next_followup || ''}
+                  className='w-full bg-slate-700 border border-slate-600 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus-border-blue-500'
+                />
+              </div>
+              <div className='mb-3'>
+                <label className='text-slate-300 text-sm'>Interviewer Name</label>
+                <input
+                  name='interviewer_name'
+                  value={editingApp.data.interviewer_name || ''}
+                  className='w-full bg-slate-700 border border-slate-600 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus-border-blue-500'
+                />
+              </div>
+              <div className='mb-3'>
+                <label className='text-slate-300 text-sm'>Interviewer Contact</label>
+                <input
+                  name='interviewer_contact'
+                  value={editingApp.data.interviewer_contact || ''}
+                  className='w-full bg-slate-700 border border-slate-600 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus-border-blue-500'
+                />
+              </div>
+              <div className='flex gap-3'>
+                <button
+                  type='submit'
+                  className='flex-1 bg-emerald-600 text-emerald-200 px-4 py-2 rounded-sm text-sm hover:bg-emerald-500'
+                  disabled={loading}
+                >{editingApp.id ? 'Update' : 'Create'}</button>
+                <button
+                  type='button'
+                  onClick={() => setEditingApp(null)}
+                  className='flex-1 bg-slate-600 text-slate-300 px-4 py-2 rounded-sm text-sm hover:bg-slate-500'
+                >Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Delete confirmation */}
+      {showDeleteConfirm !== null && (
+        <div className='fixed inset-0 bg-slate-900/80 backdrop-blur-z flex items-center justify-center z-50' role='dialog' aria-modal='true'>
+          <div className='bg-slate-800 rounded-lg p-8 w max-w-md border border-slate-700'>
+            <h2 className='text-xl font-bold text-slate-100 mb-4'>Confirm Delete</h2>
+            <p className='text-slate-400 mb-6'>Are you sure you want to delete this application?</p>
+            <div className='flex gap-3'>
+              <button
+                onClick={() => setShowDeleteConfirm(null)}
+                className='flex-1 bg-slate-600 text-slate-300 px-4 py-2 rounded-sm text-sm hover:bg-slate-500'
+              >Cancel</button>
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(null);
+                  deleteApp(showDeleteConfirm);
+                }}
+                className='flex-1 bg-rose-600 text-rose-200 px-4 py-2 rounded-sm text-sm hover:bg-rose-500'
+              >Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

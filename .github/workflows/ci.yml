@@ -18,18 +18,15 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        working-directory: /home/user/Job-Applying-Bot
         run: |
           python -m pip install pip --upgrade pip
           pip install -e ".[dev]"
 
       - name: Run Python syntax check
-        working-directory: /home/user/Job-Applying-Bot
         run: python -m py_compile src/assistant/app.py
 
       - name: Run Python test suite
-        working-directory: /home/user/Job-Applying-Bot
-        run: python -m pytest tests/ --ignore=tests/test_desktop_shell.py -q
+        run: python -m pytest tests/ -q
 
       - name: Install Node.js
         uses: actions/setup-node@v4
@@ -37,17 +34,13 @@ jobs:
           node-version: '20'
 
       - name: Install frontend dependencies
-        working-directory: /home/user/Job-Applying-Bot
         run: npm ci
 
       - name: Run frontend typecheck
-        working-directory: /home/user/Job-Applying-Bot
         run: npm run typecheck
 
       - name: Run frontend build
-        working-directory: /home/user/Job-Applying-Bot
         run: npm run build
 
       - name: Run frontend tests
-        working-directory: /home/user/Job-Applying-Bot
         run: npm run test:frontend
