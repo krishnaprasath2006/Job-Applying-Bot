@@ -111,6 +111,10 @@ def reset_paths() -> None:
     _CACHE = None
 
 def set_data_root(data_root: str) -> None:
-    """Set the ASSISTANT_DESKTOP_DATA_ROOT environment variable."""
+    """Set the ASSISTANT_DESKTOP_DATA_ROOT environment variable.
+
+    Also resets the global _CACHE so that the next call to get_paths()
+    creates a fresh Paths instance with the new data root."""
     os.environ["ASSISTANT_DESKTOP_DATA_ROOT"] = str(data_root)
+    reset_paths()
 

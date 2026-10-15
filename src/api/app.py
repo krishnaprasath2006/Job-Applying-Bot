@@ -21,7 +21,6 @@ Run it with::
 
 from __future__ import annotations
 
-import json
 
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -82,13 +81,7 @@ def create_app(
         )
         application.state.assistant = assistant
 
-        # Emit listening handshake on stdout for desktop shell integration.
-        # Format: {"event":"listening", "host":"127.0.0.1", "port":<port>}
-        import os
-        host = os.environ.get("UVICORN_HOST", "127.0.0.1")
-        port = resolved.api.port if not os.environ.get("TEST_DYNAMIC_PORT") else int(os.environ["TEST_DYNAMIC_PORT"])
-        handshake = json.dumps({"event": "listening", "host": host, "port": port})
-        print(handshake, flush=True)
+
         log.info(
             "api_started",
             extra={

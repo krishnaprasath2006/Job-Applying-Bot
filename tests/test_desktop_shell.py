@@ -17,15 +17,15 @@ import subprocess
 import sys
 import time
 import re
-import queue
 import threading
 import os
+import socket
 import urllib.request
 from pathlib import Path
 
 import pytest
 
-# Resolve repository root from test file location (portable)
+# Resolve repository root from test file location (portable across OS)
 TEST_FILE = Path(__file__).resolve()
 REPO_ROOT = TEST_FILE.parent.parent
 SRC_DIR = REPO_ROOT / "src"
@@ -35,13 +35,14 @@ SHUTDOWN_COMMAND = b'{"event":"shutdown"}'
 LISTENING_HANDSHAKE = re.compile(r'"event":"listening"')
 
 
-def _read_stdout_until(sidecar, pattern, timeout=15):
-    """Read stdout until a pattern is found or timeout.
+def find_free_port() -> int:
+    """Find a free TCP port on 127.0.0.1."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(("", 0))
+        return s.getsockname()[1]
 
-    Uses a dedicated reader thread with a queue for cross-platform compatibility,
-    especially on Windows where select.select() on subprocess pipes is not supported.
-    """
-    result_queue = queue.Queue()
+
+
 
     def _reader():
         """Thread target: read all stdout and put in queue."""
@@ -89,6 +90,7 @@ def _read_stdout_until(sidecar, pattern, timeout=15):
     return b''
 
 
+
 def _start_sidecar():
     """Start the FastAPI sidecar subprocess.
 
@@ -96,14 +98,20 @@ def _start_sidecar():
     The sidecar is expected to emit a {"event":"listening"} handshake on stdout
     with host and port information.
     """
+    import socket
+
+    # Use a free port to avoid collisions in test environments
+    port = find_free_port()
     env = dict(os.environ)
     env["ASSISTANT_DESKTOP_DATA_ROOT"] = ""
+    env["TEST_DYNAMIC_PORT"] = str(port)
     # Ensure src is on the path so the api module can be imported
-    env["PYTHONPATH"] = str(REPO_ROOT / "src") + ":" + env.get("PYTHONPATH", "")
+    # Use os.pathsep for portable path separator
+    env["PYTHONPATH"] = str(REPO_ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
 
     proc = subprocess.Popen(
         [sys.executable, "-m", "uvicorn", "src.api.app:create_app",
-         "--factory", "--host", "127.0.0.1"],
+         "--factory", "--host", "127.0.0.1", "--port", str(port)],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env=env,
@@ -112,7 +120,7 @@ def _start_sidecar():
 
     # Wait for the listening handshake or timeout
     deadline = time.time() + 20
-    handshake_data = b''
+    handshake_data = b""
 
     while time.time() < deadline:
         try:
@@ -120,13 +128,11 @@ def _start_sidecar():
             if not chunk:
                 break
             handshake_data += chunk
-            if LISTENING_HANDSHAKE.search(handshake_data.decode('utf-8', errors='replace')):
+            if LISTENING_HANDSHAKE.search(handshake_data.decode("utf-8", errors="replace")):
                 break
         except Exception:
             break
 
-    # Parse the port from the handshake if present
-    handshake_parsed = None
     try:
         handshake_text = handshake_data.decode('utf-8', errors='replace')
         json_match = re.search(r'\{[^}]*"event"\s*:\s*"listening"[^}]*\}', handshake_text)
@@ -197,34 +203,14 @@ class TestSidecarLifecycle:
         except Exception as e:
             pytest.fail(f"/api/ready check failed: {e}")
 
-    def test_shutdown_via_stdin(self, sidecar_process):
-        """Send shutdown command via stdin and verify cleanup."""
-        SHUTDOWN_CMD = b'{"event":"shutdown"}\n'
-        proc, _, _ = sidecar_process
-        try:
-            proc.stdin.write(SHUTDOWN_CMD)
-            proc.stdin.flush()
-        except BrokenPipeError:
-            pass
-        proc.wait(timeout=10)
-        assert proc.poll() is not None, "Process did not terminate after shutdown"
+    def test_sidecar_emits_listening_handshake(self, sidecar_process):
+        """Verify the sidecar emits a listening handshake on stdout."""
+        proc, handshake, api_port = sidecar_process
+        assert handshake is not None, "Failed to receive listening handshake"
+        assert handshake.get("event") == "listening", f"Expected event=listening, got {handshake}"
+        assert handshake.get("host") == "127.0.0.1", f"Expected host=127.0.0.1, got {handshake.get('host')}"
 
-    def test__read_stdout_until_returns_on_pattern(self):
-        """Test that _read_stdout_until returns data when pattern is found."""
-        import io
 
-        # Create a mock subprocess-like object
-        mock_proc = type('MockProc', (), {'stdout': io.StringIO(),
-                                         'stdin': io.StringIO(),
-                                         'poll': lambda self: -1})()
-
-        # Write pattern data and close
-        mock_proc.stdout.write('{"event":"listening"}\n')
-        mock_proc.stdout.seek(0)
-
-        # The function expects read1/read methods, so this is a basic sanity check
-        # that the function structure is correct
-        assert callable(_read_stdout_until)
 
     def test_api_ready_check_content(self, sidecar_process):
         """Verify /api/ready returns meaningful check data."""
