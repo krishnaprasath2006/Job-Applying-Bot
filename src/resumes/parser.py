@@ -371,7 +371,7 @@ class ResumeParser:
             file_size_bytes=size,
             char_count=len(extracted),
             content_hash=hash_text(extracted),
-            storage_path=str(target.resolve()),
+            storage_path=target.name,
             raw_text=extracted,
             status=ResumeStatus.PARSED,
             parser_name=PARSER_NAME,
