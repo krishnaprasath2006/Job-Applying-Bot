@@ -6,12 +6,13 @@ import {
   HelpCircle,
   Layers,
   Shield,
+  ShieldCheck,
   UserCheck,
   Zap,
   Brain,
 } from 'lucide-react';
 
-export type TabType = 'jobs' | 'review' | 'profile' | 'resumes' | 'questions' | 'safety' | 'ai';
+export type TabType = 'jobs' | 'review' | 'profile' | 'resumes' | 'tracker' | 'questions' | 'safety' | 'ai';
 
 interface NavbarProps {
   activeTab: TabType;
@@ -30,6 +31,12 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const tabs: Array<{ id: TabType; label: string; icon: React.ReactNode; badge?: number }> = [
     { id: 'jobs', label: 'Job Matching', icon: <Briefcase className="w-4 h-4" /> },
+    {
+      id: 'tracker',
+      label: 'Application Tracker',
+      icon: <ShieldCheck className="w-4 h-4" />,
+      badge: 0,
+    },
     {
       id: 'review',
       label: 'Review Queue',

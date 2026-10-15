@@ -8,13 +8,14 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from api.routes import jobs, profile, resumes, status as status_routes
+from api.routes import jobs, profile, resumes, application as application_routes, status as status_routes
 
 __all__ = ["api_router", "health_router"]
 
 #: Resource routes, mounted under ``/api``.
 api_router = APIRouter()
 api_router.include_router(status_routes.router)
+api_router.include_router(application_routes.router)
 api_router.include_router(profile.router)
 api_router.include_router(resumes.router)
 api_router.include_router(jobs.router)

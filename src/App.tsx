@@ -9,6 +9,7 @@ import { QuestionsEngineTab } from './components/QuestionsEngineTab.js';
 import { SafetyGuardrailsTab } from './components/SafetyGuardrailsTab.js';
 import { HuggingFaceAITab } from './components/HuggingFaceAITab.js';
 import { JobDetailModal } from './components/JobDetailModal.js';
+import { ApplicationTrackerPage } from './components/ApplicationTrackerPage.js';
 import type { Job, CandidateProfile, Resume, SafetyReport, MatchResult } from './types/api.js';
 import { API, isApiErrorCode } from './lib/api/index.js';
 import { diffProfileFacts } from './lib/profileDiff.js';
@@ -254,6 +255,10 @@ const handleUpdateSafety = useCallback(async (updates: Partial<SafetyReport>) =>
 
         {activeTab === 'questions' && (
           <QuestionsEngineTab />
+        )}
+
+        {activeTab === 'tracker' && (
+          <ApplicationTrackerPage />
         )}
 
         {activeTab === 'ai' && (
