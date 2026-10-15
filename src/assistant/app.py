@@ -22,6 +22,7 @@ from database.repositories.jobs import JobRepository
 from database.repositories.model_runs import ModelRunRepository
 from database.repositories.profiles import ProfileRepository
 from database.repositories.resumes import ResumeRepository
+from database.repositories.application_repository import ApplicationRepository
 from resumes.service import ResumeService
 from candidate_profile.service import ProfileService
 from safety.policies import SafetyPolicy
@@ -86,6 +87,10 @@ class Assistant:
     @property
     def model_run_repository(self) -> ModelRunRepository:
         return self._repo("model_runs", ModelRunRepository)
+
+    @property
+    def application_repository(self) -> ApplicationRepository:
+        return self._repo("applications", ApplicationRepository)
 
     def _repo(self, key: str, factory: Any) -> Any:
         if key not in self._repositories:
