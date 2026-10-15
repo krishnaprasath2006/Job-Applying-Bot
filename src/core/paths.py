@@ -8,11 +8,13 @@ directory.
 
 from __future__ import annotations
 
+import os
+
 from pathlib import Path
 
 from core.errors import ConfigurationError
 
-__all__ = ["Paths", "get_paths", "reset_paths"]
+__all__ = ["Paths", "get_paths", "reset_paths", "set_data_root"]
 
 
 class Paths:
@@ -33,10 +35,13 @@ class Paths:
         if not detected.is_dir():
             raise ConfigurationError("project root does not exist", root=str(detected))
         self.root = detected.resolve()
-        self.data = self.root / "data"
+        # respect ASSISTANT_DESKTOP_DATA_ROOT if set (Windows data root mapping)
+        data_root = os.environ.get("ASSISTANT_DESKTOP_DATA_ROOT")
+        base = Path(data_root) if data_root else detected
+        self.data = base / "data"
         self.profile_dir = self.data / "profile"
         self.resume_dir = self.data / "resumes"
-        self.logs = self.root / "logs"
+        self.logs = base / "logs"
         self.exports = self.data / "exports"
 
     @staticmethod
@@ -104,3 +109,8 @@ def reset_paths() -> None:
     """Drop the cache. Used by tests that redirect the project root."""
     global _CACHE
     _CACHE = None
+
+def set_data_root(data_root: str) -> None:
+    """Set the ASSISTANT_DESKTOP_DATA_ROOT environment variable."""
+    os.environ["ASSISTANT_DESKTOP_DATA_ROOT"] = str(data_root)
+
