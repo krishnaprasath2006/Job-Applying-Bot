@@ -80,6 +80,10 @@ class Assistant:
         return self._repo("resumes", ResumeRepository)
 
     @property
+    def application_repository(self) -> ApplicationRepository:
+        return self._repo("applications", ApplicationRepository)
+
+    @property
     def job_repository(self) -> JobRepository:
         return self._repo("jobs", JobRepository)
 

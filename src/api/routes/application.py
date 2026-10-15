@@ -18,6 +18,7 @@ from api.schemas.application import (
     ApplicationResponse,
     ApplicationListResponse,
     ApplicationStatusUpdate,
+    ApplicationStatus,
 )
 from database.repositories.application_repository import ApplicationRepository
 
