@@ -150,6 +150,74 @@ export const api = {
 };
 
 // Convenience method for checking if error is a specific code
+ 
+/** Application Tracker API methods */
+export const applicationsApi = {
+  list: async <T>(params?: { status?: string; company?: string; job_title?: string }): Promise<T> => {
+    const response = await fetch(`${API_BASE}/applications`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+    });
+    return handleResponse<T>(response);
+  },
+  get: async <T>(appId: string): Promise<T> => {
+    const response = await fetch(`${API_BASE}/applications/${appId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+    });
+    return handleResponse<T>(response);
+  },
+  create: async <T>(body: any): Promise<T> => {
+    const response = await fetch(`${API_BASE}/applications`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    return handleResponse<T>(response);
+  },
+  update: async <T>(appId: string, body: any): Promise<T> => {
+    const response = await fetch(`${API_BASE}/applications/${appId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    return handleResponse<T>(response);
+  },
+  transition: async <T>(appId: string, newStatus: string, note?: string): Promise<T> => {
+    const response = await fetch(`${API_BASE}/applications/${appId}/transition`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify({ to_status: newStatus, note }),
+    });
+    return handleResponse<T>(response);
+  },
+  delete: async <T>(appId: string): Promise<T> => {
+    const response = await fetch(`${API_BASE}/applications/${appId}`, {
+      method: "DELETE",
+      headers: {
+        "Accept": "application/json",
+      },
+    });
+    return handleResponse<T>(response);
+  },
+};
+
+
 export function isApiErrorCode(error: unknown, code: string): boolean {
   return error instanceof ApiError && error.code === code;
 }

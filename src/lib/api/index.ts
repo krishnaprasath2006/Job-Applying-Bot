@@ -16,6 +16,7 @@ import { resumeApi } from './resumes.js';
 import { jobApi } from './jobs.js';
 import { reviewApi } from './reviews.js';
 import { aiApi } from './ai.js';
+import { applicationsApi } from './client.js';
 
 export const API = {
   // Raw client
@@ -27,4 +28,5 @@ export const API = {
   jobs: jobApi,
   reviews: reviewApi,
   ai: aiApi,
+  applications: applicationsApi,
 };
