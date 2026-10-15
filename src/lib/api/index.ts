@@ -7,6 +7,7 @@ export * from './resumes.js';
 export * from './jobs.js';
 export * from './reviews.js';
 export * from './ai.js';
+export * from './applications.js';
 
 // Convenience: combined API object
 import { api } from './client.js';
@@ -16,6 +17,7 @@ import { resumeApi } from './resumes.js';
 import { jobApi } from './jobs.js';
 import { reviewApi } from './reviews.js';
 import { aiApi } from './ai.js';
+import { applicationApi } from './applications.js';
 
 export const API = {
   // Raw client
@@ -27,4 +29,5 @@ export const API = {
   jobs: jobApi,
   reviews: reviewApi,
   ai: aiApi,
+  application: applicationApi,
 };

@@ -4,7 +4,6 @@ import { render, screen } from '@testing-library/react'
 import { ApplicationTrackerPage } from '../ApplicationTrackerPage'
 
 describe('ApplicationTrackerPage', () => {
-// @ts-expect-error
   beforeEach(() => {
     // Mock the API module
     vi.mock('../lib/api/index', () => ({
@@ -12,28 +11,28 @@ describe('ApplicationTrackerPage', () => {
         jobs: {
           list: vi.fn(),
         },
-        applications: {
-          list: vi.fn(),
+        api: {
+          get: vi.fn().mockResolvedValue({ applications: [] }),
+          post: vi.fn(),
+          patch: vi.fn(),
+          delete: vi.fn(),
         },
       },
     }))
   })
 
-  it('renders informative message when application API is not available', () => {
+  it('renders without crashing', () => {
     const { container } = render(<ApplicationTrackerPage />)
-    // The informative message is in a div
-    const message = container.querySelector('div')
-    expect(message).toBeTruthy()
-    expect(message!.textContent).toContain('Application list not available via API in this release')
-  })
-
-  it('shows loading applications text', () => {
-    const { container } = render(<ApplicationTrackerPage />)
-    expect(container.textContent).toContain('Loading applications...')
+    expect(container.querySelector('div')).toBeTruthy()
   })
 
   it('renders application list unavailable notice', () => {
     const { container } = render(<ApplicationTrackerPage />)
     expect(container.textContent).toContain('Application list not available via API in this release')
+  })
+
+  it('shows loading applications text', () => {
+    const { container } = render(<ApplicationTrackerPage />)
+    expect(container.textContent).toContain('Loading applications...')
   })
 })

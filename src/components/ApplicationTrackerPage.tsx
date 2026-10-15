@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { API } from '../lib/api/index';
+import { API, api } from '../lib/api/index';
 import { X, CheckCircle, AlertTriangle, Calendar, ShieldCheck, Edit, Trash, CalendarX, CalendarPlus, Search, Plus, User, UserCheck, Info } from 'lucide-react';
 
 type ApplicationStatus =
@@ -64,18 +64,22 @@ export const ApplicationTrackerPage = () => {
     return colors[status] || 'bg-slate-500/20 text-slate-400';
   };
 
-  // Application list is currently not available via API - use jobs list as fallback
+  // Application list loaded from API
   const loadApplications = useCallback(async () => {
     setLoading(true);
     try {
-      // Application management API not yet available in this release
-      setApplications([]);
-      setError('Application management API not yet available. Use the job analysis or review queue features.');
-      showToast('Application list not available via API', 'success');
+      const result: any = await api.get('/applications');
+      setApplications(result.applications || result || []);
+      setError(null);
     } catch (err: any) {
       console.error('Failed to load applications:', err);
       setError(err.message || 'Failed to load applications');
       showToast('Failed to load applications', 'error');
+      // Fallback: try listing via jobs if applications API unavailable
+      try {
+        const jobsResult: any = await api.get('/jobs?status=SAVED');
+        setApplications(jobsResult.jobs || []);
+      } catch {}
     } finally {
       setLoading(false);
     }

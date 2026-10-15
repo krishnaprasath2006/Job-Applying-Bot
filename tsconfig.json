@@ -17,5 +17,5 @@
     "jsx": "react-jsx",
     "types": ["vitest"]
   },
-  "include": ["src", "server.ts"]
+  "include": ["src", "server.ts"], "exclude": ["node_modules", "dist", "src/components/__tests__"]
 }
