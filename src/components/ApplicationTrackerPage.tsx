@@ -54,8 +54,7 @@ export const ApplicationTrackerPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [view, setView] = useState<'board' | 'list'>('list');
   const [selectedApp, setSelectedApp] = useState<ApplicationSummary | null>(null);
-  const [editingApp, setEditingApp] = useState<ApplicationSummary | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationFormData } | null>(null);  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [jobs, setJobs] = useState<JobSummary[]>([]);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
@@ -189,7 +188,7 @@ export const ApplicationTrackerPage = () => {
   }, [loadApplications]);
 
   // Determine which section to render
-  let section: JSX.Element | null = null;
+  let section: React.JSX.Element | null = null;
 
   if (loading) {
     section = <div>Loading applications...</div>;
@@ -432,7 +431,7 @@ export const ApplicationTrackerPage = () => {
             </div>
           </div>
         </div>
-      )
-    }
+      )}
+    </div>
   );
 };
