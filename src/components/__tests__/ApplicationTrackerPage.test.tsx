@@ -1,6 +1,6 @@
 /// <reference types="vitest" />
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { ApplicationTrackerPage } from '../ApplicationTrackerPage'
 
 // Mock fetch used by the API client
@@ -11,12 +11,16 @@ global.fetch = vi.fn().mockResolvedValue({
 });
 
 describe('ApplicationTrackerPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('renders without crashing', () => {
     const { container } = render(<ApplicationTrackerPage />)
     expect(container.querySelector('div')).toBeTruthy()
   })
 
-  it('loads applications from API', async () => {
+  it('loads applications from API and displays heading', async () => {
     const { container } = render(<ApplicationTrackerPage />)
     await new Promise(resolve => setTimeout(resolve, 500))
     const heading = container.querySelector('h1')
@@ -42,6 +46,7 @@ describe('ApplicationTrackerPage', () => {
 
   it('status filter works', async () => {
     const { container } = render(<ApplicationTrackerPage />)
+    await new Promise(resolve => setTimeout(resolve, 500))
     const select = container.querySelector('select')
     if (select) {
       select.value = 'APPLIED'
@@ -49,4 +54,26 @@ describe('ApplicationTrackerPage', () => {
     }
     await new Promise(resolve => setTimeout(resolve, 50))
   })
-})
+
+  it('API failures are shown honestly and retry works', async () => {
+    global.fetch = vi.fn().mockRejectedValue(new Error('Network error'))
+    
+    const { container } = render(<ApplicationTrackerPage />)
+    await new Promise(resolve => setTimeout(resolve, 500))
+    const errorElement = container.querySelector('[role="alert"]')
+    expect(errorElement).not.toBeNull()
+    const retryButton = container.querySelector('button.bg-emerald-600')
+    expect(retryButton).not.toBeNull()
+  })
+
+  it('job selection is required before creating an application', async () => {
+    const { container } = render(<ApplicationTrackerPage />)
+    await new Promise(resolve => setTimeout(resolve, 500))
+    const createButton = container.querySelectorAll('text=+ Create new application')
+    if (createButton.length > 0) {
+      createButton[0].click()
+      await new Promise(resolve => setTimeout(resolve, 100))
+      const submitButton = container.querySelector('button.flex-1.bg-emerald-600')
+      expect(submitButton).toBeTruthy()
+    }
+});

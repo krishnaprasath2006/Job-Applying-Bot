@@ -46,18 +46,6 @@ def list_applications(
     company: Optional[str] = Query(
         default=None, max_length=200, description="Filter by company name"
     ),
-    job_title: Optional[str] = Query(
-        default=None, max_length=200, description="Filter by job title text search"
-    ),
-    has_followup: Optional[bool] = Query(
-        default=None, description="Filter by whether follow-up date exists"
-    ),
-    before_followup: Optional[date] = Query(
-        default=None, description="Filter applications with follow-up before this date"
-    ),
-    after_followup: Optional[date] = Query(
-        default=None, description="Filter applications with follow-up after this date"
-    ),
     limit: int = Query(default=50, ge=1, le=500, description="Page size"),
     offset: int = Query(default=0, ge=0, description="Pagination offset"),
 ) -> ApplicationListResponse:

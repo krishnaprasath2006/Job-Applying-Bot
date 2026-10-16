@@ -186,7 +186,7 @@ class ApplicationRepository(BaseRepository):
         self,
         *,
         status: Optional[str] = None,
-        job_id: Optional[str] = None,
+        job_title: Optional[str] = None,
         company: Optional[str] = None,
         limit: int = 100,
         offset: int = 0,
@@ -194,29 +194,32 @@ class ApplicationRepository(BaseRepository):
         """List applications with optional filtering.
 
         Args:
-            status: Filter by status string.
-            job_id: Filter by job ID.
-            company: Filter by company name.
+            status: Filter by application status string.
+            job_title: Filter by linked job title (case-insensitive substring).
+            company: Filter by linked job company (case-insensitive substring).
             limit: Maximum results.
             offset: Pagination offset.
 
         Returns:
             Tuple of (applications list, total count).
         """
-        query = "SELECT * FROM applications WHERE 1=1"
+        query = (
+            "SELECT a.* FROM applications a "
+            "JOIN jobs j ON a.job_id = j.id WHERE 1=1"
+        )
         params: list[Any] = []
 
         if status is not None:
-            query += " AND status = ?"
+            query += " AND a.status = ?"
             params.append(status)
 
-        if job_id is not None:
-            query += " AND job_id = ?"
-            params.append(job_id)
+        if job_title is not None:
+            query += " AND j.title ILIKE ?"
+            params.append(f"%{job_title.lower()}%")
 
         if company is not None:
-            query += " AND company LIKE ?"
-            params.append(f"%{company}%")
+            query += " AND j.company ILIKE ?"
+            params.append(f"%{company.lower()}%")
 
         # Count total
         count_query = f"SELECT COUNT(*) FROM ({query}) AS subq"
@@ -224,7 +227,7 @@ class ApplicationRepository(BaseRepository):
         total = cursor.fetchone()[0]
 
         # Apply pagination
-        query += " ORDER BY updated_at DESC LIMIT ? OFFSET ?"
+        query += " ORDER BY a.updated_at DESC LIMIT ? OFFSET ?"
         params.extend([limit, offset])
 
         cursor = self.db.execute(query, params)
