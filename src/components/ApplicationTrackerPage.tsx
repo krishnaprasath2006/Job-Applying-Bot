@@ -57,6 +57,7 @@ export const ApplicationTrackerPage = () => {
 const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationFormData } | null>(null);  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [jobs, setJobs] = useState<JobSummary[]>([]);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [selectedJob, setSelectedJob] = useState<JobSummary | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     const toastDiv = document.createElement('div');
@@ -304,7 +305,7 @@ const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationForm
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
                 const payload: any = {
-                  job_id: selectedJobId || formData.get('job_id') || '',
+                  job_id: selectedJobId || '',
                   status: formData.get('status') as ApplicationStatus,
                   notes: formData.get('notes') as string,
                   application_date: formData.get('application_date') as string | null,
@@ -330,7 +331,12 @@ const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationForm
               <div className='mb-3'>
                 <label className='text-slate-300 text-sm'>Job</label>
                 <select
-                  name='job_id'
+                  value={selectedJob?.id || ''}
+                  onChange={(e) => {
+                    const jobId = e.target.value;
+                    setSelectedJobId(jobId);
+                    setSelectedJob(jobs.find((j) => j.id === jobId) || null);
+                  }}
                   className='w-full bg-slate-700 border border-slate-600 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus-border-blue-500'
                 >
                   <option value=''>Select a job...</option>
