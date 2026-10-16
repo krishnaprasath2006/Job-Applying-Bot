@@ -53,7 +53,6 @@ def list_applications(
     repo: ApplicationRepository = assistant.application_repository
     applications, total = repo.list_applications(
         status=status,
-        job_id=job_title,
         company=company,
         limit=limit,
         offset=offset,

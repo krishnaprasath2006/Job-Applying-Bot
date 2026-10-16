@@ -214,11 +214,11 @@ class ApplicationRepository(BaseRepository):
             params.append(status)
 
         if job_title is not None:
-            query += " AND j.title ILIKE ?"
+            query += " AND LOWER(j.title) LIKE LOWER(?)"
             params.append(f"%{job_title.lower()}%")
 
         if company is not None:
-            query += " AND j.company ILIKE ?"
+            query += " AND LOWER(j.company) LIKE LOWER(?)"
             params.append(f"%{company.lower()}%")
 
         # Count total
@@ -276,7 +276,7 @@ class ApplicationRepository(BaseRepository):
         # Update the status
         self.update(app_id, {"status": new_status})
 
-        # Record the audit event
+        # Record the audit event in the same transaction
         transition_record = {
             "id": str(uuid.uuid4()),
             "application_id": app_id,
@@ -287,14 +287,22 @@ class ApplicationRepository(BaseRepository):
             "note": note or "",
         }
 
-        # Store audit event
+        # Store audit event using the transaction context manager
+        # Both the status update and audit event will commit together, or roll back together
         try:
-            self.db.execute(
-                "INSERT INTO application_audit_events (id, application_id, from_status, to_status, changed_at, actor, note) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (transition_record["id"], transition_record["application_id"], transition_record["from_status"], transition_record["to_status"], transition_record["changed_at"], transition_record["actor"], transition_record["note"]),
-            )
-        except Exception:
-            pass  # Audit table might not exist yet
+            with self.transaction() as conn:
+                # Insert audit event via raw connection
+                conn.execute(
+                    "INSERT INTO application_audit_events (id, application_id, from_status, to_status, changed_at, actor, note) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (transition_record["id"], transition_record["application_id"], transition_record["from_status"], transition_record["to_status"], transition_record["changed_at"], transition_record["actor"], transition_record["note"]),
+                )
+                # Update the status via the connection
+                conn.execute(
+                    "UPDATE applications SET status = ? WHERE id = ?",
+                    (new_status, app_id),
+                )
+        except Exception as e:
+            raise DatabaseError(f"Failed to transition status and record audit: {e}") from e
 
         return {
             "from_status": from_status,
