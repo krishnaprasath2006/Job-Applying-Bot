@@ -31,6 +31,21 @@ interface ApplicationSummary {
   job: { id: string; title: string; company: string } | null;
 }
 
+interface JobSummary {
+  id: string;
+  company: string;
+  title: string;
+}
+
+interface ApplicationFormData {
+  status: ApplicationStatus;
+  notes: string;
+  application_date: string | null;
+  next_followup: string | null;
+  interviewer_name: string | null;
+  interviewer_contact: string | null;
+}
+
 export const ApplicationTrackerPage = () => {
   const [applications, setApplications] = useState<ApplicationSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,8 +54,10 @@ export const ApplicationTrackerPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [view, setView] = useState<'board' | 'list'>('list');
   const [selectedApp, setSelectedApp] = useState<ApplicationSummary | null>(null);
-  const [editingApp, setEditingApp] = useState(null as any);
+  const [editingApp, setEditingApp] = useState<ApplicationSummary | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [jobs, setJobs] = useState<JobSummary[]>([]);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     const toastDiv = document.createElement('div');
@@ -65,6 +82,7 @@ export const ApplicationTrackerPage = () => {
     return colors[status] || 'bg-slate-500/20 text-slate-400';
   };
 
+  // Load applications from API
   const loadApplications = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -80,12 +98,29 @@ export const ApplicationTrackerPage = () => {
     }
   }, []);
 
+  // Load available jobs from the jobs API
+  useEffect(() => {
+    api.get('/jobs').then((result: any) => {
+      const jobList = result.jobs || [];
+      const formatted = jobList.map((j: any) => ({
+        id: j.id,
+        company: j.company || '',
+        title: j.title || '',
+      }));
+      setJobs(formatted);
+    }).catch(() => {
+      setJobs([]);
+    });
+  }, []);
+
+  // Filter applications by status
   const filteredApplications = useMemo(() => {
     return applications.filter(app =>
       filterStatus === 'all' || app.status === filterStatus
     );
   }, [applications, filterStatus]);
 
+  // Search filter
   const searchFilteredApplications = useMemo(() => {
     return filteredApplications.filter(app =>
       (app.job?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -97,7 +132,7 @@ export const ApplicationTrackerPage = () => {
     setSelectedApp(app as ApplicationSummary | null);
   }, []);
 
-  const setEditApp = useCallback((appId: string, data: { status: ApplicationStatus; notes: string; application_date: string | null; next_followup: string | null; interviewer_name: string | null; interviewer_contact: string | null }) => {
+  const setEditApp = useCallback((appId: string, data: ApplicationFormData) => {
     setEditingApp({ id: appId, data });
   }, []);
 
@@ -114,10 +149,15 @@ export const ApplicationTrackerPage = () => {
     }
   }, [showDeleteConfirm, loadApplications]);
 
-  const createApp = useCallback(async (payload: { job_id: string; status: ApplicationStatus; notes: string }) => {
+  const createApp = useCallback(async (payload: {
+    job_id: string;
+    status?: ApplicationStatus;
+    notes?: string;
+  }) => {
     try {
       const result: any = await api.post('/applications', payload);
       showToast('Application created successfully', 'success');
+      setSelectedJobId(null);
       loadApplications();
     } catch (err: any) {
       console.error('Failed to create application:', err);
@@ -125,7 +165,14 @@ export const ApplicationTrackerPage = () => {
     }
   }, [loadApplications]);
 
-  const updateApp = useCallback(async (appId: string, payload: { status: ApplicationStatus; notes: string; application_date: string | null; next_followup: string | null; interviewer_name: string | null; interviewer_contact: string | null }) => {
+  const updateApp = useCallback(async (appId: string, payload: {
+    status: ApplicationStatus;
+    notes: string;
+    application_date: string | null;
+    next_followup: string | null;
+    interviewer_name: string | null;
+    interviewer_contact: string | null;
+  }) => {
     try {
       const result: any = await api.patch(`/applications/${appId}`, payload);
       showToast('Application updated successfully', 'success');
@@ -142,8 +189,8 @@ export const ApplicationTrackerPage = () => {
   }, [loadApplications]);
 
   // Determine which section to render
-  let section: any = null;
-  
+  let section: JSX.Element | null = null;
+
   if (loading) {
     section = <div>Loading applications...</div>;
   } else if (error) {
@@ -224,22 +271,24 @@ export const ApplicationTrackerPage = () => {
           placeholder='Search by company or job title...'
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className='w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus-border-blue-500 transition-colors'
+          className='w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 placeholder-slate-500 focus:outline-none focus-border-blue-500 transition-colors'
         />
       </div>
       {section}
       {/* Create form button */}
       {editingApp === null && (!loading || applications.length > 0) && (
-        <div className='mb-4 cursor-pointer text-sm text-blue-400 underline' style={{display: 'inline-block'}}
+        <div
+          className='mb-4 cursor-pointer text-sm text-blue-400 underline'
+          style={{ display: 'inline-block' }}
           onClick={() => setEditingApp({
-            id: '' as any,
-            data: {
+            id: '',
+ data: {
               status: 'SAVED' as ApplicationStatus,
-              notes: '' as string,
-              application_date: null as string | null,
-              next_followup: null as string | null,
-              interviewer_name: '' as string | null,
-              interviewer_contact: '' as string | null,
+              notes: '',
+              application_date: null,
+              next_followup: null,
+              interviewer_name: '',
+              interviewer_contact: '',
             }
           })}
         >
@@ -255,16 +304,16 @@ export const ApplicationTrackerPage = () => {
               onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
-                const payload = {
-                  job_id: editingApp.id || '' as any,
+                const payload: any = {
+                  job_id: selectedJobId || formData.get('job_id') || '',
                   status: formData.get('status') as ApplicationStatus,
                   notes: formData.get('notes') as string,
                   application_date: formData.get('application_date') as string | null,
                   next_followup: formData.get('next_followup') as string | null,
                   interviewer_name: formData.get('interviewer_name') as string | null,
                   interviewer_contact: formData.get('interviewer_contact') as string | null,
-                } as any;
-                if (editingApp.id) {
+                };
+                if (editingApp?.id) {
                   updateApp(editingApp.id, {
                     status: payload.status,
                     notes: payload.notes,
@@ -276,17 +325,20 @@ export const ApplicationTrackerPage = () => {
                 } else {
                   createApp(payload);
                 }
+                setEditingApp(null);
               }}
             >
               <div className='mb-3'>
-                <label className='text-slate-300 text-sm'>Job ID</label>
-                <input
-                  type='text'
+                <label className='text-slate-300 text-sm'>Job</label>
+                <select
                   name='job_id'
-                  value={editingApp.data.job_id || ''}
                   className='w-full bg-slate-700 border border-slate-600 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus-border-blue-500'
-                  disabled
-                />
+                >
+                  <option value=''>Select a job...</option>
+                  {jobs.map((j) => (
+                    <option key={j.id} value={j.id}>{j.title} at {j.company}</option>
+                  ))}
+                </select>
               </div>
               <div className='mb-3'>
                 <label className='text-slate-300 text-sm'>Status</label>
@@ -305,14 +357,14 @@ export const ApplicationTrackerPage = () => {
                   name='notes'
                   rows={3}
                   className='w-full bg-slate-700 border border-slate-600 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus-border-blue-500'
-                >{editingApp.data.notes || ''}</textarea>
+                >{editingApp?.data.notes || ''}</textarea>
               </div>
               <div className='mb-3'>
                 <label className='text-slate-300 text-sm'>Application Date</label>
                 <input
                   type='date'
                   name='application_date'
-                  value={editingApp.data.application_date || ''}
+                  value={editingApp?.data.application_date || ''}
                   className='w-full bg-slate-700 border border-slate-600 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus-border-blue-500'
                 />
               </div>
@@ -321,7 +373,7 @@ export const ApplicationTrackerPage = () => {
                 <input
                   type='date'
                   name='next_followup'
-                  value={editingApp.data.next_followup || ''}
+                  value={editingApp?.data.next_followup || ''}
                   className='w-full bg-slate-700 border border-slate-600 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus-border-blue-500'
                 />
               </div>
@@ -329,7 +381,7 @@ export const ApplicationTrackerPage = () => {
                 <label className='text-slate-300 text-sm'>Interviewer Name</label>
                 <input
                   name='interviewer_name'
-                  value={editingApp.data.interviewer_name || ''}
+                  value={editingApp?.data.interviewer_name || ''}
                   className='w-full bg-slate-700 border border-slate-600 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus-border-blue-500'
                 />
               </div>
@@ -337,7 +389,7 @@ export const ApplicationTrackerPage = () => {
                 <label className='text-slate-300 text-sm'>Interviewer Contact</label>
                 <input
                   name='interviewer_contact'
-                  value={editingApp.data.interviewer_contact || ''}
+                  value={editingApp?.data.interviewer_contact || ''}
                   className='w-full bg-slate-700 border border-slate-600 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus-border-blue-500'
                 />
               </div>
@@ -345,8 +397,10 @@ export const ApplicationTrackerPage = () => {
                 <button
                   type='submit'
                   className='flex-1 bg-emerald-600 text-emerald-200 px-4 py-2 rounded-sm text-sm hover:bg-emerald-500'
-                  disabled={loading}
-                >{editingApp.id ? 'Update' : 'Create'}</button>
+                  disabled={!selectedJobId}
+                >
+                  {editingApp.id ? 'Update' : 'Create'}
+                </button>
                 <button
                   type='button'
                   onClick={() => setEditingApp(null)}
@@ -378,7 +432,7 @@ export const ApplicationTrackerPage = () => {
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )
+    }
   );
 };
