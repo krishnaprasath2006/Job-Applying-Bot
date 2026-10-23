@@ -309,7 +309,8 @@ describe('ApplicationTrackerPage', () => {
     expect(cancelDelete).not.toBeNull();
     await userEvent.click(cancelDelete);
 
-    const calls = vi.mocked(global.fetch).mock.calls;
+    // Type assertions needed for TypeScript strict mode
+    const calls = vi.mocked(global.fetch).mock.calls as [string, { method?: string }][];
     const deleteCalls = calls.filter(([input]) => {
       const url = String(input);
       const method = input?.method ?? 'GET';

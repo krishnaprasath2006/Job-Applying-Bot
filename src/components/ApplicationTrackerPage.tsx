@@ -232,6 +232,7 @@ const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationForm
                 <button
                   onClick={() => setShowDeleteConfirm(app.id)}
                   className='underline text-red-400 cursor-pointer'
+                  data-testid="delete-button"
                 >Delete</button>
               </div>
             </div>
@@ -419,7 +420,7 @@ const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationForm
       {/* Delete confirmation */}
       {showDeleteConfirm !== null && (
         <div className='fixed inset-0 bg-slate-900/80 backdrop-blur-z flex items-center justify-center z-50' role='dialog' aria-modal='true'>
-          <div className='bg-slate-800 rounded-lg p-8 w max-w-md border border-slate-700'>
+          <div className='bg-slate-800 rounded-lg p-8 w max-w-md border border-slate-700' data-testid="confirm-delete">
             <h2 className='text-xl font-bold text-slate-100 mb-4'>Confirm Delete</h2>
             <p className='text-slate-400 mb-6'>Are you sure you want to delete this application?</p>
             <div className='flex gap-3'>
