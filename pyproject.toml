@@ -24,7 +24,7 @@ dependencies = [
     "pydantic-settings>=2.0.0",
     # Resume text extraction (src/resumes/)
     "pdfplumber>=0.10.0",
-    "python-docx>=1.1.0",
+    "python-docx==1.2.0",
 ]
 
 [project.optional-dependencies]

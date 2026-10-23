@@ -21,6 +21,7 @@ Run it with::
 
 from __future__ import annotations
 
+
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, AsyncIterator, Optional
@@ -79,6 +80,8 @@ def create_app(
             settings=resolved, database_path=database_path
         )
         application.state.assistant = assistant
+
+
         log.info(
             "api_started",
             extra={
