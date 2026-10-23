@@ -54,12 +54,7 @@ export const ApplicationTrackerPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [view, setView] = useState<'board' | 'list'>('list');
   const [selectedApp, setSelectedApp] = useState<ApplicationSummary | null>(null);
-<<<<<<< HEAD
-  const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationFormData } | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
-=======
 const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationFormData } | null>(null);  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
->>>>>>> origin/arena/9c1ad5f7-job-applying-bot
   const [jobs, setJobs] = useState<JobSummary[]>([]);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [selectedJob, setSelectedJob] = useState<JobSummary | null>(null);
@@ -85,14 +80,9 @@ const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationForm
       WITHDRAWN: 'bg-slate-500/20 text-slate-400',
     };
     return colors[status] || 'bg-slate-500/20 text-slate-400';
-<<<<<<< HEAD
-  }
-
-=======
   };
 
   // Load applications from API
->>>>>>> origin/arena/9c1ad5f7-job-applying-bot
   const loadApplications = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -108,13 +98,6 @@ const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationForm
     }
   }, []);
 
-<<<<<<< HEAD
-  useEffect(() => {
-    loadApplications();
-  }, [loadApplications]);
-
-=======
->>>>>>> origin/arena/9c1ad5f7-job-applying-bot
   // Load available jobs from the jobs API
   useEffect(() => {
     api.get('/jobs').then((result: any) => {
@@ -201,10 +184,6 @@ const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationForm
     }
   }, [loadApplications]);
 
-<<<<<<< HEAD
-  // Determine which section to render
-  const hasContent = applications.length > 0;
-=======
   useEffect(() => {
     loadApplications();
   }, [loadApplications]);
@@ -262,7 +241,6 @@ const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationForm
       </div>
     );
   }
->>>>>>> origin/arena/9c1ad5f7-job-applying-bot
 
   return (
     <div className='min-h-screen p-4 sm:p-6 lg:p-8'>
@@ -285,38 +263,6 @@ const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationForm
           <option value='INTERVIEW'>INTERVIEW</option>
           <option value='OFFER'>OFFER</option>
           <option value='REJECTED'>REJECTED</option>
-<<<<<<< HEAD
-        </select>
-      </div>
-      {/* Loading state */}
-      {loading && <div data-testid='loading'>Loading applications...</div>}
-      {error && (
-        <div className='mb-4' role='alert'>
-          <span data-testid='error'>Failed to load applications: {error}</span>
-          <button onClick={loadApplications} className='mt-2 bg-emerald-600 text-emerald-200 px-3 py-1 rounded-sm text-sm'>Retry</button>
-        </div>
-      )}
-      {applications.length === 0 && <div className='mb-4' role='alert' data-testid='empty-state'>No applications found</div>}
-      {applications.length > 0 && (
-        <div className='space-y-4'>
-          {searchFilteredApplications.map((app) => {
-            const statusColorVal = statusColor(app.status);
-            return (
-              <div key={app.id} className='p-4 rounded-lg bg-slate-800 border border-slate-700'>
-                <div className='flex flex-col gap-2'>
-                  <h3 className='text-sm font-medium' data-testid='job-title'>{app.job?.title || 'Unknown Job'}</h3>
-                  <p className='text-xs text-slate-400' data-testid='job-company'>{app.job?.company || ''}</p>
-                  <span className={statusColorVal} data-testid='status-badge'>{app.status}</span>
-                  <div className='text-xs text-slate-500'>
-                    created {app.created_at && new Date(app.created_at).toLocaleDateString()}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-=======
           <option value='WITHDRAWN'>WITHDRAWN</option>
         </select>
       </div>
@@ -330,7 +276,6 @@ const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationForm
         />
       </div>
       {section}
->>>>>>> origin/arena/9c1ad5f7-job-applying-bot
       {/* Create form button */}
       {editingApp === null && (!loading || applications.length > 0) && (
         <div
@@ -338,11 +283,7 @@ const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationForm
           style={{ display: 'inline-block' }}
           onClick={() => setEditingApp({
             id: '',
-<<<<<<< HEAD
-            data: {
-=======
  data: {
->>>>>>> origin/arena/9c1ad5f7-job-applying-bot
               status: 'SAVED' as ApplicationStatus,
               notes: '',
               application_date: null,
@@ -352,17 +293,7 @@ const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationForm
             }
           })}
         >
-<<<<<<< HEAD
-          <button
-            data-testid='create-button'
-            onClick={() => setEditingApp('new', {})}
-            className='underline text-blue-400 cursor-pointer'
-          >
-            Create new application
-          </button>
-=======
           + Create new application
->>>>>>> origin/arena/9c1ad5f7-job-applying-bot
         </div>
       )}
       {/* Edit form */}
@@ -370,136 +301,6 @@ const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationForm
         <div className='fixed inset-0 bg-slate-900/60 backdrop-blur-z flex items-center justify-center z-50' role='dialog' aria-modal='true'>
           <div className='bg-slate-800 rounded-lg p-6 w-full max-w-md border border-slate-700'>
             <h2 className='text-xl font-bold text-slate-100 mb-4'>{editingApp.id ? 'Edit Application' : 'Create Application'}</h2>
-<<<<<<< HEAD
-            <form>
-              <div className='mb-4'>
-                <label className='block text-sm font-medium text-slate-300 mb-2'>Status</label>
-                <select
-                  value={editingApp.data.status}
-                  onChange={(e) =>
-                    setEditingApp({
-                      id: editingApp.data.id,
-                      data: { ...editingApp.data, status: e.target.value },
-                    })
-                  }
-                  className='w-full bg-slate-900 border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus-border-blue-500'
-                >
-                  <option value='SAVED'>SAVED</option>
-                  <option value='INTERESTED'>INTERESTED</option>
-                  <option value='PREPARING'>PREPARING</option>
-                  <option value='APPLIED'>APPLIED</option>
-                  <option value='ASSESSMENT'>ASSESSMENT</option>
-                  <option value='INTERVIEW'>INTERVIEW</option>
-                  <option value='OFFER'>OFFER</option>
-                  <option value='REJECTED'>REJECTED</option>
-                  <option value='WITHDRAWN'>WITHDRAWN</option>
-                </select>
-              </div>
-              <div className='mb-4'>
-                <label className='block text-sm font-medium text-slate-300 mb-2'>Company</label>
-                <input
-                  value={editingApp.data.company || ''}
-                  onChange={(e) =>
-                    setEditingApp({
-                      id: editingApp.data.id,
-                      data: { ...editingApp.data, company: e.target.value },
-                    })
-                  }
-                  className='w-full bg-slate-900 border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus-border-blue-500'
-                  placeholder='Company'
-                />
-              </div>
-              <div className='mb-4'>
-                <label className='block text-sm font-medium text-slate-300 mb-2'>Title</label>
-                <input
-                  value={editingApp.data.title || ''}
-                  onChange={(e) =>
-                    setEditingApp({
-                      id: editingApp.data.id,
-                      data: { ...editingApp.data, title: e.target.value },
-                    })
-                  }
-                  className='w-full bg-slate-900 border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus-border-blue-500'
-                  placeholder='Title'
-                />
-              </div>
-              <div className='mb-4'>
-                <label className='block text-sm font-medium text-slate-300 mb-2'>
-                  Application Date
-                </label>
-                <input
-                  type='date'
-                  value={editingApp.data.application_date || ''}
-                  onChange={(e) =>
-                    setEditingApp({
-                      id: editingApp.data.id,
-                      data: { ...editingApp.data, application_date: e.target.value },
-                    })
-                  }
-                  className='w-full bg-slate-900 border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus-border-blue-500'
-                />
-              </div>
-              <div className='mb-4'>
-                <label className='block text-sm font-medium text-slate-300 mb-2'>
-                  Next Follow-up
-                </label>
-                <input
-                  type='date'
-                  value={editingApp.data.next_followup || ''}
-                  onChange={(e) =>
-                    setEditingApp({
-                      id: editingApp.data.id,
-                      data: { ...editingApp.data, next_followup: e.target.value },
-                    })
-                  }
-                  className='w-full bg-slate-900 border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus-border-blue-500'
-                />
-              </div>
-              <div className='mb-4'>
-                <label className='block text-sm font-medium text-slate-300 mb-2'>
-                  Interviewer Name
-                </label>
-                <input
-                  value={editingApp.data.interviewer_name || ''}
-                  onChange={(e) =>
-                    setEditingApp({
-                      id: editingApp.data.id,
-                      data: { ...editingApp.data, interviewer_name: e.target.value },
-                    })
-                  }
-                  className='w-full bg-slate-900 border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus-border-blue-500'
-                  placeholder='Interviewer Name'
-                />
-              </div>
-              <div className='mb-4'>
-                <label className='block text-sm font-medium text-slate-300 mb-2'>
-                  Interviewer Contact
-                </label>
-                <input
-                  value={editingApp.data.interviewer_contact || ''}
-                  onChange={(e) =>
-                    setEditingApp({
-                      id: editingApp.data.id,
-                      data: { ...editingApp.data, interviewer_contact: e.target.value },
-                    })
-                  }
-                  className='w-full bg-slate-900 border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus-border-blue-500'
-                  placeholder='Interviewer Contact'
-                />
-              </div>
-              <div className='mb-4'>
-                <label className='block text-sm font-medium text-slate-300 mb-2'>Notes</label>
-                <textarea
-                  value={editingApp.data.notes || ''}
-                  onChange={(e) =>
-                    setEditingApp({
-                      id: editingApp.data.id,
-                      data: { ...editingApp.data, notes: e.target.value },
-                    })
-                  }
-                  className='w-full bg-slate-900 border-slate-800 rounded-lg h-32 px-3 py-2 text-sm text-slate-300 focus:outline-none focus-border-blue-500'
-                  placeholder='Notes'
-=======
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -596,43 +397,10 @@ const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationForm
                   name='interviewer_contact'
                   value={editingApp?.data.interviewer_contact || ''}
                   className='w-full bg-slate-700 border border-slate-600 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus-border-blue-500'
->>>>>>> origin/arena/9c1ad5f7-job-applying-bot
                 />
               </div>
               <div className='flex gap-3'>
                 <button
-<<<<<<< HEAD
-                  type='button'
-                  onClick={() => setEditingApp(null)}
-                  className='flex-1 bg-slate-600 text-slate-300 px-4 py-2 rounded-sm text-sm hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500'
-                >
-                  Cancel
-                </button>
-                <button
-                  type='button'
-                  onClick={() => {
-                    updateApp(editingApp.id!, {
-                      status: editingApp.data.status,
-                      notes: editingApp.data.notes,
-                      application_date: editingApp.data.application_date,
-                      next_followup: editingApp.data.next_followup,
-                      interviewer_name: editingApp.data.interviewer_name,
-                      interviewer_contact: editingApp.data.interviewer_contact,
-                    });
-                    setEditingApp(null);
-                  }}
-                  className='flex-1 bg-emerald-600 text-emerald-200 px-4 py-2 rounded-sm text-sm hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-300'
-                >
-                  Save
-                </button>
-              </div>
-            </form>
-              </div>
-            </div>
-          </div>
-        )
-
-=======
                   type='submit'
                   className='flex-1 bg-emerald-600 text-emerald-200 px-4 py-2 rounded-sm text-sm hover:bg-emerald-500'
                   disabled={!selectedJobId}
@@ -674,4 +442,3 @@ const [editingApp, setEditingApp] = useState<{ id: string; data: ApplicationForm
     </div>
   );
 };
->>>>>>> origin/arena/9c1ad5f7-job-applying-bot
