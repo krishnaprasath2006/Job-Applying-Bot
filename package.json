@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig.test.json --noEmit",
     "verify": "npm run typecheck && npm run build",
     "test:backend": "python -m pytest",
     "test:frontend": "vitest run",
