@@ -1,16 +1,21 @@
 /// <reference types="vitest" />
 // @ts-nocheck
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ApplicationTrackerPage } from '../ApplicationTrackerPage';
 
-beforeEach(() => {
-  vi.clearAllMocks();
+// Mock fetch at global level - the api client uses fetch under the hood
+// This mock persists for the entire test suite
+beforeAll(() => {
+  global.fetch = vi.fn().mockResolvedValue({
+    ok: true,
+    json: async () => new Promise(resolve => setTimeout(() => resolve({ applications: [] }), 200)),
+  });
 });
 
 describe('ApplicationTrackerPage', () => {
-  // Each test sets up its own fetch mock
+  // Each test sets up its own fetch mock directly
 
   it('loading state appears during a pending request', async () => {
     const { container } = render(<ApplicationTrackerPage />);
@@ -25,7 +30,7 @@ describe('ApplicationTrackerPage', () => {
   });
 
   it('returned application records display their actual job title/company', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => new Promise(resolve => setTimeout(() => resolve({
         applications: [
@@ -53,7 +58,7 @@ describe('ApplicationTrackerPage', () => {
   });
 
   it('empty state appears when no records exist', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => new Promise(resolve => setTimeout(() => resolve({ applications: [] }), 200)),
     });
@@ -67,7 +72,9 @@ describe('ApplicationTrackerPage', () => {
   });
 
   it('API error and retry work', async () => {
-    global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+      new Error('Network error')
+    );
 
     const { container } = render(<ApplicationTrackerPage />);
     await new Promise(resolve => setTimeout(resolve, 300));
@@ -86,7 +93,7 @@ describe('ApplicationTrackerPage', () => {
   });
 
   it('searching by title changes visible results', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => new Promise(resolve => setTimeout(() => resolve({
         applications: [
@@ -117,7 +124,7 @@ describe('ApplicationTrackerPage', () => {
   });
 
   it('searching by company changes visible results', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => new Promise(resolve => setTimeout(() => resolve({
         applications: [
@@ -148,7 +155,7 @@ describe('ApplicationTrackerPage', () => {
   });
 
   it('status filtering changes visible results', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => new Promise(resolve => setTimeout(() => resolve({
         applications: [
@@ -169,7 +176,7 @@ describe('ApplicationTrackerPage', () => {
 
     const select = container.querySelector('select');
     expect(select).not.toBeNull();
-    await userEvent.type(select, 'APPLIED');
+    await userEvent.selectOptions(select as HTMLSelectElement, ['APPLIED']);
 
     await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -178,7 +185,7 @@ describe('ApplicationTrackerPage', () => {
   });
 
   it('job selection uses a real job ID from the jobs response', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => new Promise(resolve => setTimeout(() => resolve({
         jobs: [
@@ -199,12 +206,10 @@ describe('ApplicationTrackerPage', () => {
   });
 
   it('creation is blocked until a valid job is selected', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => new Promise(resolve => setTimeout(() => resolve({
-        jobs: [
-          { id: '1', title: 'Software Engineer', company: 'Tech Corp' }
-        ],
+        jobs: [{ id: '1', title: 'Software Engineer', company: 'Tech Corp' }],
         applications: []
       }), 200)),
     });
@@ -219,14 +224,18 @@ describe('ApplicationTrackerPage', () => {
     expect(submitButton).toBeTruthy();
   });
 
-  it('creation sends the selected job ID', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+  it('creation sends the selected job ID via API', async () => {
+    const mockPost = vi.fn().mockResolvedValue({
       ok: true,
+      json: async () => new Promise(resolve => setTimeout(() => resolve({ id: '1' }), 200)),
+    });
+
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      // @ts-expect-error - mock setup
+      post: mockPost,
       json: async () => new Promise(resolve => setTimeout(() => resolve({
-        jobs: [
-          { id: '1', title: 'Software Engineer', company: 'Tech Corp' },
-          { id: '2', title: 'Data Scientist', company: 'Data LLC' }
-        ],
+        jobs: [{ id: '1', title: 'Software Engineer', company: 'Tech Corp' }],
         applications: []
       }), 200)),
     });
@@ -236,29 +245,58 @@ describe('ApplicationTrackerPage', () => {
 
     const jobSelect = container.querySelector('select[name="job_id"]');
     expect(jobSelect).not.toBeNull();
-    await userEvent.selectOptions(jobSelect, ['1']);
+    await userEvent.selectOptions(jobSelect as HTMLSelectElement, ['1']);
 
     const form = container.querySelector('form');
     expect(form).not.toBeNull();
 
-    // The create button is disabled until a valid job is selected,
-    // then becomes enabled but onSubmit prevents default
     const createBtn = form.querySelector('button[type="submit"]');
     expect(createBtn).not.toBeNull();
 
-    // Clicking the button prevents form submission (onSubmit = e.preventDefault())
     await userEvent.click(createBtn);
 
-    // Verify job selection was successful
+    expect(mockPost).toHaveBeenCalled();
+
+    const fetchCalls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
+    const postCall = fetchCalls.find(([url]) => String(url).includes('/applications'));
+    expect(postCall).toBeDefined();
+    if (postCall) {
+      const [, options] = postCall;
+      expect(options.method).toBe('POST');
+      if (options.body) {
+        const body = JSON.parse(options.body as string);
+        expect(body.job_id).toBe('1');
+      }
+    }
+
     expect(jobSelect.value).toBe('1');
   });
 
-  it('confirmed deletion makes the intended API request', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+  it('confirmed deletion makes the intended API request with DELETE method', async () => {
+    // Mock jobs API first
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => new Promise(resolve => setTimeout(() => resolve({
         jobs: [{ id: '1', title: 'Software Engineer', company: 'Tech Corp' }],
-        applications: [{ id: '1', job_id: '1', status: 'APPLIED', job: { id: '1', title: 'Software Engineer', company: 'Tech Corp' } }]
+        applications: []
+      }), 200)),
+    });
+
+    // Mock applications API
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      ok: true,
+      json: async () => new Promise(resolve => setTimeout(() => resolve({
+        jobs: [{ id: '1', title: 'Software Engineer', company: 'Tech Corp' }],
+        applications: [
+          {
+            id: '1', job_id: '1', status: 'APPLIED',
+            application_date: '2024-01-15', created_at: '2024-01-15T10:00:00Z',
+            updated_at: '2024-01-15T10:00:00Z', next_followup: null,
+            interviewer_name: null, interviewer_contact: null, notes: null,
+            resume_id: null, cover_letter_draft_id: null, source_url: null,
+            source_job_metadata: {}, job: { id: '1', title: 'Software Engineer', company: 'Tech Corp' }
+          }
+        ]
       }), 200)),
     });
 
@@ -278,20 +316,43 @@ describe('ApplicationTrackerPage', () => {
     await userEvent.click(confirmDelete);
 
     await new Promise(resolve => setTimeout(resolve, 100));
-    const calls = vi.mocked(global.fetch).mock.calls;
-    const deleteCalls = calls.filter(([input]) => {
+
+    const fetchCalls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
+    const deleteCalls = fetchCalls.filter(([input]) => {
       const url = String(input);
       return url.includes('/applications/1');
     });
+
     expect(deleteCalls).toHaveLength(1);
+    const [url, options] = deleteCalls[0];
+    expect(options.method).toBe('DELETE');
   });
 
   it('cancelled deletion does not invoke the delete API', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    // Mock jobs API
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => new Promise(resolve => setTimeout(() => resolve({
         jobs: [{ id: '1', title: 'Software Engineer', company: 'Tech Corp' }],
-        applications: [{ id: '1', job_id: '1', status: 'APPLIED', job: { id: '1', title: 'Software Engineer', company: 'Tech Corp' } }]
+        applications: []
+      }), 200)),
+    });
+
+    // Mock applications API
+    ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      ok: true,
+      json: async () => new Promise(resolve => setTimeout(() => resolve({
+        jobs: [{ id: '1', title: 'Software Engineer', company: 'Tech Corp' }],
+        applications: [
+          {
+            id: '1', job_id: '1', status: 'APPLIED',
+            application_date: '2024-01-15', created_at: '2024-01-15T10:00:00Z',
+            updated_at: '2024-01-15T10:00:00Z', next_followup: null,
+            interviewer_name: null, interviewer_contact: null, notes: null,
+            resume_id: null, cover_letter_draft_id: null, source_url: null,
+            source_job_metadata: {}, job: { id: '1', title: 'Software Engineer', company: 'Tech Corp' }
+          }
+        ]
       }), 200)),
     });
 
@@ -301,7 +362,8 @@ describe('ApplicationTrackerPage', () => {
     const deleteButtons = container.querySelectorAll('[data-testid="delete-button"]');
     expect(deleteButtons.length).toBeGreaterThan(0);
 
-    deleteButtons[0].click();
+    const firstDeleteBtn = deleteButtons[0];
+    firstDeleteBtn.click();
 
     await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -309,13 +371,15 @@ describe('ApplicationTrackerPage', () => {
     expect(cancelDelete).not.toBeNull();
     await userEvent.click(cancelDelete);
 
-    // Type assertions needed for TypeScript strict mode
-    const calls = vi.mocked(global.fetch).mock.calls as [string, { method?: string }][];
-    const deleteCalls = calls.filter(([input]) => {
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const fetchCalls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
+    const deleteCalls = fetchCalls.filter(([input]) => {
       const url = String(input);
-      const method = input?.method ?? 'GET';
+      const method = (input as any)?.method;
       return url.includes('/applications/1') && method === 'DELETE';
     });
+
     expect(deleteCalls).toHaveLength(0);
   });
 });
