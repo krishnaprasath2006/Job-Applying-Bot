@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [arena/9c1ad5f7-job-applying-bot]
+  push:
+    branches: [arena/9c1ad5f7-job-applying-bot]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install pip --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run Python syntax check
+        run: python -m py_compile src/assistant/app.py
+
+      - name: Run Python test suite
+        run: python -m pytest tests/ -q
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Run frontend typecheck
+        run: npm run typecheck
+
+      - name: Run frontend build
+        run: npm run build
+
+      - name: Run frontend tests
+        run: npm run test:frontend
