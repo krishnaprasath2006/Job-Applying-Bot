@@ -74,7 +74,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {dryRun ? 'Dry Run (Simulated)' : 'Live Apply'}
             </span>
             <span className="text-slate-600">•</span>
-            <span className="text-blue-400 font-mono">Port 3000 Verified</span>
+            <span className="text-blue-400 font-mono">Port 5173 Verified</span>
           </div>
         </div>
 
