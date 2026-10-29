@@ -12,7 +12,7 @@ from pathlib import Path
 
 from core.errors import ConfigurationError
 
-__all__ = ["Paths", "get_paths", "reset_paths"]
+__all__ = ["Paths", "get_paths", "reset_paths", "set_data_root"]
 
 
 class Paths:
@@ -104,3 +104,47 @@ def reset_paths() -> None:
     """Drop the cache. Used by tests that redirect the project root."""
     global _CACHE
     _CACHE = None
+
+
+def set_data_root(root: Path) -> None:
+    """Set the data root path used by ``get_paths()`` when ``ASSISTANT_DESKTOP_DATA_ROOT`` is active.
+
+    When called, subsequent calls to :func:`get_paths` will return a ``Paths`` instance
+    rooted under ``root`` rather than the default project-relative data directory.
+    This mirrors the behaviour of the ``ASSISTANT_DESKTOP_DATA_ROOT`` environment variable
+    on Windows per-user per-machine directories.
+
+    The ``root`` argument is the path to the data root directory (e.g. the value of
+    ``ASSISTANT_DESKTOP_DATA_ROOT``).  After calling this function, ``get_paths()``
+    returns a ``Paths`` instance whose ``data``, ``profile_dir``, ``resume_dir``,
+    ``db``, ``logs``, and ``exports`` attributes are rooted under ``root`` while the
+    ``root`` attribute remains the project root.
+    """
+    global _CACHE
+    # Determine the project root using the same logic as Paths._detect_root
+    here = Path(__file__).resolve()
+    for parent in here.parents:
+        if (parent / "src").is_dir() and (parent / "config.py").is_file():
+            project_root = parent
+            break
+    else:
+        project_root = Path.cwd()
+
+    # Create a Paths instance with the project root, then override all paths
+    paths = Paths(project_root)
+    if root is not None:
+        paths.data = root / "data"
+        paths.profile_dir = root / "profile"
+        paths.resume_dir = root / "resumes"
+        # logs is under data root
+        paths.logs = root / "logs"
+        # exports is under data root
+        paths.exports = root / "exports"
+    else:
+        paths.data = project_root / "data"
+        paths.profile_dir = project_root / "data" / "profile"
+        paths.resume_dir = project_root / "data" / "resumes"
+        paths.logs = project_root / "logs"
+        paths.exports = project_root / "data" / "exports"
+
+    _CACHE = paths
