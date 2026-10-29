@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from api.routes import jobs, profile, resumes, status as status_routes
+from api.routes import jobs, profile, resumes, status as status_routes, application
 
 __all__ = ["api_router", "health_router"]
 
@@ -18,6 +18,7 @@ api_router.include_router(status_routes.router)
 api_router.include_router(profile.router)
 api_router.include_router(resumes.router)
 api_router.include_router(jobs.router)
+api_router.include_router(application.router)
 
 #: Liveness at the root, so ``GET /`` answers before the API prefix is known.
 health_router = APIRouter()

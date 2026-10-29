@@ -19,6 +19,7 @@ from core.settings import AssistantSettings, load_settings
 from database.connection import Database, connect
 from database.repositories.documents import DocumentRepository, EvidenceRepository
 from database.repositories.jobs import JobRepository
+from database.repositories.application_repository import ApplicationRepository
 from database.repositories.model_runs import ModelRunRepository
 from database.repositories.profiles import ProfileRepository
 from database.repositories.resumes import ResumeRepository
@@ -82,6 +83,10 @@ class Assistant:
     @property
     def job_repository(self) -> JobRepository:
         return self._repo("jobs", JobRepository)
+
+    @property
+    def application_repository(self) -> ApplicationRepository:
+        return self._repo("applications", ApplicationRepository)
 
     @property
     def model_run_repository(self) -> ModelRunRepository:
