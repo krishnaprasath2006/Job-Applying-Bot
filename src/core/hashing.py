@@ -39,8 +39,13 @@ def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def sha256_text(text: str) -> str:
-    """Return the hex SHA-256 digest of ``text`` encoded as UTF-8."""
+def sha256_text(text: str | bytes) -> str:
+    """Return the hex SHA-256 digest of ``text`` encoded as UTF-8.
+
+    Accepts either a string (encoded to UTF-8) or pre-encoded bytes.
+    """
+    if isinstance(text, bytes):
+        return sha256_bytes(text)
     return sha256_bytes(text.encode("utf-8"))
 
 
