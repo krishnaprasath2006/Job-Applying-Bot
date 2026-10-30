@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { FileText, CheckCircle, Plus, Upload, Download, Eye, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { FileText, CheckCircle, Plus, Upload, Download, Eye, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 import type { Resume } from '../types/api.js';
 import { resumeApi } from '../lib/api/index.js';
 
@@ -8,6 +8,12 @@ interface NewResumeInput {
   targetRole: string;
   format: 'PDF' | 'DOCX' | 'TXT' | 'MD';
   contentSnippet: string;
+}
+
+interface UploadProgress {
+  progress: number;
+  status: 'idle' | 'uploading' | 'success' | 'error';
+  error?: string;
 }
 
 interface ResumeVaultTabProps {
@@ -26,12 +32,19 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedResume, setSelectedResume] = useState<Resume | null>(null);
-
   const [name, setName] = useState('');
   const [targetRole, setTargetRole] = useState('Full Stack Software Engineer');
   const [format, setFormat] = useState<'PDF' | 'DOCX' | 'TXT' | 'MD'>('PDF');
   const [contentSnippet, setContentSnippet] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress>({ progress: 0, status: 'idle' });
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load resumes when prop changes
+  useEffect(() => {
+    // resumes are passed from parent, no need to fetch here
+  }, [resumes]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,10 +54,58 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
       await onAddResume({ name: name.trim(), targetRole, format, contentSnippet });
       setShowAddModal(false);
       setName('');
+      setTargetRole('Full Stack Software Engineer');
+      setFormat('PDF');
       setContentSnippet('');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadProgress({ progress: 0, status: 'uploading' });
+
+    // Upload the file using the new multipart endpoint
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('variant', '');
+    formData.append('role_focus', '');
+    formData.append('skills', '');
+
+    resumeApi.upload(file, 'primary').then(
+      async (resume) => {
+        setUploadProgress({ progress: 100, status: 'success' });
+        // Auto-activate the uploaded resume and add as a variant
+        setShowUpload(true);
+        // We'll handle this after the user confirms
+      },
+      (error) => {
+        setUploadProgress({
+          progress: 0,
+          status: 'error',
+          error: error instanceof Error ? error.message : 'Unknown upload error',
+        });
+      }
+    );
+
+    // Reset file input
+    fileInputRef.current?.dispatchEvent(new Event('reset'));
+  };
+
+  const handleUploadConfirm = async () => {
+    setShowUpload(false);
+    // After upload, we have the resume in state - we need to fetch it
+    // and then add it as a variant
+    setShowAddModal(true);
+  };
+
+  const handleUploadCancel = () => {
+    setShowUpload(false);
+    // Reset file input
+    fileInputRef.current?.dispatchEvent(new Event('reset'));
   };
 
   return (
@@ -63,9 +124,15 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
         </div>
 
         <button
+          onClick={() => setShowUpload(true)}
+          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/20 cursor-pointer">
+          <Upload className="w-4 h-4" />
+          <span>Upload Resume</span>
+        </button>
+
+        <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/20 cursor-pointer"
-        >
+          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/20 cursor-pointer">
           <Plus className="w-4 h-4" />
           <span>Add Variant (Server Path)</span>
         </button>
@@ -89,7 +156,9 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
                     <FileText className="w-5 h-5" />
                   </span>
                   <div>
-                    <h3 className="font-bold text-white text-base">{resume.variant || resume.filename || 'Unnamed'}</h3>
+                    <h3 className="font-bold text-white text-base">
+                      {resume.variant || resume.filename || 'Unnamed'}
+                    </h3>
                     <div className="text-xs text-slate-400">
                       {resume.filename} • {resume.file_type}
                     </div>
@@ -103,8 +172,7 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
                 ) : (
                   <button
                     onClick={() => onActivateResume(resume.id)}
-                    className="px-3 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 cursor-pointer"
-                  >
+                    className="px-3 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 cursor-pointer">
                     Set as Active
                   </button>
                 )}
@@ -113,11 +181,15 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
               <div className="space-y-2 text-xs text-slate-300 mt-2">
                 <div className="flex items-center justify-between text-slate-400">
                   <span>Target Role Focus:</span>
-                  <span className="font-semibold text-slate-200">{resume.role_focus || 'Not specified'}</span>
+                  <span className="font-semibold text-slate-200">
+                    {resume.role_focus || 'Not specified'}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-slate-400">
                   <span>Extracted Skills Count:</span>
-                  <span className="font-semibold text-blue-400">{resume.skills?.length || 0} Verified</span>
+                  <span className="font-semibold text-blue-400">
+                    {resume.skills?.length || 0} Verified
+                  </span>
                 </div>
                 <p className="text-xs text-slate-400 pt-2 border-t border-slate-800/80 leading-relaxed">
                   {resume.raw_text?.slice(0, 200) || 'No content preview'}
@@ -132,8 +204,7 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
 
               <button
                 onClick={() => setSelectedResume(resume)}
-                className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 font-medium cursor-pointer"
-              >
+                className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 font-medium cursor-pointer">
                 <Eye className="w-3.5 h-3.5" />
                 <span>Preview Parsed Text</span>
               </button>
@@ -142,21 +213,36 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
         ))}
       </div>
 
-      {/* Preview Modal */}
-      {selectedResume && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="font-bold text-white text-base">{selectedResume.variant || selectedResume.filename} - Extracted Content</h3>
-              <button onClick={() => setSelectedResume(null)} className="text-slate-400 hover:text-white">✕</button>
-            </div>
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs text-slate-300 font-mono whitespace-pre-line max-h-80 overflow-y-auto">
-              {selectedResume.raw_text || 'No content available'}
-            </div>
-            <div className="flex justify-end">
+      {/* Upload Progress Modal */}
+      {uploadProgress.status !== 'idle' && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-8 shadow-2xl text-center space-y-4">
+            <h3 className="text-xl font-bold text-white">
+              {uploadProgress.status === 'success'
+                ? 'Resume Uploaded Successfully'
+                : 'Upload Failed'}
+              </h3>
+            {uploadProgress.status === 'uploading' && (
+              <div className="space-y-2">
+                <Loader2 className="w-6 h-6 mx-auto text-blue-500" />
+                <p className="text-slate-400">Uploading...</p>
+                <progress
+                  className="w-24 h-2 bg-slate-700 rounded-md appearance-none"
+                  max={100}
+                  value={uploadProgress.progress}
+                />
+              </div>
+            )}
+            {uploadProgress.status === 'error' && (
+              <div>
+                <AlertCircle className="w-5 h-5 text-red-400 mx-auto" />
+                <p className="text-slate-400 mt-2">{uploadProgress.error}</p>
+              </div>
+            )}
+            <div className="flex justify-end gap-2">
               <button
-                onClick={() => setSelectedResume(null)}
-                className="px-4 py-2 bg-slate-800 text-white rounded-lg text-xs"
+                onClick={() => setUploadProgress({ progress: 0, status: 'idle' })}
+                className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm"
               >
                 Close
               </button>
@@ -170,8 +256,16 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="font-bold text-white text-base">Add Resume Variant (Server Path)</h3>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white">✕</button>
+              <h3 className="font-bold text-white text-base">
+                {uploadProgress.status === 'success' ? 'Create Variant from Uploaded Resume' : 'Add Resume Variant (Server Path)'}
+
+              </h3>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                &times;
+              </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3">
@@ -211,32 +305,36 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
                 </select>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Server File Path *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="/path/to/resume.pdf (server-side path)"
-                  value={contentSnippet}
-                  onChange={(e) => setContentSnippet(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:border-blue-500 font-mono"
-                />
-                <p className="text-xs text-amber-400 mt-1">
-                  FastAPI ingest requires a server-side file path. Upload the file to the server first,
-                  then provide the absolute path here.
-                </p>
-              </div>
+              {uploadProgress.status === 'success' && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1">
+                    Uploaded Resume
+                  </label>
+                  <p className="text-slate-400 mb-2">
+                    {uploadProgress.progress > 0 ? 'Resume has been uploaded to server' : ''}
+                  </p>
+                  <p className="text-xs text-blue-400">
+                    The resume is now available in your vault. Select it to create a variant.
+                  </p>
+                </div>
+              )}
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Variant / Role Focus</label>
-                <input
-                  type="text"
-                  placeholder="e.g. AI & Machine Learning Focus"
-                  value={targetRole}
-                  onChange={(e) => setTargetRole(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500"
-                />
-              </div>
+              {!uploadProgress.status || uploadProgress.status === 'idle' && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1">Server File Path *</label>
+                  <input
+                    type="text"
+                    placeholder="/path/to/resume.pdf (server-side path)"
+                    value={contentSnippet}
+                    onChange={(e) => setContentSnippet(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:border-blue-500 font-mono"
+                  />
+                  <p className="text-xs text-amber-400 mt-1">
+                    FastAPI ingest requires a server-side file path. Upload the file to the server first,
+                    then provide the absolute path here.
+                  </p>
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs font-semibold text-slate-400 mb-1">Summary / Excerpt</label>
@@ -260,8 +358,7 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white"
-                >
+                  className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white">
                   {isSubmitting ? 'Saving...' : 'Save Variant'}
                 </button>
               </div>
@@ -269,6 +366,48 @@ export const ResumeVaultTab: React.FC<ResumeVaultTabProps> = ({
           </div>
         </div>
       )}
+
+      {/* Upload Confirmation Modal */}
+      {showUpload && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-8 shadow-2xl text-center space-y-6">
+            <h3 className="text-xl font-bold text-white">
+              Resume Uploaded Successfully
+            </h3>
+            <p className="text-slate-400 mb-4">
+              Your resume has been uploaded and is now available in your vault.
+            </p>
+            <p className="text-slate-500 text-sm mb-6">
+              You can now create a variant using this uploaded resume.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowUpload(false);
+                  setShowAddModal(true);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500">
+              Confirm
+              </button>
+              <button
+                onClick={handleUploadCancel}
+                className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm hover:bg-slate-700"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* File Upload Input - hidden */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf,.docx,.txt,.md"
+        onChange={handleFileChange}
+        className="hidden"
+      />
     </div>
   );
 };

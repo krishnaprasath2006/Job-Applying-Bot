@@ -15,7 +15,18 @@ export const resumeApi = {
   list: (candidateId: string = 'primary'): Promise<ResumeListResponse> =>
     api.get('/resumes'),
 
-  // Ingest a resume file (server-side path)
+  
+  // Upload and ingest a resume file (multipart)
+  upload: (file: File, candidateId: string = 'primary'): Promise<ResumeResponse> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('variant', '');
+    formData.append('role_focus', '');
+    formData.append('skills', '');
+    return api.postForm('/resumes/upload', formData);
+  },
+
+// Ingest a resume file (server-side path)
   ingest: (payload: ResumeIngestRequest, candidateId: string = 'primary'): Promise<ResumeResponse> =>
     api.post('/resumes', payload),
 

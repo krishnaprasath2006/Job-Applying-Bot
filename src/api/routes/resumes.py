@@ -23,7 +23,7 @@ parser that already handles it.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, status, UploadFile, File, Form
 
 from api.dependencies import AssistantDep, CandidateIdDep
 from api.schemas import (
@@ -181,3 +181,81 @@ def delete_resume(resume_id: str, assistant: AssistantDep) -> None:
     removed = assistant.resume_service.delete_resume(resume_id)
     if not removed:
         raise ResumeNotFoundError(f"no resume with id {resume_id!r}", resume_id=resume_id)
+
+@router.post(
+    "/upload",
+    response_model=ResumeResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Upload and ingest a resume file",
+    responses={
+        400: {"description": "Unsupported file type or file too large."},
+        422: {"description": "The file could not be parsed or failed validation."},
+    },
+)
+async def upload_resume(
+    assistant: AssistantDep,
+    candidate_id: CandidateIdDep,
+    file: UploadFile = File(...,
+        description="Resume file to upload (PDF, DOCX, TXT, MD)"),
+    variant: Optional[str] = Form(default=None, max_length=200),
+    role_focus: Optional[str] = Form(default=None, max_length=200),
+    skills: Optional[str] = Form(default=None, max_length=200),
+) -> ResumeResponse:
+    """Upload and ingest a resume file.
+
+    Accepts a multipart file upload, validates type/size, saves to the
+    data directory with a safe generated filename, computes content hash,
+    and runs the full ingestion pipeline. Returns the stored resume record.
+
+    This is the preferred way to add new resumes from the client — the backend
+    generates the storage path so callers do not need to know server-side paths.
+    """
+    from core.paths import get_paths
+    from core.errors import ResumeValidationError
+    from core.hashing import sha256_file
+    from resumes.hashing import SUPPORTED_SUFFIXES, MAX_RESUME_BYTES
+    from pathlib import Path
+
+    paths = get_paths()
+    data_dir = paths.get("resumes", {}).get("raw", Path("data/resumes/raw"))
+    Path(data_dir).mkdir(parents=True, exist_ok=True)
+
+    # Read the uploaded file bytes
+    contents = await file.read()
+
+    # Determine file type from suffix
+    suffix = Path(file.filename).suffix.lower() if file.filename else ''
+    file_type = SUPPORTED_SUFFIXES.get(suffix)
+    if file_type is None:
+        raise HTTPException(
+            status_code=400,
+            detail=f"unsupported resume file type: {suffix}. Supported types: {list(SUPPORTED_SUFFIXES.keys())}"
+        )
+
+    # Validate size
+    if len(contents) > MAX_RESUME_BYTES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"resume file exceeds the maximum allowed size ({MAX_RESUME_BYTES // (1024*1024)}MB)"
+        )
+
+    # Use a safe generated filename based on content hash
+    file_hash = sha256_file(contents)  # Using core.hashing.sha256_file
+    safe_filename = f"resume-{file_hash}{suffix}"
+    target_path = Path(data_dir) / safe_filename
+
+    # Write the file
+    with open(target_path, "wb") as f:
+        f.write(contents)
+
+    # Now use the existing ingest service with the saved file path
+    resume = assistant.resume_service.ingest(
+        path=str(target_path),
+        variant=variant,
+        candidate_id=candidate_id,
+        role_focus=role_focus,
+        skills=skills.split(",") if skills else None,
+    )
+
+    return ResumeResponse(resume=resume)
+

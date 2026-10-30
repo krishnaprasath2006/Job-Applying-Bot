@@ -147,6 +147,18 @@ export const api = {
     });
     return handleResponse<T>(response);
   },
+  postForm: async <T>(endpoint: string, formData: FormData): Promise<T> => {
+    const response = await fetch(buildUrl(endpoint), {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        // multipart form-data does not set Content-Type; the browser sets it automatically
+      },
+      body: formData,
+    });
+    return handleResponse<T>(response);
+  },
+
 };
 
 // Convenience method for checking if error is a specific code
